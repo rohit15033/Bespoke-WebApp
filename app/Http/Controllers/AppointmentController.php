@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\appointment;
-use App\Http\Requests\StoreappointmentRequest;
-use App\Http\Requests\UpdateappointmentRequest;
+
+use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {
@@ -14,7 +14,8 @@ class AppointmentController extends Controller
     public function index()
     {
         //
-        
+        //$appointments = appointment::latest()->get();
+        // return inertia("Appointments");
     }
 
     /**
@@ -23,14 +24,25 @@ class AppointmentController extends Controller
     public function create()
     {
         //
+
+        //return inertia("Appointments/Create");
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreappointmentRequest $request)
+    public function store(Request $request)
     {
         //
+        $fields = $request->validate([
+         
+            'customer_name' => 'required',
+            'customer_phone' => 'required'
+        ]);
+        $fields['type'] = 'pending';
+        appointment::create($fields);
+        return redirect("/appointment");
+
     }
 
     /**
@@ -52,9 +64,19 @@ class AppointmentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateappointmentRequest $request, appointment $appointment)
+    public function update(Request $request, appointment $appointment)
     {
         //
+        $fields = $request->validate([
+         
+            'customer_name' => 'required',
+            'customer_phone' => 'required'
+        ]);
+
+        $appointment->update($fields);
+        return redirect("/appointment")->with(
+            'success', 'Appointment Updated'
+        );;
     }
 
     /**
@@ -63,5 +85,9 @@ class AppointmentController extends Controller
     public function destroy(appointment $appointment)
     {
         //
+        $appointment->delete();
+        return redirect('/')->with(
+            'message', 'Post Deleted'
+        );
     }
 }
