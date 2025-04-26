@@ -4,13 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class appointment extends Model
+class Appointments extends Model
 {
-    /** @use HasFactory<\Database\Factories\AppointmentFactory> */
-    use HasFactory, SoftDeletes;
+    /** @use HasFactory<\Database\Factories\AppointmentsFactory> */
+    use HasFactory;
+
     protected $fillable = [
+        'dateTime',
         'type',
         'note',
         'customer_name',
