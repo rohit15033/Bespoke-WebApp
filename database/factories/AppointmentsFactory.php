@@ -18,11 +18,11 @@ class AppointmentsFactory extends Factory
     {
         return [
             //
-            'dateTime' => $this->faker->dateTimeBetween('-1 month', '+1 month'),
-            'type' => $this->faker->randomElement(['accepted', 'pending']),
-            'note' => $this->faker->sentence(),
-            'customer_name' => $this->faker->name(),
-            'customer_phone' => $this->faker->phoneNumber(),
+            'booking_status' => $this->faker->randomElement(['pending', 'confirmed', 'cancelled']),
+            'customer_name' => $this->faker->name,
+            'customer_phone' => $this->faker->phoneNumber,
+            'at' => $this->faker->dateTimeBetween('+1 days', '+10 days')->format('Y-m-d H:i:s'),
+            'notes' => $this->faker->optional()->sentence(),
             'created_at' => now(),
             'updated_at' => now(),
         ];

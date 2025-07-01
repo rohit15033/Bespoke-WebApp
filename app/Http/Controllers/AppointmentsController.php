@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointments;
 use Illuminate\Http\Request;
+use PhpParser\Node\Stmt\TryCatch;
 
 use function Pest\Laravel\json;
 
@@ -32,23 +33,34 @@ class AppointmentsController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        //
-      
+{
+    try {
+        // Validate incoming request
         $fields = $request->validate([
+            'booking_status' => ['required'],
             'customer_name' => ['required'],
             'customer_phone' => ['required'],
-            'type' => ['required'],
+            'at' => ['required'],
         ]);
 
-        $fields['dateTime'] = now();
+        // Create a new appointment
+        $appointment = Appointments::create($fields);
 
-        $appointments = Appointments::create($fields);
+        // Return success response
         return response()->json([
             'message' => 'Appointment created!',
-            'appointment' => $appointments
-        ]);
+            'appointment' => $appointment
+        ], 201); // 201 = Created
+
+    } catch (\Exception $e) {
+        // If any error occurs, catch it and return a failure response
+        return response()->json([
+            'message' => 'Failed to create appointment!',
+            'error' => $e->getMessage()
+        ], 400);
     }
+}
+
 
     /**
      * Display the specified resource.
@@ -69,11 +81,38 @@ class AppointmentsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Appointments $appointments)
+    public function update(Request $request, $id)
     {
-        //
-    }
 
+        $appointment = Appointments::findOrFail($id);
+        try {
+            // Validate incoming request
+            $fields = $request->validate([
+                'booking_status' => ['required'],
+                'customer_name' => ['required'],
+                'customer_phone' => ['required'],
+                'at' => ['required'],
+            ]);
+
+            // Update the appointment
+            $appointment->update($fields);
+
+            // Return success response
+            return response()->json([
+                'message' => 'Appointment updated!',
+                'appointment' => $appointment
+            ], 200); // 200 = OK
+        } catch (\Exception $e) {
+            // If any error occurs, catch it and return a failure response
+            return response()->json([
+                'message' => 'Failed to update appointment!',
+                'error' => $e->getMessage()
+            ], 400);
+        }
+
+
+    }
+    
     /**
      * Remove the specified resource from storage.
      */
