@@ -21,28 +21,28 @@ class Appointments extends Model
 
     ];
 
-    public static function getAppointmentList($filter){
+    public static function getAppointmentList($payload){
         $query = self::query();
-
-
-        foreach ($filter as $key => $value) {
-            if (!is_array($value)) {
-                $query->where($key, $value);
-                continue;
-            }
-
-            foreach($value as $subKey => $subValue) {
-                match ($subKey) {
-                    '_contains ' => $query->where($key, 'like', '%' . $subValue . '%'),
-                    '_starts_with' => $query->where($key, 'like', $subValue . '%'),
-                    '_ends_with' => $query->where($key, 'like', '%' . $subValue),
-                    default => null,
-                };
-            }
+        if (isset($payload['customer_name'])) {
+            $query->where('customer_name', 'like', '%' . $payload['customer_name'] . '%');
         }
-        return $query->get();
+        if (isset($payload['customer_phone'])) {
+            $query->where('customer_phone', 'like', '%' . $payload['customer_phone'] . '%');
+        }
+        if (isset($payload['booking_status'])) {
+            $query->where('booking_status', $payload['booking_status']);
+        }
+        if (isset($payload['fromAt'])) {
+            $query->where('at', '>=', $payload['fromAt']);
+        }
+        if (isset($payload['toAt'])) {
+            $query->where('at', '<=', $payload['toAt']);
+        }
+        // $sort = $payload['sort'] ?? 'at';
+        // $limit = $payload['limit'] ?? 5;
 
-        
+        // return $query->orderBy($sort)->paginate($limit);
+        return $query->get(); // Return all appointments sorted by 'at' field
     }
 
 

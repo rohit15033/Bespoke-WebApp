@@ -17,12 +17,23 @@ class AppointmentsController extends Controller
     public function index(Request $request)
     {
         //
-        $filter = $request->input('filter', []);
-        dd($filter);    
-        die;
-        $appointmentList = Appointments::getAppointmentList($filter); 
+        $payload = [
+            'customer_name' => $request->input('customer_name'),
+            'customer_phone' => $request->input('customer_phone'),
+            'booking_status' => $request->input('booking_status'),
+            'fromAt' => $request->input('fromAt'),
+            'toAt' => $request->input('toAt'),
+            // 'page' => $request->input('page', 1), // Default to page 1 if not provided
+            // 'limit' => $request->input('limit', 5), // Default to 5 items per page if not provided
+            // 'sort' => $request->input('sort', 'at'), // Default sort by 'at' field
+        ];
 
-        return $appointmentList;
+        $appointmentList = Appointments::getAppointmentList($payload);
+        
+        return response()->json([
+            'message' => 'Appointment list retrieved successfully',
+            'appointments' => $appointmentList
+        ], 200); // 200 = OK
     }
 
     /**
