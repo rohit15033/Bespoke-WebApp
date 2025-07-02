@@ -18,7 +18,7 @@ class AppointmentsFactory extends Factory
     {
         return [
             //
-            'booking_status' => $this->faker->randomElement(['pending', 'confirmed', 'cancelled']),
+            'booking_status' => $this->faker->randomElement(['Scheduled', 'Deal', 'Canceled']),
             'customer_name' => $this->faker->name,
             'customer_phone' => $this->faker->phoneNumber,
             'at' => $this->faker->dateTimeBetween('+1 days', '+10 days')->format('Y-m-d H:i:s'),

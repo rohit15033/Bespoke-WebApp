@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointments;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use PhpParser\Node\Stmt\TryCatch;
 
 use function Pest\Laravel\json;
@@ -13,11 +14,15 @@ class AppointmentsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
-        $appointments = Appointments::latest()->get();   
-        return $appointments;
+        $filter = $request->input('filter', []);
+        dd($filter);    
+        die;
+        $appointmentList = Appointments::getAppointmentList($filter); 
+
+        return $appointmentList;
     }
 
     /**

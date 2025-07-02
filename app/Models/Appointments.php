@@ -20,4 +20,30 @@ class Appointments extends Model
         'notes',
 
     ];
+
+    public static function getAppointmentList($filter){
+        $query = self::query();
+
+
+        foreach ($filter as $key => $value) {
+            if (!is_array($value)) {
+                $query->where($key, $value);
+                continue;
+            }
+
+            foreach($value as $subKey => $subValue) {
+                match ($subKey) {
+                    '_contains ' => $query->where($key, 'like', '%' . $subValue . '%'),
+                    '_starts_with' => $query->where($key, 'like', $subValue . '%'),
+                    '_ends_with' => $query->where($key, 'like', '%' . $subValue),
+                    default => null,
+                };
+            }
+        }
+        return $query->get();
+
+        
+    }
+
+
 }
