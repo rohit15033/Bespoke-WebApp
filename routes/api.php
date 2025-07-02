@@ -20,6 +20,6 @@ use App\Models\Appointments;
 // Route::apiResource('appointments', AppointmentsController::class);
 //Appointment Route
 Route::get('/appointments', [AppointmentsController::class, 'index']);
-Route::post('/appointments', [AppointmentsController::class, 'store']);
+Route::post('/appointments', [AppointmentsController::class, 'create']);
 Route::patch('/appointments/{id}', [AppointmentsController::class, 'update']);
 

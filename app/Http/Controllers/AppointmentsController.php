@@ -6,6 +6,8 @@ use App\Models\Appointments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use PhpParser\Node\Stmt\TryCatch;
+use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 use function Pest\Laravel\json;
 
@@ -37,46 +39,30 @@ class AppointmentsController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Create appointment
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
-        return "<h1>Create form page</h1>";
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-{
-    try {
-        // Validate incoming request
-        $fields = $request->validate([
-            'booking_status' => ['required'],
-            'customer_name' => ['required'],
-            'customer_phone' => ['required'],
-            'at' => ['required'],
+        $validated = $request->validate([
+            'customerName' => 'required|string|max:255',
+            'customerPhone' => 'required|string|max:255',
+            'at' => 'required|date_format:Y-m-d\TH:i:s.v\Z',
+            'note' => 'nullable|string',
+            'bookingStatus' => ['nullable', Rule::in(['Scheduled', 'Canceled', 'Deal'])]
         ]);
 
-        // Create a new appointment
-        $appointment = Appointments::create($fields);
+        $appointmentData = [
+            'customer_name' => $validated['customerName'],
+            'customer_phone' => $validated['customerPhone'],
+            'at' => Carbon::parse($validated['at']),
+            'notes' => $validated['note'],
+            'booking_status' => $validated['bookingStatus'] ?? 'Scheduled',
+        ];
 
-        // Return success response
-        return response()->json([
-            'message' => 'Appointment created!',
-            'appointment' => $appointment
-        ], 201); // 201 = Created
+        $appointment = Appointments::create($appointmentData);
 
-    } catch (\Exception $e) {
-        // If any error occurs, catch it and return a failure response
-        return response()->json([
-            'message' => 'Failed to create appointment!',
-            'error' => $e->getMessage()
-        ], 400);
+        return response()->json($appointment, 201);
     }
-}
-
 
     /**
      * Display the specified resource.
