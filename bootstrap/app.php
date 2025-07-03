@@ -18,7 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         //     HandleInertiaRequests::class,
         // ]);
         
-        $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
+        // $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
+        $middleware->append(\App\Http\Middleware\CorsMiddleware::class);
 
         $middleware->validateCsrfTokens(except: [
             'appointments',  // Disable CSRF for this route
