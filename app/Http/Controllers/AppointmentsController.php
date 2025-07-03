@@ -97,30 +97,75 @@ class AppointmentsController extends Controller
         //
     }
 
+    public function get(Request $request, $id)
+    {
+        $appointment = Appointments::find($id);
+        if (!$appointment) {
+            return response()->json([
+                'message' => 'Appointment not found',
+            ], 404);
+        }
+        return response()->json($appointment, 200);
+    }
+
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
     {
+        // Validate incoming request
+        $validated = $request->validate([
+            'customerName' => 'sometimes|string|max:255',
+            'customerPhone' => 'sometimes|string|max:20',
+            'at' => 'sometimes|date_format:Y-m-d\TH:i:s.v\Z',
+            'bookingStatus' => 'sometimes|string|in:Scheduled,Canceled,Deal',
+            'note' => 'sometimes|nullable|string'
+        ]);
 
-        $appointment = Appointments::findOrFail($id);
+        $map = [
+            'customerName' => 'customer_name',
+            'customerPhone' => 'customer_phone',
+            'at' => 'at',
+            'bookingStatus' => 'booking_status',
+            'note' => 'notes'
+        ];
+
+        $appointmentData = [];
+        foreach ($map as $input => $column) {
+            if (isset($validated[$input])) {
+                // Parse 'at' field using Carbon
+                if ($input === 'at') {
+                    $appointmentData[$column] = Carbon::parse($validated[$input]);
+                } else {
+                    $appointmentData[$column] = $validated[$input];
+                }
+            }
+        }
+
         try {
-            // Validate incoming request
-            $fields = $request->validate([
-                'booking_status' => ['required'],
-                'customer_name' => ['required'],
-                'customer_phone' => ['required'],
-                'at' => ['required'],
-            ]);
+            // Find the appointment by its ID
+            $appointment = Appointments::find($id);
 
-            // Update the appointment
-            $appointment->update($fields);
+            // Check if the appointment exists
+            if (!$appointment) {
+                return response()->json([
+                    'message' => 'Appointment not found!'
+                ], 404);
+            }
 
-            // Return success response
-            return response()->json([
-                'message' => 'Appointment updated!',
-                'appointment' => $appointment
-            ], 200); // 200 = OK
+            // Update the appointment instance
+            $success = $appointment->update($appointmentData);
+
+            if (!$success) {
+                // If update fails, return a failure response
+                return response()->json([
+                    'message' => 'Failed to update appointment!',
+                ], 400);
+            } else {
+                return response()->json([
+                    'message' => 'Appointment updated successfully!'
+                ], 200);
+            }
         } catch (\Exception $e) {
             // If any error occurs, catch it and return a failure response
             return response()->json([
@@ -128,8 +173,6 @@ class AppointmentsController extends Controller
                 'error' => $e->getMessage()
             ], 400);
         }
-
-
     }
     
     /**

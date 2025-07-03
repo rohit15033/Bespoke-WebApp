@@ -22,4 +22,5 @@ use App\Models\Appointments;
 Route::get('/appointments', [AppointmentsController::class, 'index']);
 Route::post('/appointments', [AppointmentsController::class, 'create']);
 Route::get('/appointments/count', [AppointmentsController::class, 'count']);
+Route::get('/appointments/{id}', [AppointmentsController::class, 'get']);
 Route::patch('/appointments/{id}', [AppointmentsController::class, 'update']);
