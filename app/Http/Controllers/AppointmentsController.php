@@ -64,6 +64,23 @@ class AppointmentsController extends Controller
         return response()->json($appointment, 201);
     }
 
+    public function count(Request $request)
+    {
+        $payload = [
+            'customer_name' => $request->input('customer_name'),
+            'customer_phone' => $request->input('customer_phone'),
+            'booking_status' => $request->input('booking_status'),
+            'fromAt' => $request->input('fromAt'),
+            'toAt' => $request->input('toAt'),
+        ];
+
+        $count = Appointments::countAppointments($payload);
+        
+        return response()->json([
+            'count' => $count
+        ], 200); // 200 = OK
+    }
+
     /**
      * Display the specified resource.
      */

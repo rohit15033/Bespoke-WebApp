@@ -45,5 +45,25 @@ class Appointments extends Model
         return $query->get(); // Return all appointments sorted by 'at' field
     }
 
+    public static function countAppointments($payload){
+        $query = self::query();
+        if (isset($payload['customer_name'])) {
+            $query->where('customer_name', 'like', '%' . $payload['customer_name'] . '%');
+        }
+        if (isset($payload['customer_phone'])) {
+            $query->where('customer_phone', 'like', '%' . $payload['customer_phone'] . '%');
+        }
+        if (isset($payload['booking_status'])) {
+            $query->where('booking_status', $payload['booking_status']);
+        }
+        if (isset($payload['fromAt'])) {
+            $query->where('at', '>=', $payload['fromAt']);
+        }
+        if (isset($payload['toAt'])) {
+            $query->where('at', '<=', $payload['toAt']);
+        }
+
+        return $query->count();
+    }
 
 }
