@@ -25,9 +25,9 @@ class AppointmentsController extends Controller
             'booking_status' => $request->input('booking_status'),
             'fromAt' => $request->input('fromAt'),
             'toAt' => $request->input('toAt'),
-            // 'page' => $request->input('page', 1), // Default to page 1 if not provided
-            // 'limit' => $request->input('limit', 5), // Default to 5 items per page if not provided
-            // 'sort' => $request->input('sort', 'at'), // Default sort by 'at' field
+            'page' => $request->input('page', 1), // Default to page 1 if not provided
+            'limit' => $request->input('limit', 5), // Default to 5 items per page if not provided
+            'sort' => $request->input('sort', 'at'), // Default sort by 'at' field
         ];
 
         $appointmentList = Appointments::getAppointmentList($payload);

@@ -38,11 +38,10 @@ class Appointments extends Model
         if (isset($payload['toAt'])) {
             $query->where('at', '<=', $payload['toAt']);
         }
-        // $sort = $payload['sort'] ?? 'at';
-        // $limit = $payload['limit'] ?? 5;
+        $sort = $payload['sort'] ?? 'at';
+        $limit = $payload['limit'] ?? 5;
 
-        // return $query->orderBy($sort)->paginate($limit);
-        return $query->get(); // Return all appointments sorted by 'at' field
+        return $query->orderBy($sort)->paginate($limit);
     }
 
     public static function countAppointments($payload){
