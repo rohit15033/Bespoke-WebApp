@@ -24,3 +24,4 @@ Route::post('/appointments', [AppointmentsController::class, 'create']);
 Route::get('/appointments/count', [AppointmentsController::class, 'count']);
 Route::get('/appointments/{id}', [AppointmentsController::class, 'get']);
 Route::patch('/appointments/{id}', [AppointmentsController::class, 'update']);
+Route::delete('/appointments/{id}', [AppointmentsController::class, 'destroy']);
