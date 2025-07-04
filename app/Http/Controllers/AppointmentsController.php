@@ -72,6 +72,7 @@ class AppointmentsController extends Controller
             'booking_status' => $request->input('booking_status'),
             'fromAt' => $request->input('fromAt'),
             'toAt' => $request->input('toAt'),
+            'exceptId' => $request->input('exceptId'),
         ];
 
         $count = Appointments::countAppointments($payload);

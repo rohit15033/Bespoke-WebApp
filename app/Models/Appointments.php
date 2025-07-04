@@ -62,6 +62,9 @@ class Appointments extends Model
         if (isset($payload['toAt'])) {
             $query->where('at', '<=', $payload['toAt']);
         }
+        if (isset($payload['exceptId'])) {
+            $query->where('id', '!=', $payload['exceptId']);
+        }
 
         return $query->count();
     }
