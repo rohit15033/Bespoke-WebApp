@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Appointments;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,13 +14,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
         Appointments::factory(30)->create();
 
+        // Seed a specific test user
+        User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123'), // IMPORTANT: Always hash passwords!
+            // 'email_verified_at' => now(), // Optional, uncomment if you want them verified
+        ]);
     }
 }
