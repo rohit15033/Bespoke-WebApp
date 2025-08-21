@@ -14,6 +14,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed master data first
+        $this->call([
+            MasterDataSeeder::class,
+            OrderSeeder::class,
+        ]);
+
         Appointments::factory(30)->create();
 
         // Seed a specific test user

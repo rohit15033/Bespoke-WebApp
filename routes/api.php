@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\PackageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AppointmentsController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,4 +31,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/appointments/{id}', [AppointmentsController::class, 'get']);
     Route::patch('/appointments/{id}', [AppointmentsController::class, 'update']);
     Route::delete('/appointments/{id}', [AppointmentsController::class, 'destroy']);
+
+    // Order routes
+    Route::get('/orders/create', [OrderController::class, 'create']);
+    Route::get('/orders/{order}/edit', [OrderController::class, 'edit']);
+    Route::apiResource('orders', OrderController::class);
+
+    // Package routes
+    Route::get('/packages', [PackageController::class, 'index']);
+    Route::get('/packages/{id}', [PackageController::class, 'show']);
+
+    // Item routes
+    Route::get('/items', [ItemController::class, 'index']);
+    Route::get('/items/{id}', [ItemController::class, 'show']);
 });

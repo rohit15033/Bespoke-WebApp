@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\OrderItem;
+use App\Models\OrderPackage;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Register morph map for polymorphic relationships
+        Relation::morphMap([
+            'package' => OrderPackage::class,
+            'item' => OrderItem::class,
+        ]);
     }
 }
