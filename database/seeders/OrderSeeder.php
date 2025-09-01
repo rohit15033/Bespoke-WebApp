@@ -7,8 +7,6 @@ use App\Models\OrderItem;
 use App\Models\OrderPackage;
 use App\Models\OrderProduct;
 use App\Models\OrderSet;
-use App\Models\Product;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class OrderSeeder extends Seeder

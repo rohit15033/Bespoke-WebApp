@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
@@ -409,10 +408,12 @@ class OrderController extends Controller
                 'sort_order' => 'required|numeric|min:0',
             ])->validate();
 
+            $needSku = $validatedItem['status'] == 'active' && (!$validatedItem['is_tentative'] && !$validatedItem['is_custom']);
+
             // Create item
             OrderItem::create([
                 'order_set_id' => $set->id,
-                'item_sku' => $validatedItem['status'] == 'active' && !$validatedItem['is_tentative'] ? $validatedItem['item_sku'] : null,
+                'item_sku' => $needSku ? $validatedItem['item_sku'] : null,
                 'note' => $validatedItem['note'] ?? null,
                 'status' => $validatedItem['status'],
                 'is_additional' => $validatedItem['is_additional'] ?? false,
@@ -437,7 +438,7 @@ class OrderController extends Controller
     {
         // Validate item data
         $validatedItem = Validator::make($itemData, [
-            'item_sku' => 'nullable|string|exists:items,sku',
+            'item_sku' => 'nullable|string',
             'note' => 'nullable|string',
             'is_additional' => 'boolean',
             'is_custom' => 'boolean',
@@ -449,10 +450,12 @@ class OrderController extends Controller
             'custom_details' => 'nullable|string',
         ])->validate();
 
+        $needSku = !$validatedItem['is_custom'];
+
         // Create standalone item
         $item = OrderItem::create([
             'order_set_id' => null,
-            'item_sku' => $validatedItem['item_sku'] ?? null,
+            'item_sku' => $needSku ? $validatedItem['item_sku'] : null,
             'note' => $validatedItem['note'] ?? null,
             'status' => null,
             'is_additional' => $validatedItem['is_additional'] ?? false,
