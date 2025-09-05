@@ -16,8 +16,11 @@ return new class extends Migration
             $table->string('sku')->unique();
             $table->string('name');
             $table->string('type'); // e.g., "Kebaya", "Beskap"
-            $table->string('color');
-            $table->string('size');
+            $table->string('color')->nullable();
+            $table->string('size')->nullable();
+            $table->string('item')->nullable();
+            $table->string('adat')->nullable();
+            $table->string('variant')->nullable();
             $table->string('image_url')->nullable();
             $table->timestamps();
         });
