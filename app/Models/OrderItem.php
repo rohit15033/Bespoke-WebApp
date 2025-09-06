@@ -24,6 +24,7 @@ class OrderItem extends Model
         'is_tentative',
         'rental_status',
         'default_item_type',
+        'description',
         'price',
         'discount',
         'custom_name',

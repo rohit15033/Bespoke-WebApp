@@ -60,39 +60,42 @@ class OrderSeeder extends Seeder
         // Create items for the bride's set
         $brideKebaya = OrderItem::create([
             'order_set_id' => $womanSet->id,
-            'item_sku' => 'KBY-RD-M',
+            'item_sku' => 'KBY-MRH-SMT',
             'note' => 'Traditional red kebaya for the bride',
             'status' => 'active',
             'is_additional' => false,
             'is_custom' => false,
             'rental_status' => 'rent',
             'default_item_type' => 'Kebaya',
+            'description' => 'Bride',
             'price' => null,
             'discount' => null,
         ]);
 
         $brideSarung = OrderItem::create([
             'order_set_id' => $womanSet->id,
-            'item_sku' => 'SRG-BT-01',
-            'note' => 'Sarung Batik Biru',
+            'item_sku' => 'ROK-BTK',
+            'note' => 'Rok Batik',
             'status' => 'active',
             'is_additional' => false,
             'is_custom' => false,
             'rental_status' => 'rent',
-            'default_item_type' => 'Sarung',
+            'default_item_type' => 'Rok',
+            'description' => 'Bride',
             'price' => null,
             'discount' => null,
         ]);
 
         $brideShoes = OrderItem::create([
             'order_set_id' => $womanSet->id,
-            'item_sku' => 'SHS-WM-GLD',
+            'item_sku' => 'SLP-CWK-HTM-UK37',
             'note' => 'Add colorful beads',
             'status' => 'active',
             'is_additional' => false,
             'is_custom' => false,
             'rental_status' => 'rent',
-            'default_item_type' => 'Shoes',
+            'default_item_type' => 'Selop Wanita',
+            'description' => 'Bride',
             'price' => null,
             'discount' => null,
         ]);
@@ -100,8 +103,8 @@ class OrderSeeder extends Seeder
         // Create items for the groom's set
         $groomBeskap = OrderItem::create([
             'order_set_id' => $manSet->id,
-            'item_sku' => 'BSK-BK-M',
-            'note' => 'Classic black beskap for the groom',
+            'item_sku' => 'BSK-MRH-COAK',
+            'note' => 'Classic red beskap for the groom',
             'status' => 'active',
             'is_additional' => false,
             'is_custom' => false,
@@ -126,26 +129,28 @@ class OrderSeeder extends Seeder
 
         $groomBlangkon = OrderItem::create([
             'order_set_id' => $manSet->id,
-            'item_sku' => 'BLG-MN-BLK',
+            'item_sku' => 'HW-BLNGK-JW',
             'note' => 'Big size',
             'status' => 'active',
             'is_additional' => false,
             'is_custom' => false,
             'rental_status' => 'rent',
-            'default_item_type' => 'Blangkon',
+            'default_item_type' => 'Blangkon Jawa',
+            'description' => 'Groom',
             'price' => null,
             'discount' => null,
         ]);
 
         $groomAccessories = OrderItem::create([
             'order_set_id' => $manSet->id,
-            'item_sku' => 'ACC-MN-GLD',
+            'item_sku' => 'AKSR-BROSBLNGK-GLD',
             'note' => 'Add beads',
             'status' => 'active',
             'is_additional' => false,
             'is_custom' => false,
             'rental_status' => 'rent',
-            'default_item_type' => 'Accessories',
+            'default_item_type' => 'Aksesoris',
+            'description' => 'Groom',
             'price' => null,
             'discount' => null,
         ]);
@@ -219,7 +224,7 @@ class OrderSeeder extends Seeder
         // Create items for the simple set
         OrderItem::create([
             'order_set_id' => $womanSet->id,
-            'item_sku' => 'KBY-BL-L',
+            'item_sku' => 'KBY-BRU-PDK',
             'note' => 'Elegant blue kebaya',
             'status' => 'active',
             'is_additional' => false,
@@ -233,13 +238,13 @@ class OrderSeeder extends Seeder
 
         OrderItem::create([
             'order_set_id' => $womanSet->id,
-            'item_sku' => 'SHS-WM-GLD',
+            'item_sku' => 'SLP-CWK-PTH-UK36',
             'note' => 'Clean and polish it',
             'status' => 'active',
             'is_additional' => true,
             'is_custom' => false,
             'rental_status' => 'rent',
-            'default_item_type' => 'Shoes',
+            'default_item_type' => 'Selop Wanita',
             'price' => null,
             'discount' => null,
             'sort_order' => 1,
@@ -247,8 +252,8 @@ class OrderSeeder extends Seeder
 
         OrderItem::create([
             'order_set_id' => $manSet->id,
-            'item_sku' => 'BSK-GD-L',
-            'note' => 'Golden beskap',
+            'item_sku' => 'BSK-PTH-COAK',
+            'note' => 'White beskap',
             'status' => 'active',
             'is_additional' => false,
             'is_custom' => false,

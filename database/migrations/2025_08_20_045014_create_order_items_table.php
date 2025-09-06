@@ -22,6 +22,7 @@ return new class extends Migration
             $table->boolean('is_tentative')->nullable()->default(false);
             $table->string('rental_status'); // "rent" or "purchase"
             $table->string('default_item_type')->nullable();
+            $table->string('description')->nullable();
             $table->decimal('price', 12, 2)->nullable(); // Only populated for standalone items
             $table->decimal('discount', 12, 2)->nullable(); // Only populated for standalone items
             $table->string('custom_name')->nullable(); // For custom item details

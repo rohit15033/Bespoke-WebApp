@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('set_blueprint_id')->constrained('set_blueprints')->onDelete('cascade');
             $table->string('item_type'); // The placeholder type, e.g., "Beskap"
+            $table->string('description')->nullable(); // E.g., "Mother's Kebaya"
             $table->integer('sort_order')->default(0);
             $table->timestamps();
         });

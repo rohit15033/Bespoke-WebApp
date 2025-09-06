@@ -17,6 +17,7 @@ class ItemBlueprint extends Model
     protected $fillable = [
         'set_blueprint_id',
         'item_type',
+        'description',
         'sort_order',
     ];
 
