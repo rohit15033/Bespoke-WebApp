@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderItemType;
 use App\Models\OrderPackage;
 use App\Models\OrderProduct;
 use App\Models\OrderSet;
@@ -135,7 +136,9 @@ class OrderController extends Controller
         $order = Order::with([
             'orderProducts',
             'packages.orderSets.orderItems.item',
-            'items.item'
+            'packages.orderSets.orderItems.orderItemTypes',
+            'items.item',
+            'items.orderItemTypes',
         ])->findOrFail($id);
 
         return response()->json($order);
@@ -224,7 +227,9 @@ class OrderController extends Controller
             $order->load([
                 'orderProducts',
                 'packages.orderSets.orderItems.item',
-                'items.item'
+                'packages.orderSets.orderItems.orderItemTypes',
+                'items.item',
+                'items.orderItemTypes',
             ]);
 
             return response()->json($order);
@@ -399,7 +404,6 @@ class OrderController extends Controller
                 'is_custom' => 'boolean',
                 'is_tentative' => 'boolean',
                 'rental_status' => 'required|string|in:rent,purchase',
-                'default_item_type' => 'nullable|string|max:255',
                 'description' => 'nullable|string|max:255',
                 'price' => 'nullable|numeric|min:0',
                 'discount' => 'nullable|numeric|min:0',
@@ -407,12 +411,13 @@ class OrderController extends Controller
                 'custom_type' => 'nullable|string|max:255',
                 'custom_details' => 'nullable|string',
                 'sort_order' => 'required|numeric|min:0',
+                'order_item_types' => 'array',
             ])->validate();
 
             $needSku = $validatedItem['status'] == 'active' && (!$validatedItem['is_tentative'] && !$validatedItem['is_custom']);
 
             // Create item
-            OrderItem::create([
+            $orderItem = OrderItem::create([
                 'order_set_id' => $set->id,
                 'item_sku' => $needSku ? $validatedItem['item_sku'] : null,
                 'note' => $validatedItem['note'] ?? null,
@@ -421,7 +426,6 @@ class OrderController extends Controller
                 'is_custom' => $validatedItem['is_custom'] ?? false,
                 'is_tentative' => $validatedItem['is_tentative'] ?? false,
                 'rental_status' => $validatedItem['rental_status'],
-                'default_item_type' => $validatedItem['default_item_type'] ?? null,
                 'description' => $validatedItem['description'] ?? null,
                 'price' => $validatedItem['price'] ?? null,
                 'discount' => $validatedItem['discount'] ?? null,
@@ -430,6 +434,11 @@ class OrderController extends Controller
                 'custom_details' => $validatedItem['custom_details'] ?? null,
                 'sort_order' => $validatedItem['sort_order'],
             ]);
+
+            // Create item types if provided
+            if (isset($validatedItem['order_item_types'])) {
+                $this->createOrderItemTypes($orderItem, $validatedItem['order_item_types']);
+            }
         }
     }
 
@@ -450,12 +459,13 @@ class OrderController extends Controller
             'custom_name' => 'nullable|string|max:255',
             'custom_type' => 'nullable|string|max:255',
             'custom_details' => 'nullable|string',
+            'order_item_types' => 'array',
         ])->validate();
 
         $needSku = !$validatedItem['is_custom'];
 
         // Create standalone item
-        $item = OrderItem::create([
+        $orderItem = OrderItem::create([
             'order_set_id' => null,
             'item_sku' => $needSku ? $validatedItem['item_sku'] : null,
             'note' => $validatedItem['note'] ?? null,
@@ -463,7 +473,6 @@ class OrderController extends Controller
             'is_additional' => $validatedItem['is_additional'] ?? false,
             'is_custom' => $validatedItem['is_custom'] ?? false,
             'rental_status' => $validatedItem['rental_status'],
-            'default_item_type' => null,
             'description' => null,
             'price' => $validatedItem['price'],
             'discount' => $validatedItem['discount'],
@@ -472,6 +481,27 @@ class OrderController extends Controller
             'custom_details' => $validatedItem['custom_details'] ?? null,
         ]);
 
-        return $item;
+        // Create item types if provided
+        if (isset($validatedItem['order_item_types'])) {
+            $this->createOrderItemTypes($orderItem, $validatedItem['order_item_types']);
+        }
+
+        return $orderItem;
+    }
+
+    private function createOrderItemTypes(OrderItem $orderItem, array $orderItemTypeList)
+    {
+        foreach ($orderItemTypeList as $itemTypeIndex => $itemType) {
+            $validatedItemType = Validator::make($itemType, [
+                "name" => "required|string|max:255",
+                'sort_order' => 'required|numeric|min:0',
+            ])->validate();
+
+            OrderItemType::create([
+                'order_item_id' => $orderItem->id,
+                'name' => $validatedItemType['name'],
+                'sort_order' => $validatedItemType['sort_order'],
+            ]);
+        }
     }
 }

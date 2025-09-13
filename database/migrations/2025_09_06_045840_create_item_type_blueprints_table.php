@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('item_blueprints', function (Blueprint $table) {
+        Schema::create('item_blueprint_item_type', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('set_blueprint_id')->constrained('set_blueprints')->onDelete('cascade');
-            $table->string('description')->nullable(); // E.g., "Mother's Kebaya"
+            $table->foreignId('item_blueprint_id')->constrained('item_blueprints')->onDelete('cascade');
+            $table->foreignId('item_type_id')->constrained('item_types')->onDelete('cascade');
             $table->integer('sort_order')->default(0);
             $table->timestamps();
+            
+            // Ensure unique combination
+            $table->unique(['item_blueprint_id', 'item_type_id']);
         });
     }
 
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('item_blueprints');
+        Schema::dropIfExists('item_blueprint_item_type');
     }
 };

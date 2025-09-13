@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Item;
 use App\Models\ItemBlueprint;
+use App\Models\ItemType;
 use App\Models\PackageBlueprint;
 use App\Models\SetBlueprint;
 use Illuminate\Database\Seeder;
@@ -15,6 +16,30 @@ class MasterDataSeeder extends Seeder
      */
     public function run(): void
     {
+        // Create item types first
+        $itemTypes = [
+            ['name' => 'Kebaya'],
+            ['name' => 'Beskap'],
+            ['name' => 'Jas'],
+            ['name' => 'Celana'],
+            ['name' => 'Kain'],
+            ['name' => 'Headwear'],
+            ['name' => 'Gaun'],
+            ['name' => 'Bustier'],
+            ['name' => 'Rok'],
+            ['name' => 'Manset'],
+            ['name' => 'Selop Pria'],
+            ['name' => 'Selop Wanita'],
+            ['name' => 'Aksesoris'],
+            ['name' => 'Tail'],
+            ['name' => 'Kemeja'],
+            ['name' => 'Accesories'],
+        ];
+
+        foreach ($itemTypes as $itemTypeData) {
+            ItemType::create($itemTypeData);
+        }
+
         // Create sample items
         $items = [
             ['sku' => 'KBY-BRU-PDK', 'name' => 'Kebaya Biru Pendek Full Payet', 'type' => 'Kebaya', 'color' => 'Biru', 'image_url' => 'https://example.com/images/kebaya-biru-pdk.jpg'],
@@ -519,141 +544,152 @@ class MasterDataSeeder extends Seeder
         // Create sample item blueprints for each set
         $itemBlueprints = [
             // Berkat Silver - Man's set (ID: 1)
-            ['set_blueprint_id' => 1, 'item_type' => 'Beskap', 'sort_order' => 0],
-            ['set_blueprint_id' => 1, 'item_type' => 'Jas', 'sort_order' => 1],
-            ['set_blueprint_id' => 1, 'item_type' => 'Celana', 'sort_order' => 2],
-            ['set_blueprint_id' => 1, 'item_type' => 'Kain', 'sort_order' => 3],
-            ['set_blueprint_id' => 1, 'item_type' => 'Headwear', 'sort_order' => 4],
+            ['set_blueprint_id' => 1, 'sort_order' => 0, 'item_types' => ['Beskap']],
+            ['set_blueprint_id' => 1, 'sort_order' => 1, 'item_types' => ['Jas']],
+            ['set_blueprint_id' => 1, 'sort_order' => 2, 'item_types' => ['Celana']],
+            ['set_blueprint_id' => 1, 'sort_order' => 3, 'item_types' => ['Kain']],
+            ['set_blueprint_id' => 1, 'sort_order' => 4, 'item_types' => ['Headwear']],
             // Berkat Silver - Woman's Set (Set ID: 2)
-            ['set_blueprint_id' => 2, 'item_type' => 'Kebaya', 'sort_order' => 0],
-            ['set_blueprint_id' => 2, 'item_type' => 'Gaun', 'sort_order' => 1],
-            ['set_blueprint_id' => 2, 'item_type' => 'Bustier', 'sort_order' => 2],
-            ['set_blueprint_id' => 2, 'item_type' => 'Rok', 'sort_order' => 3],
-            ['set_blueprint_id' => 2, 'item_type' => 'Manset', 'sort_order' => 4],
+            ['set_blueprint_id' => 2, 'sort_order' => 0, 'item_types' => ['Kebaya']],
+            ['set_blueprint_id' => 2, 'sort_order' => 1, 'item_types' => ['Gaun']],
+            ['set_blueprint_id' => 2, 'sort_order' => 2, 'item_types' => ['Bustier']],
+            ['set_blueprint_id' => 2, 'sort_order' => 3, 'item_types' => ['Rok']],
+            ['set_blueprint_id' => 2, 'sort_order' => 4, 'item_types' => ['Manset']],
             // Berkat Elegant - Mens Set (Set ID: 3)
-            ['set_blueprint_id' => 3, 'item_type' => 'Beskap', 'sort_order' => 0],
-            ['set_blueprint_id' => 3, 'item_type' => 'Jas', 'sort_order' => 1],
-            ['set_blueprint_id' => 3, 'item_type' => 'Celana', 'sort_order' => 2],
-            ['set_blueprint_id' => 3, 'item_type' => 'Kain', 'sort_order' => 3],
-            ['set_blueprint_id' => 3, 'item_type' => 'Headwear', 'sort_order' => 4],
-            ['set_blueprint_id' => 3, 'item_type' => 'Selop Pria', 'sort_order' => 5],
+            ['set_blueprint_id' => 3, 'sort_order' => 0, 'item_types' => ['Beskap']],
+            ['set_blueprint_id' => 3, 'sort_order' => 1, 'item_types' => ['Jas']],
+            ['set_blueprint_id' => 3, 'sort_order' => 2, 'item_types' => ['Celana']],
+            ['set_blueprint_id' => 3, 'sort_order' => 3, 'item_types' => ['Kain']],
+            ['set_blueprint_id' => 3, 'sort_order' => 4, 'item_types' => ['Headwear']],
+            ['set_blueprint_id' => 3, 'sort_order' => 5, 'item_types' => ['Selop Pria']],
             // Berkat Elegant - Woman's Set (Set ID: 4)
-            ['set_blueprint_id' => 4, 'item_type' => 'Kebaya', 'sort_order' => 0],
-            ['set_blueprint_id' => 4, 'item_type' => 'Gaun', 'sort_order' => 1],
-            ['set_blueprint_id' => 4, 'item_type' => 'Bustier', 'sort_order' => 2],
-            ['set_blueprint_id' => 4, 'item_type' => 'Rok', 'sort_order' => 3],
-            ['set_blueprint_id' => 4, 'item_type' => 'Manset', 'sort_order' => 4],
-            ['set_blueprint_id' => 4, 'item_type' => 'Selop Wanita', 'sort_order' => 5],
+            ['set_blueprint_id' => 4, 'sort_order' => 0, 'item_types' => ['Kebaya']],
+            ['set_blueprint_id' => 4, 'sort_order' => 1, 'item_types' => ['Gaun']],
+            ['set_blueprint_id' => 4, 'sort_order' => 2, 'item_types' => ['Bustier']],
+            ['set_blueprint_id' => 4, 'sort_order' => 3, 'item_types' => ['Rok']],
+            ['set_blueprint_id' => 4, 'sort_order' => 4, 'item_types' => ['Manset']],
+            ['set_blueprint_id' => 4, 'sort_order' => 5, 'item_types' => ['Selop Wanita']],
             // Berkat Diamond - Man's Set (Set ID: 5)
-            ['set_blueprint_id' => 5, 'item_type' => 'Beskap', 'sort_order' => 0],
-            ['set_blueprint_id' => 5, 'item_type' => 'Jas', 'sort_order' => 1],
-            ['set_blueprint_id' => 5, 'item_type' => 'Celana', 'sort_order' => 2],
-            ['set_blueprint_id' => 5, 'item_type' => 'Kain', 'sort_order' => 3],
-            ['set_blueprint_id' => 5, 'item_type' => 'Headwear', 'sort_order' => 4],
-            ['set_blueprint_id' => 5, 'item_type' => 'Selop Pria', 'sort_order' => 5],
-            ['set_blueprint_id' => 5, 'item_type' => 'Aksesories', 'sort_order' => 6],
+            ['set_blueprint_id' => 5, 'sort_order' => 0, 'item_types' => ['Beskap']],
+            ['set_blueprint_id' => 5, 'sort_order' => 1, 'item_types' => ['Jas']],
+            ['set_blueprint_id' => 5, 'sort_order' => 2, 'item_types' => ['Celana']],
+            ['set_blueprint_id' => 5, 'sort_order' => 3, 'item_types' => ['Kain']],
+            ['set_blueprint_id' => 5, 'sort_order' => 4, 'item_types' => ['Headwear']],
+            ['set_blueprint_id' => 5, 'sort_order' => 5, 'item_types' => ['Selop Pria']],
+            ['set_blueprint_id' => 5, 'sort_order' => 6, 'item_types' => ['Aksesories']],
             // Berkat Diamond - Woman's Set (Set ID: 6)
-            ['set_blueprint_id' => 6, 'item_type' => 'Kebaya', 'sort_order' => 0],
-            ['set_blueprint_id' => 6, 'item_type' => 'Gaun', 'sort_order' => 1],
-            ['set_blueprint_id' => 6, 'item_type' => 'Bustier', 'sort_order' => 2],
-            ['set_blueprint_id' => 6, 'item_type' => 'Rok', 'sort_order' => 3],
-            ['set_blueprint_id' => 6, 'item_type' => 'Manset', 'sort_order' => 4],
-            ['set_blueprint_id' => 6, 'item_type' => 'Selop Wanita', 'sort_order' => 5],
-            ['set_blueprint_id' => 6, 'item_type' => 'Tail', 'sort_order' => 6],
-            ['set_blueprint_id' => 6, 'item_type' => 'Aksesories', 'sort_order' => 7],
+            ['set_blueprint_id' => 6, 'sort_order' => 0, 'item_types' => ['Kebaya']],
+            ['set_blueprint_id' => 6, 'sort_order' => 1, 'item_types' => ['Gaun']],
+            ['set_blueprint_id' => 6, 'sort_order' => 2, 'item_types' => ['Bustier']],
+            ['set_blueprint_id' => 6, 'sort_order' => 3, 'item_types' => ['Rok']],
+            ['set_blueprint_id' => 6, 'sort_order' => 4, 'item_types' => ['Manset']],
+            ['set_blueprint_id' => 6, 'sort_order' => 5, 'item_types' => ['Selop Wanita']],
+            ['set_blueprint_id' => 6, 'sort_order' => 6, 'item_types' => ['Tail']],
+            ['set_blueprint_id' => 6, 'sort_order' => 7, 'item_types' => ['Aksesories']],
             // Berkat Solitaire - Man's Set (Set ID: 7)
-            ['set_blueprint_id' => 7, 'item_type' => 'Beskap', 'sort_order' => 0],
-            ['set_blueprint_id' => 7, 'item_type' => 'Jas', 'sort_order' => 1],
-            ['set_blueprint_id' => 7, 'item_type' => 'Celana', 'sort_order' => 2],
-            ['set_blueprint_id' => 7, 'item_type' => 'Kain', 'sort_order' => 3],
-            ['set_blueprint_id' => 7, 'item_type' => 'Headwear', 'sort_order' => 4],
-            ['set_blueprint_id' => 7, 'item_type' => 'Aksesories', 'sort_order' => 5],
-            ['set_blueprint_id' => 7, 'item_type' => 'Selop Pria', 'sort_order' => 6],
+            ['set_blueprint_id' => 7, 'sort_order' => 0, 'item_types' => ['Beskap']],
+            ['set_blueprint_id' => 7, 'sort_order' => 1, 'item_types' => ['Jas']],
+            ['set_blueprint_id' => 7, 'sort_order' => 2, 'item_types' => ['Celana']],
+            ['set_blueprint_id' => 7, 'sort_order' => 3, 'item_types' => ['Kain']],
+            ['set_blueprint_id' => 7, 'sort_order' => 4, 'item_types' => ['Headwear']],
+            ['set_blueprint_id' => 7, 'sort_order' => 5, 'item_types' => ['Aksesories']],
+            ['set_blueprint_id' => 7, 'sort_order' => 6, 'item_types' => ['Selop Pria']],
             // Berkat Solitaire - Woman's Set (Set ID: 8)
-            ['set_blueprint_id' => 8, 'item_type' => 'Kebaya', 'sort_order' => 0],
-            ['set_blueprint_id' => 8, 'item_type' => 'Gaun', 'sort_order' => 1],
-            ['set_blueprint_id' => 8, 'item_type' => 'Bustier', 'sort_order' => 2],
-            ['set_blueprint_id' => 8, 'item_type' => 'Rok', 'sort_order' => 3],
-            ['set_blueprint_id' => 8, 'item_type' => 'Manset', 'sort_order' => 4],
-            ['set_blueprint_id' => 8, 'item_type' => 'Selop Wanita', 'sort_order' => 5],
-            ['set_blueprint_id' => 8, 'item_type' => 'Tail', 'sort_order' => 6],
-            ['set_blueprint_id' => 8, 'item_type' => 'Aksesories', 'sort_order' => 7],
+            ['set_blueprint_id' => 8, 'sort_order' => 0, 'item_types' => ['Kebaya']],
+            ['set_blueprint_id' => 8, 'sort_order' => 1, 'item_types' => ['Gaun']],
+            ['set_blueprint_id' => 8, 'sort_order' => 2, 'item_types' => ['Bustier']],
+            ['set_blueprint_id' => 8, 'sort_order' => 3, 'item_types' => ['Rok']],
+            ['set_blueprint_id' => 8, 'sort_order' => 4, 'item_types' => ['Manset']],
+            ['set_blueprint_id' => 8, 'sort_order' => 5, 'item_types' => ['Selop Wanita']],
+            ['set_blueprint_id' => 8, 'sort_order' => 6, 'item_types' => ['Tail']],
+            ['set_blueprint_id' => 8, 'sort_order' => 7, 'item_types' => ['Aksesories']],
             //Parents Anggun Mens Set (Set ID: 9)
-            ['set_blueprint_id' => 9, 'item_type' => 'Beskap', 'sort_order' => 0],
-            ['set_blueprint_id' => 9, 'item_type' => 'Beskap', 'sort_order' => 1],
-            ['set_blueprint_id' => 9, 'item_type' => 'Jas', 'sort_order' => 2],
-            ['set_blueprint_id' => 9, 'item_type' => 'Jas', 'sort_order' => 3],
-            ['set_blueprint_id' => 9, 'item_type' => 'Celana', 'sort_order' => 4],
-            ['set_blueprint_id' => 9, 'item_type' => 'Celana', 'sort_order' => 5],
-            ['set_blueprint_id' => 9, 'item_type' => 'Kain', 'sort_order' => 6],
-            ['set_blueprint_id' => 9, 'item_type' => 'Kain', 'sort_order' => 7],
-            ['set_blueprint_id' => 9, 'item_type' => 'Headwear', 'sort_order' => 8],
-            ['set_blueprint_id' => 9, 'item_type' => 'Headwear', 'sort_order' => 9],
-            ['set_blueprint_id' => 9, 'item_type' => 'Selop Pria', 'sort_order' => 10],
-            ['set_blueprint_id' => 9, 'item_type' => 'Selop Pria', 'sort_order' => 11],
+            ['set_blueprint_id' => 9, 'sort_order' => 0, 'item_types' => ['Beskap']],
+            ['set_blueprint_id' => 9, 'sort_order' => 1, 'item_types' => ['Beskap']],
+            ['set_blueprint_id' => 9, 'sort_order' => 2, 'item_types' => ['Jas']],
+            ['set_blueprint_id' => 9, 'sort_order' => 3, 'item_types' => ['Jas']],
+            ['set_blueprint_id' => 9, 'sort_order' => 4, 'item_types' => ['Celana']],
+            ['set_blueprint_id' => 9, 'sort_order' => 5, 'item_types' => ['Celana']],
+            ['set_blueprint_id' => 9, 'sort_order' => 6, 'item_types' => ['Kain']],
+            ['set_blueprint_id' => 9, 'sort_order' => 7, 'item_types' => ['Kain']],
+            ['set_blueprint_id' => 9, 'sort_order' => 8, 'item_types' => ['Headwear']],
+            ['set_blueprint_id' => 9, 'sort_order' => 9, 'item_types' => ['Headwear']],
+            ['set_blueprint_id' => 9, 'sort_order' => 10, 'item_types' => ['Selop Pria']],
+            ['set_blueprint_id' => 9, 'sort_order' => 11, 'item_types' => ['Selop Pria']],
             //Parents Anggun Womens Set (Set ID: 10)
-            ['set_blueprint_id' => 10, 'item_type' => 'Kebaya', 'sort_order' => 0],
-            ['set_blueprint_id' => 10, 'item_type' => 'Kebaya ', 'sort_order' => 1],
-            ['set_blueprint_id' => 10, 'item_type' => 'Gaun', 'sort_order' => 2],
-            ['set_blueprint_id' => 10, 'item_type' => 'Gaun', 'sort_order' => 3],
-            ['set_blueprint_id' => 10, 'item_type' => 'Bustier', 'sort_order' => 4],
-            ['set_blueprint_id' => 10, 'item_type' => 'Bustier', 'sort_order' => 5],
-            ['set_blueprint_id' => 10, 'item_type' => 'Rok', 'sort_order' => 6],
-            ['set_blueprint_id' => 10, 'item_type' => 'Rok', 'sort_order' => 7],
-            ['set_blueprint_id' => 10, 'item_type' => 'Manset', 'sort_order' => 8],
-            ['set_blueprint_id' => 10, 'item_type' => 'Manset', 'sort_order' => 9],
-            ['set_blueprint_id' => 10, 'item_type' => 'Selop Wanita', 'sort_order' => 10],
-            ['set_blueprint_id' => 10, 'item_type' => 'Selop Wanita', 'sort_order' => 11],
+            ['set_blueprint_id' => 10, 'sort_order' => 0, 'item_types' => ['Kebaya']],
+            ['set_blueprint_id' => 10, 'sort_order' => 1, 'item_types' => ['Kebaya']],
+            ['set_blueprint_id' => 10, 'sort_order' => 2, 'item_types' => ['Gaun']],
+            ['set_blueprint_id' => 10, 'sort_order' => 3, 'item_types' => ['Gaun']],
+            ['set_blueprint_id' => 10, 'sort_order' => 4, 'item_types' => ['Bustier']],
+            ['set_blueprint_id' => 10, 'sort_order' => 5, 'item_types' => ['Bustier']],
+            ['set_blueprint_id' => 10, 'sort_order' => 6, 'item_types' => ['Rok']],
+            ['set_blueprint_id' => 10, 'sort_order' => 7, 'item_types' => ['Rok']],
+            ['set_blueprint_id' => 10, 'sort_order' => 8, 'item_types' => ['Manset']],
+            ['set_blueprint_id' => 10, 'sort_order' => 9, 'item_types' => ['Manset']],
+            ['set_blueprint_id' => 10, 'sort_order' => 10, 'item_types' => ['Selop Wanita']],
+            ['set_blueprint_id' => 10, 'sort_order' => 11, 'item_types' => ['Selop Wanita']],
             //Parents Glamour Mens Set (Set ID: 11)
-            ['set_blueprint_id' => 11, 'item_type' => 'Beskap', 'sort_order' => 0],
-            ['set_blueprint_id' => 11, 'item_type' => 'Beskap', 'sort_order' => 1],
-            ['set_blueprint_id' => 11, 'item_type' => 'Jas', 'sort_order' => 2],
-            ['set_blueprint_id' => 11, 'item_type' => 'Jas', 'sort_order' => 3],
-            ['set_blueprint_id' => 11, 'item_type' => 'Celana', 'sort_order' => 4],
-            ['set_blueprint_id' => 11, 'item_type' => 'Celana', 'sort_order' => 5],
-            ['set_blueprint_id' => 11, 'item_type' => 'Kain', 'sort_order' => 6],
-            ['set_blueprint_id' => 11, 'item_type' => 'Kain', 'sort_order' => 7],
-            ['set_blueprint_id' => 11, 'item_type' => 'Headwear', 'sort_order' => 8],
-            ['set_blueprint_id' => 11, 'item_type' => 'Headwear', 'sort_order' => 9],
-            ['set_blueprint_id' => 11, 'item_type' => 'Selop Pria', 'sort_order' => 10],
-            ['set_blueprint_id' => 11, 'item_type' => 'Selop Pria', 'sort_order' => 11],
+            ['set_blueprint_id' => 11, 'sort_order' => 0, 'item_types' => ['Beskap']],
+            ['set_blueprint_id' => 11, 'sort_order' => 1, 'item_types' => ['Beskap']],
+            ['set_blueprint_id' => 11, 'sort_order' => 2, 'item_types' => ['Jas']],
+            ['set_blueprint_id' => 11, 'sort_order' => 3, 'item_types' => ['Jas']],
+            ['set_blueprint_id' => 11, 'sort_order' => 4, 'item_types' => ['Celana']],
+            ['set_blueprint_id' => 11, 'sort_order' => 5, 'item_types' => ['Celana']],
+            ['set_blueprint_id' => 11, 'sort_order' => 6, 'item_types' => ['Kain']],
+            ['set_blueprint_id' => 11, 'sort_order' => 7, 'item_types' => ['Kain']],
+            ['set_blueprint_id' => 11, 'sort_order' => 8, 'item_types' => ['Headwear']],
+            ['set_blueprint_id' => 11, 'sort_order' => 9, 'item_types' => ['Headwear']],
+            ['set_blueprint_id' => 11, 'sort_order' => 10, 'item_types' => ['Selop Pria']],
+            ['set_blueprint_id' => 11, 'sort_order' => 11, 'item_types' => ['Selop Pria']],
             //Parents Glamour Womens Set (Set ID: 12)
-            ['set_blueprint_id' => 12, 'item_type' => 'Kebaya', 'sort_order' => 0],
-            ['set_blueprint_id' => 12, 'item_type' => 'Kebaya', 'sort_order' => 1],
-            ['set_blueprint_id' => 12, 'item_type' => 'Gaun', 'sort_order' => 2],
-            ['set_blueprint_id' => 12, 'item_type' => 'Gaun', 'sort_order' => 3],
-            ['set_blueprint_id' => 12, 'item_type' => 'Bustier', 'sort_order' => 4],
-            ['set_blueprint_id' => 12, 'item_type' => 'Bustier', 'sort_order' => 5],
-            ['set_blueprint_id' => 12, 'item_type' => 'Rok', 'sort_order' => 6],
-            ['set_blueprint_id' => 12, 'item_type' => 'Rok', 'sort_order' => 7],
-            ['set_blueprint_id' => 12, 'item_type' => 'Manset', 'sort_order' => 8],
-            ['set_blueprint_id' => 12, 'item_type' => 'Manset', 'sort_order' => 9],
-            ['set_blueprint_id' => 12, 'item_type' => 'Selop Wanita', 'sort_order' => 10],
-            ['set_blueprint_id' => 12, 'item_type' => 'Selop Wanita', 'sort_order' => 11],
-            // Graduation - Man's Set (Set ID: 13)
-            // ['set_blueprint_id' => 13, 'item_type' => 'Jas', 'sort_order' => 0],
+            ['set_blueprint_id' => 12, 'sort_order' => 0, 'item_types' => ['Kebaya']],
+            ['set_blueprint_id' => 12, 'sort_order' => 1, 'item_types' => ['Kebaya']],
+            ['set_blueprint_id' => 12, 'sort_order' => 2, 'item_types' => ['Gaun']],
+            ['set_blueprint_id' => 12, 'sort_order' => 3, 'item_types' => ['Gaun']],
+            ['set_blueprint_id' => 12, 'sort_order' => 4, 'item_types' => ['Bustier']],
+            ['set_blueprint_id' => 12, 'sort_order' => 5, 'item_types' => ['Bustier']],
+            ['set_blueprint_id' => 12, 'sort_order' => 6, 'item_types' => ['Rok']],
+            ['set_blueprint_id' => 12, 'sort_order' => 7, 'item_types' => ['Rok']],
+            ['set_blueprint_id' => 12, 'sort_order' => 8, 'item_types' => ['Manset']],
+            ['set_blueprint_id' => 12, 'sort_order' => 9, 'item_types' => ['Manset']],
+            ['set_blueprint_id' => 12, 'sort_order' => 10, 'item_types' => ['Selop Wanita']],
+            ['set_blueprint_id' => 12, 'sort_order' => 11, 'item_types' => ['Selop Wanita']],
             // Graduation - Woman's Set (Set ID: 13)
-            ['set_blueprint_id' => 13, 'item_type' => 'Kebaya', 'sort_order' => 0],
-            ['set_blueprint_id' => 13, 'item_type' => 'Bustier', 'sort_order' => 1],
-            ['set_blueprint_id' => 13, 'item_type' => 'Rok', 'sort_order' => 2],
-            ['set_blueprint_id' => 13, 'item_type' => 'Selop Wanita', 'sort_order' => 3],
-            ['set_blueprint_id' => 13, 'item_type' => 'Bustier', 'sort_order' => 4],
-            ['set_blueprint_id' => 13, 'item_type' => 'Manset', 'sort_order' => 5],
+            ['set_blueprint_id' => 13, 'sort_order' => 0, 'item_types' => ['Kebaya']],
+            ['set_blueprint_id' => 13, 'sort_order' => 1, 'item_types' => ['Bustier']],
+            ['set_blueprint_id' => 13, 'sort_order' => 2, 'item_types' => ['Rok']],
+            ['set_blueprint_id' => 13, 'sort_order' => 3, 'item_types' => ['Selop Wanita']],
+            ['set_blueprint_id' => 13, 'sort_order' => 4, 'item_types' => ['Bustier']],
+            ['set_blueprint_id' => 13, 'sort_order' => 5, 'item_types' => ['Manset']],
             // Engagement - Man's Set (Set ID: 14)
-            ['set_blueprint_id' => 14, 'item_type' => 'Kemeja', 'sort_order' => 0],
+            ['set_blueprint_id' => 14, 'sort_order' => 0, 'item_types' => ['Kemeja']],
             // Engagement - Woman's Set (Set ID: 15)
-            ['set_blueprint_id' => 15, 'item_type' => 'Kebaya', 'sort_order' => 0],
-            ['set_blueprint_id' => 15, 'item_type' => 'Gaun', 'sort_order' => 1],
-            ['set_blueprint_id' => 15, 'item_type' => 'Bustier', 'sort_order' => 2],
-            ['set_blueprint_id' => 15, 'item_type' => 'Rok', 'sort_order' => 3],
-            ['set_blueprint_id' => 15, 'item_type' => 'Selop Wanita', 'sort_order' => 4],
-            ['set_blueprint_id' => 15, 'item_type' => 'Accesories', 'sort_order' => 5],
-            ['set_blueprint_id' => 15, 'item_type' => 'Manset', 'sort_order' => 6],
-
+            ['set_blueprint_id' => 15, 'sort_order' => 0, 'item_types' => ['Kebaya']],
+            ['set_blueprint_id' => 15, 'sort_order' => 1, 'item_types' => ['Gaun']],
+            ['set_blueprint_id' => 15, 'sort_order' => 2, 'item_types' => ['Bustier']],
+            ['set_blueprint_id' => 15, 'sort_order' => 3, 'item_types' => ['Rok']],
+            ['set_blueprint_id' => 15, 'sort_order' => 4, 'item_types' => ['Selop Wanita']],
+            ['set_blueprint_id' => 15, 'sort_order' => 5, 'item_types' => ['Accesories']],
+            ['set_blueprint_id' => 15, 'sort_order' => 6, 'item_types' => ['Manset']],
         ];
 
         foreach ($itemBlueprints as $itemData) {
-            ItemBlueprint::create($itemData);
+            $itemTypeNames = $itemData['item_types'];
+            unset($itemData['item_types']);
+            
+            // Create the item blueprint
+            $itemBlueprint = ItemBlueprint::create($itemData);
+            
+            // Attach item types to the blueprint
+            foreach ($itemTypeNames as $index => $itemTypeName) {
+                $itemType = ItemType::where('name', $itemTypeName)->first();
+                if ($itemType) {
+                    $itemBlueprint->itemTypes()->attach($itemType->id, [
+                        'sort_order' => $index,
+                    ]);
+                }
+            }
         }
     }
 }

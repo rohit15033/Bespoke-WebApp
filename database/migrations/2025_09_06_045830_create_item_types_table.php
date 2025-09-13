@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('item_blueprints', function (Blueprint $table) {
+        Schema::create('item_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('set_blueprint_id')->constrained('set_blueprints')->onDelete('cascade');
-            $table->string('description')->nullable(); // E.g., "Mother's Kebaya"
-            $table->integer('sort_order')->default(0);
+            $table->string('name')->unique(); // e.g., "Kebaya", "Beskap", "Selop", etc.
             $table->timestamps();
         });
     }
@@ -25,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('item_blueprints');
+        Schema::dropIfExists('item_types');
     }
 };

@@ -28,4 +28,14 @@ class ItemBlueprint extends Model
     {
         return $this->belongsTo(SetBlueprint::class);
     }
+
+    /**
+     * Get the item types for this item blueprint.
+     */
+    public function itemTypes()
+    {
+        return $this->belongsToMany(ItemType::class, 'item_blueprint_item_type')
+                    ->withPivot('sort_order')
+                    ->withTimestamps();
+    }
 }

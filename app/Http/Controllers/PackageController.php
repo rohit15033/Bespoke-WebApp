@@ -26,7 +26,7 @@ class PackageController extends Controller
     public function show(string $id): JsonResponse
     {
         $order = PackageBlueprint::with([
-            'setBlueprints.itemBlueprints',
+            'setBlueprints.itemBlueprints.itemTypes',
         ])->findOrFail($id);
 
         return response()->json($order);

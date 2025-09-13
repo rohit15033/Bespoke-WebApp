@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\ItemType;
 use App\Models\OrderPackage;
 use App\Models\OrderProduct;
 use App\Models\OrderSet;
@@ -66,10 +67,15 @@ class OrderSeeder extends Seeder
             'is_additional' => false,
             'is_custom' => false,
             'rental_status' => 'rent',
-            'default_item_type' => 'Kebaya',
             'description' => 'Bride',
             'price' => null,
             'discount' => null,
+        ]);
+
+        // Create order item types for bride kebaya
+        $brideKebaya->orderItemTypes()->create([
+            'name' => 'Kebaya',
+            'sort_order' => 0,
         ]);
 
         $brideSarung = OrderItem::create([
@@ -80,10 +86,15 @@ class OrderSeeder extends Seeder
             'is_additional' => false,
             'is_custom' => false,
             'rental_status' => 'rent',
-            'default_item_type' => 'Rok',
             'description' => 'Bride',
             'price' => null,
             'discount' => null,
+        ]);
+
+        // Create order item types for bride sarung
+        $brideSarung->orderItemTypes()->create([
+            'name' => 'Rok',
+            'sort_order' => 0,
         ]);
 
         $brideShoes = OrderItem::create([
@@ -94,10 +105,15 @@ class OrderSeeder extends Seeder
             'is_additional' => false,
             'is_custom' => false,
             'rental_status' => 'rent',
-            'default_item_type' => 'Selop Wanita',
             'description' => 'Bride',
             'price' => null,
             'discount' => null,
+        ]);
+
+        // Create order item types for bride shoes
+        $brideShoes->orderItemTypes()->create([
+            'name' => 'Selop Wanita',
+            'sort_order' => 0,
         ]);
 
         // Create items for the groom's set
@@ -109,9 +125,14 @@ class OrderSeeder extends Seeder
             'is_additional' => false,
             'is_custom' => false,
             'rental_status' => 'purchase',
-            'default_item_type' => 'Beskap',
             'price' => null,
             'discount' => null,
+        ]);
+
+        // Create order item types for groom beskap
+        $groomBeskap->orderItemTypes()->create([
+            'name' => 'Beskap',
+            'sort_order' => 0,
         ]);
 
         $groomCelana = OrderItem::create([
@@ -122,9 +143,14 @@ class OrderSeeder extends Seeder
             'is_additional' => false,
             'is_custom' => false,
             'rental_status' => 'rent',
-            'default_item_type' => 'Celana',
             'price' => null,
             'discount' => null,
+        ]);
+
+        // Create order item types for groom celana
+        $groomCelana->orderItemTypes()->create([
+            'name' => 'Celana',
+            'sort_order' => 0,
         ]);
 
         $groomBlangkon = OrderItem::create([
@@ -135,10 +161,15 @@ class OrderSeeder extends Seeder
             'is_additional' => false,
             'is_custom' => false,
             'rental_status' => 'rent',
-            'default_item_type' => 'Blangkon Jawa',
             'description' => 'Groom',
             'price' => null,
             'discount' => null,
+        ]);
+
+        // Create order item types for groom blangkon
+        $groomBlangkon->orderItemTypes()->create([
+            'name' => 'Headwear',
+            'sort_order' => 0,
         ]);
 
         $groomAccessories = OrderItem::create([
@@ -149,10 +180,15 @@ class OrderSeeder extends Seeder
             'is_additional' => false,
             'is_custom' => false,
             'rental_status' => 'rent',
-            'default_item_type' => 'Aksesoris',
             'description' => 'Groom',
             'price' => null,
             'discount' => null,
+        ]);
+
+        // Create order item types for groom accessories
+        $groomAccessories->orderItemTypes()->create([
+            'name' => 'Aksesoris',
+            'sort_order' => 0,
         ]);
 
         // Create a standalone item (not part of any package)
@@ -164,12 +200,17 @@ class OrderSeeder extends Seeder
             'is_additional' => true,
             'is_custom' => true,
             'rental_status' => 'purchase',
-            'default_item_type' => null,
             'price' => 500000,
             'discount' => 50000,
             'custom_name' => 'Diamond Jewelry Set',
             'custom_type' => 'Accessory',
             'custom_details' => 'Custom made diamond jewelry set including necklace, earrings, and bracelet',
+        ]);
+
+        // Create order item types for standalone item
+        $standaloneItem->orderItemTypes()->create([
+            'name' => 'Aksesoris',
+            'sort_order' => 0,
         ]);
 
         // Link the standalone item to the order
@@ -222,7 +263,7 @@ class OrderSeeder extends Seeder
         ]);
 
         // Create items for the simple set
-        OrderItem::create([
+        $simpleKebaya = OrderItem::create([
             'order_set_id' => $womanSet->id,
             'item_sku' => 'KBY-BRU-PDK',
             'note' => 'Elegant blue kebaya',
@@ -230,13 +271,18 @@ class OrderSeeder extends Seeder
             'is_additional' => false,
             'is_custom' => false,
             'rental_status' => 'rent',
-            'default_item_type' => 'Kebaya',
             'price' => null,
             'discount' => null,
             'sort_order' => 0,
         ]);
 
-        OrderItem::create([
+        // Create order item types for simple kebaya
+        $simpleKebaya->orderItemTypes()->create([
+            'name' => 'Kebaya',
+            'sort_order' => 0,
+        ]);
+
+        $simpleShoes = OrderItem::create([
             'order_set_id' => $womanSet->id,
             'item_sku' => 'SLP-CWK-PTH-UK36',
             'note' => 'Clean and polish it',
@@ -244,13 +290,18 @@ class OrderSeeder extends Seeder
             'is_additional' => true,
             'is_custom' => false,
             'rental_status' => 'rent',
-            'default_item_type' => 'Selop Wanita',
             'price' => null,
             'discount' => null,
             'sort_order' => 1,
         ]);
 
-        OrderItem::create([
+        // Create order item types for simple shoes
+        $simpleShoes->orderItemTypes()->create([
+            'name' => 'Selop Wanita',
+            'sort_order' => 0,
+        ]);
+
+        $simpleBeskap = OrderItem::create([
             'order_set_id' => $manSet->id,
             'item_sku' => 'BSK-PTH-COAK',
             'note' => 'White beskap',
@@ -258,13 +309,18 @@ class OrderSeeder extends Seeder
             'is_additional' => false,
             'is_custom' => false,
             'rental_status' => 'rent',
-            'default_item_type' => 'Beskap',
             'price' => null,
             'discount' => null,
             'sort_order' => 0,
         ]);
 
-        OrderItem::create([
+        // Create order item types for simple beskap
+        $simpleBeskap->orderItemTypes()->create([
+            'name' => 'Beskap',
+            'sort_order' => 0,
+        ]);
+
+        $simpleCelana = OrderItem::create([
             'order_set_id' => $manSet->id,
             'item_sku' => null,
             'note' => '-',
@@ -272,10 +328,15 @@ class OrderSeeder extends Seeder
             'is_additional' => false,
             'is_custom' => false,
             'rental_status' => 'rent',
-            'default_item_type' => 'Celana',
             'price' => null,
             'discount' => null,
             'sort_order' => 1,
+        ]);
+
+        // Create order item types for simple celana
+        $simpleCelana->orderItemTypes()->create([
+            'name' => 'Celana',
+            'sort_order' => 0,
         ]);
     }
 }

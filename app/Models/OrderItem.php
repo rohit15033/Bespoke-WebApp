@@ -23,7 +23,6 @@ class OrderItem extends Model
         'is_custom',
         'is_tentative',
         'rental_status',
-        'default_item_type',
         'description',
         'price',
         'discount',
@@ -80,5 +79,13 @@ class OrderItem extends Model
     {
         return $this->hasOneThrough(Order::class, OrderProduct::class, 'product_id', 'id', 'id', 'order_id')
             ->where('order_products.product_type', 'item');
+    }
+
+    /**
+     * Get the order item types for this order item.
+     */
+    public function orderItemTypes()
+    {
+        return $this->hasMany(OrderItemType::class);
     }
 }
