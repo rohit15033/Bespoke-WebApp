@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('set_blueprint_id')->constrained('set_blueprints')->onDelete('cascade');
             $table->string('description')->nullable(); // E.g., "Mother's Kebaya"
             $table->integer('sort_order')->default(0);
+            $table->boolean('is_custom')->default(false);
             $table->timestamps();
         });
     }

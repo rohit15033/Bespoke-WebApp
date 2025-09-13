@@ -576,7 +576,7 @@ class MasterDataSeeder extends Seeder
             ['set_blueprint_id' => 5, 'sort_order' => 3, 'item_types' => ['Kain']],
             ['set_blueprint_id' => 5, 'sort_order' => 4, 'item_types' => ['Headwear']],
             ['set_blueprint_id' => 5, 'sort_order' => 5, 'item_types' => ['Selop Pria']],
-            ['set_blueprint_id' => 5, 'sort_order' => 6, 'item_types' => ['Aksesories']],
+            ['set_blueprint_id' => 5, 'sort_order' => 6, 'item_types' => ['Aksesoris']],
             // Berkat Diamond - Woman's Set (Set ID: 6)
             ['set_blueprint_id' => 6, 'sort_order' => 0, 'item_types' => ['Kebaya']],
             ['set_blueprint_id' => 6, 'sort_order' => 1, 'item_types' => ['Gaun']],
@@ -585,14 +585,14 @@ class MasterDataSeeder extends Seeder
             ['set_blueprint_id' => 6, 'sort_order' => 4, 'item_types' => ['Manset']],
             ['set_blueprint_id' => 6, 'sort_order' => 5, 'item_types' => ['Selop Wanita']],
             ['set_blueprint_id' => 6, 'sort_order' => 6, 'item_types' => ['Tail']],
-            ['set_blueprint_id' => 6, 'sort_order' => 7, 'item_types' => ['Aksesories']],
+            ['set_blueprint_id' => 6, 'sort_order' => 7, 'item_types' => ['Aksesoris']],
             // Berkat Solitaire - Man's Set (Set ID: 7)
             ['set_blueprint_id' => 7, 'sort_order' => 0, 'item_types' => ['Beskap']],
             ['set_blueprint_id' => 7, 'sort_order' => 1, 'item_types' => ['Jas']],
             ['set_blueprint_id' => 7, 'sort_order' => 2, 'item_types' => ['Celana']],
             ['set_blueprint_id' => 7, 'sort_order' => 3, 'item_types' => ['Kain']],
             ['set_blueprint_id' => 7, 'sort_order' => 4, 'item_types' => ['Headwear']],
-            ['set_blueprint_id' => 7, 'sort_order' => 5, 'item_types' => ['Aksesories']],
+            ['set_blueprint_id' => 7, 'sort_order' => 5, 'item_types' => ['Aksesoris']],
             ['set_blueprint_id' => 7, 'sort_order' => 6, 'item_types' => ['Selop Pria']],
             // Berkat Solitaire - Woman's Set (Set ID: 8)
             ['set_blueprint_id' => 8, 'sort_order' => 0, 'item_types' => ['Kebaya']],
@@ -602,7 +602,8 @@ class MasterDataSeeder extends Seeder
             ['set_blueprint_id' => 8, 'sort_order' => 4, 'item_types' => ['Manset']],
             ['set_blueprint_id' => 8, 'sort_order' => 5, 'item_types' => ['Selop Wanita']],
             ['set_blueprint_id' => 8, 'sort_order' => 6, 'item_types' => ['Tail']],
-            ['set_blueprint_id' => 8, 'sort_order' => 7, 'item_types' => ['Aksesories']],
+            ['set_blueprint_id' => 8, 'sort_order' => 7, 'item_types' => ['Aksesoris']],
+            ['set_blueprint_id' => 8, 'sort_order' => 8, 'item_types' => [], 'is_custom' => true],
             //Parents Anggun Mens Set (Set ID: 9)
             ['set_blueprint_id' => 9, 'sort_order' => 0, 'item_types' => ['Beskap']],
             ['set_blueprint_id' => 9, 'sort_order' => 1, 'item_types' => ['Beskap']],

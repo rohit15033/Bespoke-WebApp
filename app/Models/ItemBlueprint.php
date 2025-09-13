@@ -16,10 +16,22 @@ class ItemBlueprint extends Model
      */
     protected $fillable = [
         'set_blueprint_id',
-        'item_type',
         'description',
         'sort_order',
+        'is_custom',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_custom' => 'boolean',
+        ];
+    }
 
     /**
      * Get the set blueprint that owns this item blueprint.
