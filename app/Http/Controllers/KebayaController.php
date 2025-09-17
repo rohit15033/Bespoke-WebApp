@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Kebaya;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use \Illuminate\Validation\ValidationException;
 
 class KebayaController extends Controller
 {
@@ -34,7 +35,7 @@ class KebayaController extends Controller
         
         try {
             $validated = $request->validate([
-                'kebayaCode' => 'required|string|max:255|',
+                'kebayaCode' => 'required|string|max:255|unique:kebaya,code',
                 'kebayaName' => 'required|string|max:255',
                 'length' => 'required|string|max:50',
                 'production_date' => 'required|date',
@@ -75,8 +76,16 @@ class KebayaController extends Controller
                 'message' => 'Kebaya created successfully',
                 'data' => $kebayaData
             ], 201); // 201 = Created
+            
 
-        } catch (\Exception $e) {
+        }
+        catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors(), 
+            ], 422);
+    } 
+        catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error creating kebaya: ' . $e->getMessage(),
             ], 500); // 500 = Internal Server Error
@@ -94,6 +103,11 @@ class KebayaController extends Controller
         //
        
         $kebaya = Kebaya::findOrFail($id);
+        if(!$kebaya){
+            return response()->json([
+                'message' => 'Kebaya not found!'
+            ], 404);
+        }
 
         $kebaya->code = $request->input('kebayaCode');
         $kebaya->name = $request->input('kebayaName');
