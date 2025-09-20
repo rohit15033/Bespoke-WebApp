@@ -109,6 +109,27 @@ class MasterDataSeeder extends Seeder
             ['sku' => 'BSK-PNK-COAK', 'name' => 'Beskap Pink Coak', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
             ['sku' => 'BSK-PNK-PNJG', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
 
+            ['sku' => 'JAS-HTM', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+            ['sku' => 'JAS-PTH', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+            ['sku' => 'JAS-SLVR', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+            ['sku' => 'JAS-CKLT', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+            ['sku' => 'JAS-HJU', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+
+            ['sku' => 'VST-PTH', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+            ['sku' => 'VST-SLVR', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+            ['sku' => 'VST-HTM', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+
+            ['sku' => 'DASI-GLD', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+            ['sku' => 'DASI-MRH', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+            ['sku' => 'DASI-BRU', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+            ['sku' => 'DASI-HJU', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+            ['sku' => 'DASI-SLVR', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+
+            ['sku' => 'KMJ-PTH-PLS', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+            ['sku' => 'KMJ-PTH-MTF', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+            ['sku' => 'KMJ-HTM-MTF', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
+
+            ['sku' => 'KMJ-BTK', 'name' => 'Beskap Pink Panjang', 'type' => 'Beskap', 'color' => 'Pink', 'image_url' => 'https://example.com/images/beskap-pink-panjang-m.jpg'],
 
             ['sku' => 'CLNA-MRH', 'name' => 'Celana Merah', 'type' => 'Celana', 'color' => 'Merah', 'image_url' => 'https://example.com/images/celana-merah.jpg'],
             ['sku' => 'CLNA-BRU', 'name' => 'Celana Biru', 'type' => 'Celana', 'color' => 'Biru', 'image_url' => 'https://example.com/images/celana-blue.jpg'],
@@ -120,10 +141,15 @@ class MasterDataSeeder extends Seeder
             ['sku' => 'CLNA-GLD', 'name' => 'Celana Gold', 'type' => 'Celana', 'color' => 'Gold', 'image_url' => 'https://example.com/images/celana-gold.jpg'],
             ['sku' => 'CLNA-SLVR', 'name' => 'Celana Silver', 'type' => 'Celana', 'color' => 'Silver', 'image_url' => 'https://example.com/images/celana-silver.jpg'],
 
-            ['sku' => 'ROK-BTK', 'name' => 'Rok Batik', 'type' => 'Rok', 'variant' => 'Batik', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
+            ['sku' => 'ROK-BTK', 'name' => 'Rok Batik Jogja', 'type' => 'Rok', 'variant' => 'Batik','adat'=>'Jogja', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
+            ['sku' => 'ROK-BTK', 'name' => 'Rok Batik Solo', 'type' => 'Rok', 'variant' => 'Batik','adat'=>'Solo', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
+            ['sku' => 'ROK-BTK', 'name' => 'Rok Batik Sunda', 'type' => 'Rok', 'variant' => 'Batik','adat'=>'Sunda', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
             ['sku' => 'ROK-SNGKT', 'name' => 'Rok Songket', 'type' => 'Rok', 'variant' => 'Songket', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
+            
+            ['sku' => 'KNSTG-BTK-SUNDA', 'name' => 'Kain Setengah Batik Sunda', 'type' => 'Kain Setengah', 'variant' => 'Batik','adat' => 'Sunda', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
+            ['sku' => 'KNSTG-BTK-SOLO', 'name' => 'Kain Setengah Batik Solo', 'type' => 'Kain Setengah', 'variant' => 'Batik','adat' => 'Solo', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
+            ['sku' => 'KNSTG-BTK-JOGJA', 'name' => 'Kain Setengah Batik Jogja', 'type' => 'Kain Setengah', 'variant' => 'Batik', 'adat' => 'Jogja', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
 
-            ['sku' => 'KNSTG-BTK', 'name' => 'Kain Setengah Batik', 'type' => 'Batik', 'variant' => 'Batik', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
             ['sku' => 'KNSTG-SNGKT', 'name' => 'Kain Segengah Songket', 'type' => 'Beskap', 'variant' => 'Songket', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
 
             // Hitam
@@ -209,10 +235,6 @@ class MasterDataSeeder extends Seeder
             ['sku' => 'SLP-CWK-GLD-UK40', 'name' => 'Selop Wanita Gold Ukuran 40', 'type' => 'Selop Wanita', 'color' => 'Gold', 'size' => '40', 'image_url' => 'https://example.com/images/selop-wanita-gold-40.jpg'],
             ['sku' => 'SLP-CWK-GLD-UK41', 'name' => 'Selop Wanita Gold Ukuran 41', 'type' => 'Selop Wanita', 'color' => 'Gold', 'size' => '41', 'image_url' => 'https://example.com/images/selop-wanita-gold-41.jpg'],
             ['sku' => 'SLP-CWK-GLD-UK42', 'name' => 'Selop Wanita Gold Ukuran 42', 'type' => 'Selop Wanita', 'color' => 'Gold', 'size' => '42', 'image_url' => 'https://example.com/images/selop-wanita-gold-42.jpg'],
-            ['sku' => 'SLP-CWK-GLD-UK43', 'name' => 'Selop Wanita Gold Ukuran 43', 'type' => 'Selop Wanita', 'color' => 'Gold', 'size' => '43', 'image_url' => 'https://example.com/images/selop-wanita-gold-43.jpg'],
-            ['sku' => 'SLP-CWK-GLD-UK44', 'name' => 'Selop Wanita Gold Ukuran 44', 'type' => 'Selop Wanita', 'color' => 'Gold', 'size' => '44', 'image_url' => 'https://example.com/images/selop-wanita-gold-44.jpg'],
-            ['sku' => 'SLP-CWK-GLD-UK45', 'name' => 'Selop Wanita Gold Ukuran 45', 'type' => 'Selop Wanita', 'color' => 'Gold', 'size' => '45', 'image_url' => 'https://example.com/images/selop-wanita-gold-45.jpg'],
-            ['sku' => 'SLP-CWK-GLD-UK46', 'name' => 'Selop Wanita Gold Ukuran 46', 'type' => 'Selop Wanita', 'color' => 'Gold', 'size' => '46', 'image_url' => 'https://example.com/images/selop-wanita-gold-46.jpg'],
 
             // Silver
             ['sku' => 'SLP-CWK-SLVR-UK35', 'name' => 'Selop Wanita Silver Ukuran 35', 'type' => 'Selop Wanita', 'color' => 'Silver', 'size' => '35', 'image_url' => 'https://example.com/images/selop-wanita-silver-35.jpg'],
@@ -223,10 +245,6 @@ class MasterDataSeeder extends Seeder
             ['sku' => 'SLP-CWK-SLVR-UK40', 'name' => 'Selop Wanita Silver Ukuran 40', 'type' => 'Selop Wanita', 'color' => 'Silver', 'size' => '40', 'image_url' => 'https://example.com/images/selop-wanita-silver-40.jpg'],
             ['sku' => 'SLP-CWK-SLVR-UK41', 'name' => 'Selop Wanita Silver Ukuran 41', 'type' => 'Selop Wanita', 'color' => 'Silver', 'size' => '41', 'image_url' => 'https://example.com/images/selop-wanita-silver-41.jpg'],
             ['sku' => 'SLP-CWK-SLVR-UK42', 'name' => 'Selop Wanita Silver Ukuran 42', 'type' => 'Selop Wanita', 'color' => 'Silver', 'size' => '42', 'image_url' => 'https://example.com/images/selop-wanita-silver-42.jpg'],
-            ['sku' => 'SLP-CWK-SLVR-UK43', 'name' => 'Selop Wanita Silver Ukuran 43', 'type' => 'Selop Wanita', 'color' => 'Silver', 'size' => '43', 'image_url' => 'https://example.com/images/selop-wanita-silver-43.jpg'],
-            ['sku' => 'SLP-CWK-SLVR-UK44', 'name' => 'Selop Wanita Silver Ukuran 44', 'type' => 'Selop Wanita', 'color' => 'Silver', 'size' => '44', 'image_url' => 'https://example.com/images/selop-wanita-silver-44.jpg'],
-            ['sku' => 'SLP-CWK-SLVR-UK45', 'name' => 'Selop Wanita Silver Ukuran 45', 'type' => 'Selop Wanita', 'color' => 'Silver', 'size' => '45', 'image_url' => 'https://example.com/images/selop-wanita-silver-45.jpg'],
-            ['sku' => 'SLP-CWK-SLVR-UK46', 'name' => 'Selop Wanita Silver Ukuran 46', 'type' => 'Selop Wanita', 'color' => 'Silver', 'size' => '46', 'image_url' => 'https://example.com/images/selop-wanita-silver-46.jpg'],
 
 
             // Merah
@@ -311,7 +329,8 @@ class MasterDataSeeder extends Seeder
             ['sku' => 'SLP-CWO-SLVR-UK46', 'name' => 'Selop Pria Silver Ukuran 46', 'type' => 'Selop Pria', 'color' => 'Silver', 'size' => '46', 'image_url' => 'https://example.com/images/selop-pria-silver-46.jpg'],
 
             ['sku' => 'HW-BLNGK-JW', 'name' => 'Blangkon Jawa', 'type' => 'Headwear', 'item' => 'Blangkon', 'adat' => 'Jawa', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
-            ['sku' => 'HW-BLNGK-SNDA', 'name' => 'Blangkon Sunda', 'type' => 'Headwear', 'item' => 'Blangkon', 'adat' => 'Sunda', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
+            ['sku' => 'HW-BLNGK-SUNDA', 'name' => 'Blangkon Sunda', 'type' => 'Headwear', 'item' => 'Blangkon', 'adat' => 'Sunda', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
+            ['sku' => 'HW-BLNGK-SOLO', 'name' => 'Blangkon Solo', 'type' => 'Headwear', 'item' => 'Blangkon', 'adat' => 'Solo', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
 
             ['sku' => 'HW-TJK', 'name' => 'Tanjak', 'type' => 'Headwear', 'item' => 'Tanjak', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
             ['sku' => 'HW-SLK', 'name' => 'Saluak', 'type' => 'Headwear', 'item' => 'Saluak', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
@@ -644,6 +663,7 @@ class MasterDataSeeder extends Seeder
             ['set_blueprint_id' => 11, 'sort_order' => 10, 'item_types' => ['Selop Pria']],
             ['set_blueprint_id' => 11, 'sort_order' => 11, 'item_types' => ['Selop Pria']],
             //Parents Glamour Womens Set (Set ID: 12)
+
             ['set_blueprint_id' => 12, 'sort_order' => 0, 'item_types' => ['Kebaya']],
             ['set_blueprint_id' => 12, 'sort_order' => 1, 'item_types' => ['Kebaya']],
             ['set_blueprint_id' => 12, 'sort_order' => 2, 'item_types' => ['Gaun']],
@@ -656,13 +676,13 @@ class MasterDataSeeder extends Seeder
             ['set_blueprint_id' => 12, 'sort_order' => 9, 'item_types' => ['Manset']],
             ['set_blueprint_id' => 12, 'sort_order' => 10, 'item_types' => ['Selop Wanita']],
             ['set_blueprint_id' => 12, 'sort_order' => 11, 'item_types' => ['Selop Wanita']],
+
             // Graduation - Woman's Set (Set ID: 13)
             ['set_blueprint_id' => 13, 'sort_order' => 0, 'item_types' => ['Kebaya']],
             ['set_blueprint_id' => 13, 'sort_order' => 1, 'item_types' => ['Bustier']],
             ['set_blueprint_id' => 13, 'sort_order' => 2, 'item_types' => ['Rok']],
             ['set_blueprint_id' => 13, 'sort_order' => 3, 'item_types' => ['Selop Wanita']],
-            ['set_blueprint_id' => 13, 'sort_order' => 4, 'item_types' => ['Bustier']],
-            ['set_blueprint_id' => 13, 'sort_order' => 5, 'item_types' => ['Manset']],
+            ['set_blueprint_id' => 13, 'sort_order' => 4, 'item_types' => ['Manset']],
             // Engagement - Man's Set (Set ID: 14)
             ['set_blueprint_id' => 14, 'sort_order' => 0, 'item_types' => ['Kemeja']],
             // Engagement - Woman's Set (Set ID: 15)
