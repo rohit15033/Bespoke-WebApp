@@ -4,6 +4,15 @@ namespace Database\Seeders;
 
 use App\Models\Appointments;
 use App\Models\User;
+use App\Models\Occasions;
+use App\Models\Colors;
+use App\Models\SubColors;
+use App\Models\Kebaya;
+use App\Models\KebayaImages;
+use App\Models\KebayaOccasion;
+
+
+
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Seeder;
 
@@ -22,12 +31,26 @@ class DatabaseSeeder extends Seeder
 
         Appointments::factory(30)->create();
 
-        // Seed a specific test user
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => Hash::make('password123'), // IMPORTANT: Always hash passwords!
-            // 'email_verified_at' => now(), // Optional, uncomment if you want them verified
-        ]);
+        // // Seed a specific test user
+        // User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        //     'password' => Hash::make('password123'), // IMPORTANT: Always hash passwords!
+        //     // 'email_verified_at' => now(), // Optional, uncomment if you want them verified
+        // ]);
+
+        // Occasions::insert([
+        //     ['name' => 'Wedding'],
+        //     ['name' => 'Engagement'],
+        //     ['name' => 'Graduation'],
+        //     ['name' => 'Party'],
+        //     ['name' => 'Traditional Ceremony'],
+        // ]);
+
+
+        // Colors::factory(5)->create();
+        // SubColors::factory(5)->create();
+        // Kebaya::factory(15)->create();
+        KebayaImages::factory(30)->create();
     }
 }

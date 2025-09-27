@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AppointmentsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\KebayaController;
+use App\Models\Kebaya;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,8 +20,20 @@ use App\Http\Controllers\OrderController;
 |
 */
 
-Route::post('/auth/login', [AuthController::class, 'login']);
+//route for colors and occasions later n for inventory
+Route::get('/colors', [App\Http\Controllers\ColorsController::class, 'index']);
+Route::get('/subcolors', [App\Http\Controllers\SubcolorsController::class, 'index']);
+Route::get('/occasions', [App\Http\Controllers\OccasionsController::class, 'index']);
+Route::get('/subcolors/{colorId}', [App\Http\Controllers\SubcolorsController::class, 'subColorsbyColorId']);    
 
+
+    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::get('kebaya', [KebayaController::class, 'index']);
+    Route::post('kebaya', [KebayaController::class, 'store']);
+    Route::get('kebaya/{id}', [KebayaController::class, 'show']);
+    Route::patch('kebaya/{id}', [KebayaController::class, 'update']);
+    Route::delete('kebaya/{id}', [KebayaController::class, 'destroy']);
+    
 // Protected routes (require authentication with Sanctum token)
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -44,4 +58,5 @@ Route::middleware('auth:sanctum')->group(function () {
     // Item routes
     Route::get('/items', [ItemController::class, 'index']);
     Route::get('/items/{id}', [ItemController::class, 'show']);
+    //kebaya route
 });
