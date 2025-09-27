@@ -141,9 +141,9 @@ class MasterDataSeeder extends Seeder
             ['sku' => 'CLNA-GLD', 'name' => 'Celana Gold', 'type' => 'Celana', 'color' => 'Gold', 'image_url' => 'https://example.com/images/celana-gold.jpg'],
             ['sku' => 'CLNA-SLVR', 'name' => 'Celana Silver', 'type' => 'Celana', 'color' => 'Silver', 'image_url' => 'https://example.com/images/celana-silver.jpg'],
 
-            ['sku' => 'ROK-BTK', 'name' => 'Rok Batik Jogja', 'type' => 'Rok', 'variant' => 'Batik','adat'=>'Jogja', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
-            ['sku' => 'ROK-BTK', 'name' => 'Rok Batik Solo', 'type' => 'Rok', 'variant' => 'Batik','adat'=>'Solo', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
-            ['sku' => 'ROK-BTK', 'name' => 'Rok Batik Sunda', 'type' => 'Rok', 'variant' => 'Batik','adat'=>'Sunda', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
+            ['sku' => 'ROK-BTK-JAVA', 'name' => 'Rok Batik Jogja', 'type' => 'Rok', 'variant' => 'Batik','adat'=>'Jogja', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
+            ['sku' => 'ROK-BTK-SOLO', 'name' => 'Rok Batik Solo', 'type' => 'Rok', 'variant' => 'Batik','adat'=>'Solo', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
+            ['sku' => 'ROK-BTK-SUNDA', 'name' => 'Rok Batik Sunda', 'type' => 'Rok', 'variant' => 'Batik','adat'=>'Sunda', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
             ['sku' => 'ROK-SNGKT', 'name' => 'Rok Songket', 'type' => 'Rok', 'variant' => 'Songket', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
             
             ['sku' => 'KNSTG-BTK-SUNDA', 'name' => 'Kain Setengah Batik Sunda', 'type' => 'Kain Setengah', 'variant' => 'Batik','adat' => 'Sunda', 'image_url' => 'https://example.com/images/beskap-pink-coak-m.jpg'],
