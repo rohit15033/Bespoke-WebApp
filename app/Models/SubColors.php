@@ -10,8 +10,6 @@ class SubColors extends Model
     use HasFactory;
     protected $table = 'subcolors';
 
-
-
     protected $fillable = [
         'name',
         'color_id',

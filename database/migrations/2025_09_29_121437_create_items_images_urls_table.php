@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kebaya_images', function (Blueprint $table) {
+        Schema::create('items_images_urls', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('item_id')->constrained('items')->onDelete('cascade');
+            $table->text('image_url');
             $table->timestamps();
         });
     }
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kebaya_images');
+        Schema::dropIfExists('items_images_urls');
     }
 };
