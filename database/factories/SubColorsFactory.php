@@ -21,7 +21,7 @@ class SubColorsFactory extends Factory
     {
         return [
             'name' => $this->faker->colorName(),
-            'color_id' => Colors::factory(),
+            'color_id' => Colors::all()->random()->id, 
         ];
     }
 }

@@ -20,7 +20,7 @@ class Kebaya extends Model
         'length',
         'production_date',
     ];
-        public function subcolor()
+    public function subcolor()
     {
         return $this->belongsTo(SubColors::class);
     }
@@ -49,7 +49,7 @@ class Kebaya extends Model
         if (!empty($payload['kebaya_filter'])) {
             $query->where(function ($q) use ($payload) {
                 $q->where('code', 'like', '%' . $payload['kebaya_filter'] . '%')
-                ->orWhere('name', 'like', '%' . $payload['kebaya_filter'] . '%');
+                    ->orWhere('name', 'like', '%' . $payload['kebaya_filter'] . '%');
             });
         }
 
@@ -66,12 +66,12 @@ class Kebaya extends Model
                 $q->where('name', $payload['subcolor']);
             });
         }
-    
-        if(!empty($payload['occasion'])){
-            $query->whereHas('occasions', function($q) use ($payload){
+
+        if (!empty($payload['occasion'])) {
+            $query->whereHas('occasions', function ($q) use ($payload) {
                 $q->where('name', $payload['occasion']);
             });
-        }   
+        }
         if (!empty($payload['fromAt'])) {
             $query->where('production_date', '>=', $payload['fromAt']);
         }
@@ -82,9 +82,9 @@ class Kebaya extends Model
         $sort = $payload['sort'] ?? 'production_date';
         $limit = $payload['limit'] ?? 10;
 
-        $kebayas = $query->orderBy($sort, 'desc')      
-            ->paginate($limit)    
-            ->through(function ($kebaya) { 
+        $kebayas = $query->orderBy($sort, 'desc')
+            ->paginate($limit)
+            ->through(function ($kebaya) {
                 return [
                     'id' => $kebaya->id,
                     'code' => $kebaya->code,
@@ -94,34 +94,32 @@ class Kebaya extends Model
                     'length' => $kebaya->length,
                     'production_date' => $kebaya->production_date,
                     'occasions' => $kebaya->occasions->pluck('name')->implode(', '),
-                    'image_url' => asset('storage/' . $kebaya->firstImage?->image_url) ,
+                    'image_url' => asset('storage/' . $kebaya->firstImage?->image_url),
                 ];
             });
 
-      
-        return $kebayas;
 
+        return $kebayas;
     }
 
-    public static function getKebayaById($id){
+    public static function getKebayaById($id)
+    {
         $query = self::with(['subcolor.color', 'occasions', 'images'])
-                ->findOrFail($id);
+            ->findOrFail($id);
         $mapped = [
             'id' => $query->id,
             'code' => $query->code,
             'name' => $query->name,
             'color_id' => $query->subcolor->color->id,
             'subcolor_id' => $query->subcolor->id,
-            'length' => $query->length,
-            'production_date' => $query->production_date,
-            'occasions' => $query->occasions->pluck('id'),
-            
+            'production_month' => $query->production_month,
+            'production_year' => $query->production_year,
             'images' => $query->images->map(function ($img) {
-                             return [
-                                'id' => $img->id,
-                                'url' => asset('storage/' . $img->image_url),
-                            ];
-                        }),
+                return [
+                    'id' => $img->id,
+                    'url' => asset('storage/' . $img->image_url),
+                ];
+            }),
         ];
         return $mapped;
     }
