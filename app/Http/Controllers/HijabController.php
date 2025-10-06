@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Bustier;
+use App\Models\Hijab;
 use App\Models\Items;
 use Illuminate\Http\Request;
 use App\Models\ItemsImagesUrls;
@@ -10,7 +10,7 @@ use Illuminate\Validation\Rule;
 use \Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Storage;
 
-class BustierController extends Controller
+class HijabController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -30,11 +30,11 @@ class BustierController extends Controller
             'limit' => $request->input('limit', 10), // Default to 5 items per page if not provided
             'sort' => $request->input('sort', 'created_at'), // 
         ];
-        $bustierList = Bustier::getBustierList($payload);
+        $hijabList = Hijab::getHijabList($payload);
 
         return response()->json([
-            'message' => "Bustier List has been retrieved",
-            'bustier' => $bustierList
+            'message' => "Hijab List has been retrieved",
+            'hijab' => $hijabList
         ]);
     }
 
@@ -67,12 +67,12 @@ class BustierController extends Controller
                 $item = Items::create([
                     'code' => $validated['code'],
                     'name' => $validated['name'],
-                    'type' => 'bustier', // identify it's bustier
+                    'type' => 'hijab', // identify it's hijab
                     'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
                     'production_year'  => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
                     'subcolor_id' => $validated['subcolor_id'],
                 ]);
-                Bustier::create([
+                Hijab::create([
                     'item_id' => $item->id,
                     'qty' => $validated['qty'],
                 ]);
@@ -86,7 +86,7 @@ class BustierController extends Controller
                     }
                 }
                 return response()->json([
-                    'message' => "Bustier created successfully",
+                    'message' => "Hijab created successfully",
                     'data' => $item
                 ], 201);
             } catch (ValidationException $e) {
@@ -96,7 +96,7 @@ class BustierController extends Controller
                 ], 422);
             } catch (\Exception $e) {
                 return response()->json([
-                    'message' => 'Error creating Bustier: ' . $e->getMessage(),
+                    'message' => 'Error creating Hijab: ' . $e->getMessage(),
                 ], 500); // 500 = Internal Server Error
             }
         }
@@ -108,14 +108,14 @@ class BustierController extends Controller
     public function show($id)
     {
         //
-        $bustier = Bustier::getBustierById($id);
-        return response()->json($bustier);
+        $hijab = Hijab::getHijabById($id);
+        return response()->json($hijab);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(bustier $bustier)
+    public function edit(Hijab $hijab)
     {
         //
     }
@@ -126,10 +126,10 @@ class BustierController extends Controller
     public function update(Request $request, $id)
     {
         //
-        $bustier = Bustier::findOrFail($id);
-        if (!$bustier) {
+        $hijab = Hijab::findOrFail($id);
+        if (!$hijab) {
             return response()->json([
-                'message' => 'Bustier not found',
+                'message' => 'Hijab not found',
             ], 404);
         }
         try {
@@ -138,7 +138,7 @@ class BustierController extends Controller
                     'required',
                     'string',
                     'max:255',
-                    Rule::unique('items', 'code')->ignore($bustier->item_id),
+                    Rule::unique('items', 'code')->ignore($hijab->item_id),
                 ],
                 'name' => 'required|string|max:255',
                 'qty' => 'required|integer',
@@ -148,19 +148,19 @@ class BustierController extends Controller
                 'images' => 'nullable',
                 'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
-            $item = Items::findOrFail($bustier->item_id);
+            $item = Items::findOrFail($hijab->item_id);
             $item->update([
                 'code' => $validated['code'],
                 'name' => $validated['name'],
-                'type' => 'bustier', // identify it's bustier
+                'type' => 'hijab', // identify it's hijab
                 'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
                 'production_year'  => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
                 'subcolor_id' => $validated['subcolor_id'],
             ]);
             if (isset($validated['qty'])) {
-                $bustier = Bustier::where('item_id', $bustier->item_id)->first();
-                if ($bustier) {
-                    $bustier->update([
+                $hijab = Hijab::where('item_id', $hijab->item_id)->first();
+                if ($hijab) {
+                    $hijab->update([
                         'qty' => $validated['qty'],
                     ]);
                 }
@@ -179,8 +179,8 @@ class BustierController extends Controller
             }
 
             return response()->json([
-                'message' => "Bustier updated successfully",
-                'data' => $bustier
+                'message' => "Hijab updated successfully",
+                'data' => $hijab
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -189,27 +189,18 @@ class BustierController extends Controller
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Error updating Bustier: ' . $e->getMessage(),
+                'message' => 'Error updating Hijab: ' . $e->getMessage(),
             ], 500); // 500 = Internal Server Error
 
         }
     }
 
+
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(bustier $bustier)
+    public function destroy(Hijab $hijab)
     {
         //
-        $deletedCount = Bustier::destroy($bustier->id); // Returns 1 if deleted, 0 if not found
-
-        if ($deletedCount === 0) {
-            return response()->json([
-                'message' => 'Bustier not found',
-            ], 404);
-        }
-        return response()->json([
-            'message' => 'Bustier deleted successfully',
-        ], 200);
     }
 }

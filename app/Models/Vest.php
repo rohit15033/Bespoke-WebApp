@@ -4,21 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Bustier extends Model
+class Vest extends Model
 {
     //
-    protected $table = 'bustiers';
+    protected $table = 'vests';
     protected $fillable = [
-        'item_id',
-        'qty'
+        'item_id'
     ];
-
     public function item()
     {
         return $this->belongsTo(Items::class);
     }
 
-    public static function getBustierList($payload)
+    public static function getVestList($payload)
     {
         $query = self::with([
             'item.firstImage',
@@ -67,26 +65,25 @@ class Bustier extends Model
 
         $sort = $payload['sort'] ?? 'production_date';
         $limit = $payload['limit'] ?? 10;
-        $bustiers = $query->orderBy($sort, 'desc')
+        $vests = $query->orderBy($sort, 'desc')
             ->paginate($limit)
-            ->through(function ($bustier) {
+            ->through(function ($vest) {
                 return [
-                    'id' => $bustier->id,
-                    'qty' => $bustier->qty,
-                    'code' => $bustier->item->code,
-                    'name' => $bustier->item->name,
-                    'color' => $bustier->item->subcolor->color->name,
-                    'subcolor' => $bustier->item->subcolor->name,
-                    'production_month' => $bustier->item->production_month,
-                    'production_year' => $bustier->item->production_year,
-                    'image_url' => asset('storage/' . $bustier->item->firstImage?->image_url),
+                    'id' => $vest->id,
+                    'code' => $vest->item->code,
+                    'name' => $vest->item->name,
+                    'color' => $vest->item->subcolor->color->name,
+                    'subcolor' => $vest->item->subcolor->name,
+                    'production_month' => $vest->item->production_month,
+                    'production_year' => $vest->item->production_year,
+                    'image_url' => asset('storage/' . $vest->item->firstImage?->image_url),
                 ];
             });
 
-        return $bustiers;
+        return $vests;
     }
 
-    public static function getBustierById($id)
+    public static function getVestById($id)
     {
         $query = self::with([
             'item.firstImage',
@@ -96,7 +93,6 @@ class Bustier extends Model
             'id' => $query->id,
             'code' => $query->item->code,
             'name' => $query->item->name,
-            'qty' => $query->qty,
             'color_id' => $query->item->subcolor->color->id,
             'subcolor_id' => $query->item->subcolor->id,
             'production_month' => $query->item->production_month,

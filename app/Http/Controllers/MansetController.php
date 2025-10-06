@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Bustier;
+use App\Models\Manset;
 use App\Models\Items;
 use Illuminate\Http\Request;
 use App\Models\ItemsImagesUrls;
@@ -10,7 +10,7 @@ use Illuminate\Validation\Rule;
 use \Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Storage;
 
-class BustierController extends Controller
+class MansetController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -30,11 +30,11 @@ class BustierController extends Controller
             'limit' => $request->input('limit', 10), // Default to 5 items per page if not provided
             'sort' => $request->input('sort', 'created_at'), // 
         ];
-        $bustierList = Bustier::getBustierList($payload);
+        $mansetList = Manset::getMansetList($payload);
 
         return response()->json([
-            'message' => "Bustier List has been retrieved",
-            'bustier' => $bustierList
+            'message' => "Manset List has been retrieved",
+            'manset' => $mansetList
         ]);
     }
 
@@ -67,12 +67,12 @@ class BustierController extends Controller
                 $item = Items::create([
                     'code' => $validated['code'],
                     'name' => $validated['name'],
-                    'type' => 'bustier', // identify it's bustier
+                    'type' => 'manset', // identify it's manset
                     'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
                     'production_year'  => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
                     'subcolor_id' => $validated['subcolor_id'],
                 ]);
-                Bustier::create([
+                Manset::create([
                     'item_id' => $item->id,
                     'qty' => $validated['qty'],
                 ]);
@@ -86,7 +86,7 @@ class BustierController extends Controller
                     }
                 }
                 return response()->json([
-                    'message' => "Bustier created successfully",
+                    'message' => "Manset created successfully",
                     'data' => $item
                 ], 201);
             } catch (ValidationException $e) {
@@ -96,7 +96,7 @@ class BustierController extends Controller
                 ], 422);
             } catch (\Exception $e) {
                 return response()->json([
-                    'message' => 'Error creating Bustier: ' . $e->getMessage(),
+                    'message' => 'Error creating Manset: ' . $e->getMessage(),
                 ], 500); // 500 = Internal Server Error
             }
         }
@@ -108,14 +108,14 @@ class BustierController extends Controller
     public function show($id)
     {
         //
-        $bustier = Bustier::getBustierById($id);
-        return response()->json($bustier);
+        $manset = Manset::getMansetById($id);
+        return response()->json($manset);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(bustier $bustier)
+    public function edit(Manset $manset)
     {
         //
     }
@@ -126,10 +126,10 @@ class BustierController extends Controller
     public function update(Request $request, $id)
     {
         //
-        $bustier = Bustier::findOrFail($id);
-        if (!$bustier) {
+        $manset = Manset::findOrFail($id);
+        if (!$manset) {
             return response()->json([
-                'message' => 'Bustier not found',
+                'message' => 'Manset not found',
             ], 404);
         }
         try {
@@ -138,7 +138,7 @@ class BustierController extends Controller
                     'required',
                     'string',
                     'max:255',
-                    Rule::unique('items', 'code')->ignore($bustier->item_id),
+                    Rule::unique('items', 'code')->ignore($manset->item_id),
                 ],
                 'name' => 'required|string|max:255',
                 'qty' => 'required|integer',
@@ -148,19 +148,19 @@ class BustierController extends Controller
                 'images' => 'nullable',
                 'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
-            $item = Items::findOrFail($bustier->item_id);
+            $item = Items::findOrFail($manset->item_id);
             $item->update([
                 'code' => $validated['code'],
                 'name' => $validated['name'],
-                'type' => 'bustier', // identify it's bustier
+                'type' => 'manset', // identify it's manset
                 'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
                 'production_year'  => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
                 'subcolor_id' => $validated['subcolor_id'],
             ]);
             if (isset($validated['qty'])) {
-                $bustier = Bustier::where('item_id', $bustier->item_id)->first();
-                if ($bustier) {
-                    $bustier->update([
+                $manset = Manset::where('item_id', $manset->item_id)->first();
+                if ($manset) {
+                    $manset->update([
                         'qty' => $validated['qty'],
                     ]);
                 }
@@ -179,8 +179,8 @@ class BustierController extends Controller
             }
 
             return response()->json([
-                'message' => "Bustier updated successfully",
-                'data' => $bustier
+                'message' => "Manset updated successfully",
+                'data' => $manset
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -189,7 +189,7 @@ class BustierController extends Controller
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Error updating Bustier: ' . $e->getMessage(),
+                'message' => 'Error updating Manset: ' . $e->getMessage(),
             ], 500); // 500 = Internal Server Error
 
         }
@@ -198,18 +198,18 @@ class BustierController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(bustier $bustier)
+    public function destroy(Manset $manset)
     {
         //
-        $deletedCount = Bustier::destroy($bustier->id); // Returns 1 if deleted, 0 if not found
+        $deletedCount = Manset::destroy($manset->id); // Returns 1 if deleted, 0 if not found
 
         if ($deletedCount === 0) {
             return response()->json([
-                'message' => 'Bustier not found',
+                'message' => 'Manset not found',
             ], 404);
         }
         return response()->json([
-            'message' => 'Bustier deleted successfully',
+            'message' => 'Manset deleted successfully',
         ], 200);
     }
 }

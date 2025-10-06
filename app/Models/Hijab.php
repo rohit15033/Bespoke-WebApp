@@ -4,21 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Bustier extends Model
+class Hijab extends Model
 {
     //
-    protected $table = 'bustiers';
+    protected $table = 'hijabs';
     protected $fillable = [
         'item_id',
         'qty'
     ];
-
     public function item()
     {
         return $this->belongsTo(Items::class);
     }
 
-    public static function getBustierList($payload)
+    public static function getHijabList($payload)
     {
         $query = self::with([
             'item.firstImage',
@@ -67,26 +66,26 @@ class Bustier extends Model
 
         $sort = $payload['sort'] ?? 'production_date';
         $limit = $payload['limit'] ?? 10;
-        $bustiers = $query->orderBy($sort, 'desc')
+        $hijabs = $query->orderBy($sort, 'desc')
             ->paginate($limit)
-            ->through(function ($bustier) {
+            ->through(function ($hijab) {
                 return [
-                    'id' => $bustier->id,
-                    'qty' => $bustier->qty,
-                    'code' => $bustier->item->code,
-                    'name' => $bustier->item->name,
-                    'color' => $bustier->item->subcolor->color->name,
-                    'subcolor' => $bustier->item->subcolor->name,
-                    'production_month' => $bustier->item->production_month,
-                    'production_year' => $bustier->item->production_year,
-                    'image_url' => asset('storage/' . $bustier->item->firstImage?->image_url),
+                    'id' => $hijab->id,
+                    'qty' => $hijab->qty,
+                    'code' => $hijab->item->code,
+                    'name' => $hijab->item->name,
+                    'color' => $hijab->item->subcolor->color->name,
+                    'subcolor' => $hijab->item->subcolor->name,
+                    'production_month' => $hijab->item->production_month,
+                    'production_year' => $hijab->item->production_year,
+                    'image_url' => asset('storage/' . $hijab->item->firstImage?->image_url),
                 ];
             });
 
-        return $bustiers;
+        return $hijabs;
     }
 
-    public static function getBustierById($id)
+    public static function getHijabById($id)
     {
         $query = self::with([
             'item.firstImage',

@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Bustier;
+use App\Models\Kemeja;
 use App\Models\Items;
-use Illuminate\Http\Request;
 use App\Models\ItemsImagesUrls;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use \Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Storage;
 
-class BustierController extends Controller
+class KemejaController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,6 +20,7 @@ class BustierController extends Controller
         //
         $payload = [
             'search_filter' => $request->input('search_filter', null), // Optional filter parameter 
+            'type' => $request->input('type', null), // Optional filter parameter   
             'color' => $request->input('color', null), // Optional filter parameter  
             'subcolor' => $request->input('subcolor', null), // Optional filter parameter
             'fromMonth' => $request->input('from_month', null),
@@ -30,14 +31,13 @@ class BustierController extends Controller
             'limit' => $request->input('limit', 10), // Default to 5 items per page if not provided
             'sort' => $request->input('sort', 'created_at'), // 
         ];
-        $bustierList = Bustier::getBustierList($payload);
+        $kemejaList = Kemeja::getKemejaList($payload);
 
         return response()->json([
-            'message' => "Bustier List has been retrieved",
-            'bustier' => $bustierList
+            'message' => "Kemeja List has been retrieved",
+            'kemejas' => $kemejaList
         ]);
     }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -57,7 +57,7 @@ class BustierController extends Controller
                 $validated = $request->validate([
                     'code' => 'required|string|max:255|unique:items,code',
                     'name' => 'required|string|max:255',
-                    'qty' => 'required|integer',
+                    'type' => 'required|string|max:50',
                     'production_month' => 'nullable|integer',
                     'production_year' => 'nullable|integer',
                     'subcolor_id' => 'required|exists:subcolors,id',
@@ -67,14 +67,14 @@ class BustierController extends Controller
                 $item = Items::create([
                     'code' => $validated['code'],
                     'name' => $validated['name'],
-                    'type' => 'bustier', // identify it's bustier
+                    'type' => 'kemeja', // identify it's kemeja
                     'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
                     'production_year'  => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
                     'subcolor_id' => $validated['subcolor_id'],
                 ]);
-                Bustier::create([
+                Kemeja::create([
                     'item_id' => $item->id,
-                    'qty' => $validated['qty'],
+                    'type' => $validated['type'],
                 ]);
                 if ($request->hasFile('images')) {
                     foreach ($request->file('images') as $file) {
@@ -86,7 +86,7 @@ class BustierController extends Controller
                     }
                 }
                 return response()->json([
-                    'message' => "Bustier created successfully",
+                    'message' => "Kemeja created successfully",
                     'data' => $item
                 ], 201);
             } catch (ValidationException $e) {
@@ -96,7 +96,7 @@ class BustierController extends Controller
                 ], 422);
             } catch (\Exception $e) {
                 return response()->json([
-                    'message' => 'Error creating Bustier: ' . $e->getMessage(),
+                    'message' => 'Error creating Kemeja: ' . $e->getMessage(),
                 ], 500); // 500 = Internal Server Error
             }
         }
@@ -108,14 +108,14 @@ class BustierController extends Controller
     public function show($id)
     {
         //
-        $bustier = Bustier::getBustierById($id);
-        return response()->json($bustier);
+        $kemeja = Kemeja::getKemejaById($id);
+        return response()->json($kemeja);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(bustier $bustier)
+    public function edit(Kemeja $kemeja)
     {
         //
     }
@@ -126,10 +126,10 @@ class BustierController extends Controller
     public function update(Request $request, $id)
     {
         //
-        $bustier = Bustier::findOrFail($id);
-        if (!$bustier) {
+        $kemeja = Kemeja::findOrFail($id);
+        if (!$kemeja) {
             return response()->json([
-                'message' => 'Bustier not found',
+                'message' => 'Kemeja not found',
             ], 404);
         }
         try {
@@ -138,30 +138,30 @@ class BustierController extends Controller
                     'required',
                     'string',
                     'max:255',
-                    Rule::unique('items', 'code')->ignore($bustier->item_id),
+                    Rule::unique('items', 'code')->ignore($kemeja->item_id),
                 ],
                 'name' => 'required|string|max:255',
-                'qty' => 'required|integer',
+                'type' => 'required|string|max:50',
                 'production_month' => 'nullable|integer',
                 'production_year' => 'nullable|integer',
                 'subcolor_id' => 'required|exists:subcolors,id',
                 'images' => 'nullable',
                 'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
-            $item = Items::findOrFail($bustier->item_id);
+            $item = Items::findOrFail($kemeja->item_id);
             $item->update([
                 'code' => $validated['code'],
                 'name' => $validated['name'],
-                'type' => 'bustier', // identify it's bustier
+                'type' => 'kemeja', // identify it's kemeja
                 'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
                 'production_year'  => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
                 'subcolor_id' => $validated['subcolor_id'],
             ]);
-            if (isset($validated['qty'])) {
-                $bustier = Bustier::where('item_id', $bustier->item_id)->first();
-                if ($bustier) {
-                    $bustier->update([
-                        'qty' => $validated['qty'],
+            if (isset($validated['type'])) {
+                $kemeja = Kemeja::where('item_id', $kemeja->item_id)->first();
+                if ($kemeja) {
+                    $kemeja->update([
+                        'type' => $validated['type'],
                     ]);
                 }
             }
@@ -179,8 +179,8 @@ class BustierController extends Controller
             }
 
             return response()->json([
-                'message' => "Bustier updated successfully",
-                'data' => $bustier
+                'message' => "Kemeja updated successfully",
+                'data' => $kemeja
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -189,7 +189,7 @@ class BustierController extends Controller
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Error updating Bustier: ' . $e->getMessage(),
+                'message' => 'Error updating Kemeja: ' . $e->getMessage(),
             ], 500); // 500 = Internal Server Error
 
         }
@@ -198,18 +198,18 @@ class BustierController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(bustier $bustier)
+    public function destroy(Kemeja $kemeja)
     {
         //
-        $deletedCount = Bustier::destroy($bustier->id); // Returns 1 if deleted, 0 if not found
+        $deletedCount = Kemeja::destroy($kemeja->id); // Returns 1 if deleted, 0 if not found
 
         if ($deletedCount === 0) {
             return response()->json([
-                'message' => 'Bustier not found',
+                'message' => 'Kemeja not found',
             ], 404);
         }
         return response()->json([
-            'message' => 'Bustier deleted successfully',
+            'message' => 'Kemeja deleted successfully',
         ], 200);
     }
 }

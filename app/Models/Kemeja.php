@@ -4,21 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Bustier extends Model
+class Kemeja extends Model
 {
     //
-    protected $table = 'bustiers';
-    protected $fillable = [
-        'item_id',
-        'qty'
-    ];
-
+    protected $table = 'kemejas';
+    protected $fillable = ['item_id', 'type'];
     public function item()
     {
-        return $this->belongsTo(Items::class);
+        return $this->belongsTo(Items::class, 'item_id');
     }
-
-    public static function getBustierList($payload)
+    public static function getKemejaList($payload)
     {
         $query = self::with([
             'item.firstImage',
@@ -64,29 +59,32 @@ class Bustier extends Model
                 $q->where('production_year', '<=', $payload['toYear']);
             });
         }
+        if (!empty($payload['type'])) {
+            $query->where('type', $payload['type']);
+        }
 
         $sort = $payload['sort'] ?? 'production_date';
         $limit = $payload['limit'] ?? 10;
-        $bustiers = $query->orderBy($sort, 'desc')
+        $kemejas = $query->orderBy($sort, 'desc')
             ->paginate($limit)
-            ->through(function ($bustier) {
+            ->through(function ($kemeja) {
                 return [
-                    'id' => $bustier->id,
-                    'qty' => $bustier->qty,
-                    'code' => $bustier->item->code,
-                    'name' => $bustier->item->name,
-                    'color' => $bustier->item->subcolor->color->name,
-                    'subcolor' => $bustier->item->subcolor->name,
-                    'production_month' => $bustier->item->production_month,
-                    'production_year' => $bustier->item->production_year,
-                    'image_url' => asset('storage/' . $bustier->item->firstImage?->image_url),
+                    'id' => $kemeja->id,
+                    'type' => $kemeja->type,
+                    'code' => $kemeja->item->code,
+                    'name' => $kemeja->item->name,
+                    'color' => $kemeja->item->subcolor->color->name,
+                    'subcolor' => $kemeja->item->subcolor->name,
+                    'production_month' => $kemeja->item->production_month,
+                    'production_year' => $kemeja->item->production_year,
+                    'image_url' => asset('storage/' . $kemeja->item->firstImage?->image_url),
                 ];
             });
 
-        return $bustiers;
+        return $kemejas;
     }
 
-    public static function getBustierById($id)
+    public static function getKemejaById($id)
     {
         $query = self::with([
             'item.firstImage',
@@ -96,7 +94,7 @@ class Bustier extends Model
             'id' => $query->id,
             'code' => $query->item->code,
             'name' => $query->item->name,
-            'qty' => $query->qty,
+            'type' => $query->type,
             'color_id' => $query->item->subcolor->color->id,
             'subcolor_id' => $query->item->subcolor->id,
             'production_month' => $query->item->production_month,

@@ -4,21 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Bustier extends Model
+class Manset extends Model
 {
     //
-    protected $table = 'bustiers';
+    protected $table = 'mansets';
     protected $fillable = [
         'item_id',
         'qty'
     ];
-
     public function item()
     {
         return $this->belongsTo(Items::class);
     }
 
-    public static function getBustierList($payload)
+    public static function getMansetList($payload)
     {
         $query = self::with([
             'item.firstImage',
@@ -67,26 +66,26 @@ class Bustier extends Model
 
         $sort = $payload['sort'] ?? 'production_date';
         $limit = $payload['limit'] ?? 10;
-        $bustiers = $query->orderBy($sort, 'desc')
+        $mansets = $query->orderBy($sort, 'desc')
             ->paginate($limit)
-            ->through(function ($bustier) {
+            ->through(function ($manset) {
                 return [
-                    'id' => $bustier->id,
-                    'qty' => $bustier->qty,
-                    'code' => $bustier->item->code,
-                    'name' => $bustier->item->name,
-                    'color' => $bustier->item->subcolor->color->name,
-                    'subcolor' => $bustier->item->subcolor->name,
-                    'production_month' => $bustier->item->production_month,
-                    'production_year' => $bustier->item->production_year,
-                    'image_url' => asset('storage/' . $bustier->item->firstImage?->image_url),
+                    'id' => $manset->id,
+                    'qty' => $manset->qty,
+                    'code' => $manset->item->code,
+                    'name' => $manset->item->name,
+                    'color' => $manset->item->subcolor->color->name,
+                    'subcolor' => $manset->item->subcolor->name,
+                    'production_month' => $manset->item->production_month,
+                    'production_year' => $manset->item->production_year,
+                    'image_url' => asset('storage/' . $manset->item->firstImage?->image_url),
                 ];
             });
 
-        return $bustiers;
+        return $mansets;
     }
 
-    public static function getBustierById($id)
+    public static function getMansetById($id)
     {
         $query = self::with([
             'item.firstImage',

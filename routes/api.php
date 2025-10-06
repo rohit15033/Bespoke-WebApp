@@ -7,6 +7,16 @@ use App\Http\Controllers\BeskapController;
 use App\Http\Controllers\CelanaController;
 use App\Http\Controllers\KebayaController;
 use App\Http\Controllers\SelopController;
+use App\Http\Controllers\BustierController;
+use App\Http\Controllers\MansetController;
+use App\Http\Controllers\HijabController;
+use App\Http\Controllers\VeilController;
+use App\Http\Controllers\EkorController;
+use App\Http\Controllers\VestController;
+use App\Http\Controllers\DasiController;
+use App\Http\Controllers\KemejaController;
+use App\Http\Controllers\HeadwearController;
+
 
 
 /*
@@ -56,6 +66,71 @@ Route::get('selop/{id}', [SelopController::class, 'show']);
 Route::patch('selop/{id}', [SelopController::class, 'update']);
 Route::delete('selop/{id}', [SelopController::class, 'destroy']);
 
+//bustier routes
+Route::get('bustier', [BustierController::class, 'index']);
+Route::post('bustier', [BustierController::class, 'store']);
+Route::get('bustier/{id}', [BustierController::class, 'show']);
+Route::patch('bustier/{id}', [BustierController::class, 'update']);
+Route::delete('bustier/{id}', [BustierController::class, 'destroy']);
+
+//manset routes
+Route::get('manset', [MansetController::class, 'index']);
+Route::post('manset', [MansetController::class, 'store']);
+Route::get('manset/{id}', [MansetController::class, 'show']);
+Route::patch('manset/{id}', [MansetController::class, 'update']);
+Route::delete('manset/{id}', [MansetController::class, 'destroy']);
+
+//hijab routes
+Route::get('hijab', [HijabController::class, 'index']);
+Route::post('hijab', [HijabController::class, 'store']);
+Route::get('hijab/{id}', [HijabController::class, 'show']);
+Route::patch('hijab/{id}', [HijabController::class, 'update']);
+Route::delete('hijab/{id}', [HijabController::class, 'destroy']);
+
+//veil routes
+Route::get('veil', [VeilController::class, 'index']);
+Route::post('veil', [VeilController::class, 'store']);
+Route::get('veil/{id}', [VeilController::class, 'show']);
+Route::patch('veil/{id}', [VeilController::class, 'update']);
+Route::delete('veil/{id}', [VeilController::class, 'destroy']);
+
+//ekor routes
+Route::get('ekor', [EkorController::class, 'index']);
+Route::post('ekor', [EkorController::class, 'store']);
+Route::get('ekor/{id}', [EkorController::class, 'show']);
+Route::patch('ekor/{id}', [EkorController::class, 'update']);
+Route::delete('ekor/{id}', [EkorController::class, 'destroy']);
+
+//vest routes
+Route::get('vest', [VestController::class, 'index']);
+Route::post('vest', [VestController::class, 'store']);
+Route::get('vest/{id}', [VestController::class, 'show']);
+Route::patch('vest/{id}', [VestController::class, 'update']);
+Route::delete('vest/{id}', [VestController::class, 'destroy']);
+
+//dasi routes
+Route::get('dasi', [DasiController::class, 'index']);
+Route::post('dasi', [DasiController::class, 'store']);
+Route::get('dasi/{id}', [DasiController::class, 'show']);
+Route::patch('dasi/{id}', [DasiController::class, 'update']);
+Route::delete('dasi/{id}', [DasiController::class, 'destroy']);
+
+//kemeja routes 
+Route::get('kemeja', [KemejaController::class, 'index']);
+Route::post('kemeja', [KemejaController::class, 'store']);
+Route::get('kemeja/{id}', [KemejaController::class, 'show']);
+Route::patch('kemeja/{id}', [KemejaController::class, 'update']);
+Route::delete('kemeja/{id}', [KemejaController::class, 'destroy']);
+
+//headwear routes
+Route::get('headwear', [HeadwearController::class, 'index']);
+Route::post('headwear', [HeadwearController::class, 'store']);
+Route::get('headwear/{id}', [HeadwearController::class, 'show']);
+Route::patch('headwear/{id}', [HeadwearController::class, 'update']);
+Route::delete('headwear/{id}', [HeadwearController::class, 'destroy']);
+
+Route::get('/headwear-attributes', [App\Http\Controllers\HeadwearAttributesController::class, 'index']);
+Route::get('/headwear-attributes/with-values', [App\Http\Controllers\HeadwearAttributesController::class, 'attributesWithValues']);
 
 
 // Protected routes (require authentication with Sanctum token)

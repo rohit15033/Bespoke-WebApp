@@ -4,13 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Bustier extends Model
+class Ekor extends Model
 {
     //
-    protected $table = 'bustiers';
+    protected $table = 'ekors';
     protected $fillable = [
-        'item_id',
-        'qty'
+        'item_id'
     ];
 
     public function item()
@@ -18,7 +17,7 @@ class Bustier extends Model
         return $this->belongsTo(Items::class);
     }
 
-    public static function getBustierList($payload)
+    public static function getEkorList($payload)
     {
         $query = self::with([
             'item.firstImage',
@@ -67,26 +66,25 @@ class Bustier extends Model
 
         $sort = $payload['sort'] ?? 'production_date';
         $limit = $payload['limit'] ?? 10;
-        $bustiers = $query->orderBy($sort, 'desc')
+        $ekors = $query->orderBy($sort, 'desc')
             ->paginate($limit)
-            ->through(function ($bustier) {
+            ->through(function ($ekor) {
                 return [
-                    'id' => $bustier->id,
-                    'qty' => $bustier->qty,
-                    'code' => $bustier->item->code,
-                    'name' => $bustier->item->name,
-                    'color' => $bustier->item->subcolor->color->name,
-                    'subcolor' => $bustier->item->subcolor->name,
-                    'production_month' => $bustier->item->production_month,
-                    'production_year' => $bustier->item->production_year,
-                    'image_url' => asset('storage/' . $bustier->item->firstImage?->image_url),
+                    'id' => $ekor->id,
+                    'code' => $ekor->item->code,
+                    'name' => $ekor->item->name,
+                    'color' => $ekor->item->subcolor->color->name,
+                    'subcolor' => $ekor->item->subcolor->name,
+                    'production_month' => $ekor->item->production_month,
+                    'production_year' => $ekor->item->production_year,
+                    'image_url' => asset('storage/' . $ekor->item->firstImage?->image_url),
                 ];
             });
 
-        return $bustiers;
+        return $ekors;
     }
 
-    public static function getBustierById($id)
+    public static function getEkorById($id)
     {
         $query = self::with([
             'item.firstImage',
@@ -96,7 +94,6 @@ class Bustier extends Model
             'id' => $query->id,
             'code' => $query->item->code,
             'name' => $query->item->name,
-            'qty' => $query->qty,
             'color_id' => $query->item->subcolor->color->id,
             'subcolor_id' => $query->item->subcolor->id,
             'production_month' => $query->item->production_month,
