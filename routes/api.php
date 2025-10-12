@@ -16,7 +16,8 @@ use App\Http\Controllers\VestController;
 use App\Http\Controllers\DasiController;
 use App\Http\Controllers\KemejaController;
 use App\Http\Controllers\HeadwearController;
-
+use App\Http\Controllers\AccessoryController;
+use App\Http\Controllers\ItemsController;
 
 
 /*
@@ -129,8 +130,15 @@ Route::get('headwear/{id}', [HeadwearController::class, 'show']);
 Route::patch('headwear/{id}', [HeadwearController::class, 'update']);
 Route::delete('headwear/{id}', [HeadwearController::class, 'destroy']);
 
-Route::get('/headwear-attributes', [App\Http\Controllers\HeadwearAttributesController::class, 'index']);
-Route::get('/headwear-attributes/with-values', [App\Http\Controllers\HeadwearAttributesController::class, 'attributesWithValues']);
+//accessories routes
+Route::get('accessories', [AccessoryController::class, 'index']);
+Route::post('accessories', [AccessoryController::class, 'store']);
+Route::get('accessories/{id}', [AccessoryController::class, 'show']);
+Route::patch('accessories/{id}', [AccessoryController::class, 'update']);
+Route::delete('accessories/{id}', [AccessoryController::class, 'destroy']);
+
+//items
+Route::get('get-item-code', [ItemsController::class, 'getItemCode']);
 
 
 // Protected routes (require authentication with Sanctum token)

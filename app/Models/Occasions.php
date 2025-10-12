@@ -13,7 +13,7 @@ class Occasions extends Model
 
     public function kebayas()
     {
-        return $this->belongsToMany(Kebaya::class, 'kebaya_occasion');
+        return $this->belongsToMany(Kebaya::class, 'kebaya_occasions', 'kebaya_id', 'occasion_id');
     }
 
 

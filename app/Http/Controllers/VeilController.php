@@ -51,6 +51,15 @@ class VeilController extends Controller
      */
     public function store(Request $request)
     {
+        $request->merge([
+            'production_month' => in_array($request->production_month, [null, '', 'null', 'Choose Month'])
+                ? null
+                : $request->production_month,
+            'production_year' => in_array($request->production_year, [null, '', 'null', 'Choose Year'])
+                ? null
+                : $request->production_year,
+        ]);
+
         try {
             $validated = $request->validate([
                 'code' => 'required|string|max:255|unique:items,code',
@@ -66,7 +75,7 @@ class VeilController extends Controller
                 'name' => $validated['name'],
                 'type' => 'veil', // identify it's veil
                 'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
-                'production_year'  => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
+                'production_year' => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
 
                 'subcolor_id' => $validated['subcolor_id'],
             ]);
@@ -122,6 +131,15 @@ class VeilController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $request->merge([
+            'production_month' => in_array($request->production_month, [null, '', 'null', 'Choose Month'])
+                ? null
+                : $request->production_month,
+            'production_year' => in_array($request->production_year, [null, '', 'null', 'Choose Year'])
+                ? null
+                : $request->production_year,
+        ]);
+
         //
         $veil = Veil::findOrFail($id);
         if (!$veil) {
@@ -150,7 +168,7 @@ class VeilController extends Controller
                 'name' => $validated['name'],
                 'type' => 'veil', // identify it's veil
                 'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
-                'production_year'  => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
+                'production_year' => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
                 'subcolor_id' => $validated['subcolor_id'],
             ]);
             $existingImageIds = $request->input('existing_images', []);

@@ -92,6 +92,7 @@ class Kemeja extends Model
         ])->findOrFail($id);
         $mapped = [
             'id' => $query->id,
+            'parent_id' => $query->item->id,
             'code' => $query->item->code,
             'name' => $query->item->name,
             'type' => $query->type,

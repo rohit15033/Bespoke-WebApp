@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kebaya_occasions', function (Blueprint $table) {
+        Schema::create('accessories', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('item_id')->constrained('items')->onDelete('cascade');
+            $table->enum('accessories_type', ['Crown', 'Bros', 'Kembang Goyang', 'Karset', 'Obi', 'Selendang']);
+            $table->enum('parent_type', ['Kebaya', 'Blangkon'])->nullable();
             $table->timestamps();
         });
     }
@@ -22,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kebaya_occasions');
+        Schema::dropIfExists('accessories');
     }
 };

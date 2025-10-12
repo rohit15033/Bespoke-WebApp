@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kebaya', function (Blueprint $table) {
+        Schema::create('headwears', function (Blueprint $table) {
             $table->id();
-    $table->string('code', 50)->unique();
-    $table->string('name', 100);
-    $table->foreignId('subcolor_id')->constrained('subcolors')->onDelete('cascade');
-    $table->string('length', 50);
-    $table->date('production_date'); 
-    $table->timestamps();
+            $table->foreignId('item_id')->constrained('items')->onDelete('cascade');
+            $table->enum('headwear_type', ['blangkon', 'peci', 'tanjak']);
+            $table->string('adat')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kebaya');
+        Schema::dropIfExists('headwears');
     }
 };

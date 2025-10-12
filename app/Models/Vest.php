@@ -91,6 +91,7 @@ class Vest extends Model
         ])->findOrFail($id);
         $mapped = [
             'id' => $query->id,
+            'parent_id' => $query->item->id,
             'code' => $query->item->code,
             'name' => $query->item->name,
             'color_id' => $query->item->subcolor->color->id,

@@ -51,6 +51,15 @@ class KemejaController extends Controller
      */
     public function store(Request $request)
     {
+        $request->merge([
+            'production_month' => in_array($request->production_month, [null, '', 'null', 'Choose Month'])
+                ? null
+                : $request->production_month,
+            'production_year' => in_array($request->production_year, [null, '', 'null', 'Choose Year'])
+                ? null
+                : $request->production_year,
+        ]);
+
         //
         {
             try {
@@ -69,7 +78,7 @@ class KemejaController extends Controller
                     'name' => $validated['name'],
                     'type' => 'kemeja', // identify it's kemeja
                     'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
-                    'production_year'  => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
+                    'production_year' => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
                     'subcolor_id' => $validated['subcolor_id'],
                 ]);
                 Kemeja::create([
@@ -125,6 +134,15 @@ class KemejaController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $request->merge([
+            'production_month' => in_array($request->production_month, [null, '', 'null', 'Choose Month'])
+                ? null
+                : $request->production_month,
+            'production_year' => in_array($request->production_year, [null, '', 'null', 'Choose Year'])
+                ? null
+                : $request->production_year,
+        ]);
+
         //
         $kemeja = Kemeja::findOrFail($id);
         if (!$kemeja) {
@@ -154,7 +172,7 @@ class KemejaController extends Controller
                 'name' => $validated['name'],
                 'type' => 'kemeja', // identify it's kemeja
                 'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
-                'production_year'  => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
+                'production_year' => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
                 'subcolor_id' => $validated['subcolor_id'],
             ]);
             if (isset($validated['type'])) {

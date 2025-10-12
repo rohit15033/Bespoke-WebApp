@@ -13,14 +13,7 @@ class ItemsController extends Controller
     public function index(Request $request)
     {
         //
-         $payload = [
-            'beskap_filter' => $request->input('beskap_filter', null), // Optional filter parameter 
-            'color' => $request->input('color', null), // Optional filter parameter  
-            'subcolor' => $request->input('subcolor', null), // Optional filter parameter
-            'page' => $request->input('page', 1), // Default to page 1 if not provided
-            'limit' => $request->input('limit', 10), // Default to 5 items per page if not provided
-            'sort' => $request->input('sort', 'created_at'), // 
-        ];
+
 
     }
 
@@ -70,5 +63,25 @@ class ItemsController extends Controller
     public function destroy(Items $items)
     {
         //
+    }
+
+    public function getItemCode(Request $request)
+    {
+        $code = $request->input('code');
+        $id = $request->input('id');
+
+        // 🧠 If updating and code is the same, just return it
+        if ($id) {
+            $item = Items::find($id);
+            if ($item && str_starts_with($item->code, $code)) {
+                return response()->json(['data' => $item->code]);
+            }
+        }
+
+        // Generate next available code
+        $latest = Items::where('code', 'like', "$code%")->orderBy('code', 'desc')->first();
+        $nextNumber = $latest ? str_pad((int) substr($latest->code, strrpos($latest->code, '-') + 1) + 1, 2, '0', STR_PAD_LEFT) : '01';
+
+        return response()->json(['data' => "$code-$nextNumber"]);
     }
 }

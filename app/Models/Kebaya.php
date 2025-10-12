@@ -3,67 +3,71 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Facades\DB;
-
 
 class Kebaya extends Model
 {
     //
-    use HasFactory;
-    protected $table = 'kebaya';
-
+    protected $table = 'kebayas';
     protected $fillable = [
-        'code',
-        'name',
-        'subcolor_id',
+        'item_id',
         'length',
-        'production_date',
     ];
-    public function subcolor()
-    {
-        return $this->belongsTo(SubColors::class);
-    }
-
-    public function images()
-    {
-        return $this->hasMany(KebayaImages::class);
-    }
-
-    public function firstImage()
-    {
-        return $this->hasOne(KebayaImages::class)->oldestOfMany();
-    }
 
     public function occasions()
     {
-        return $this->belongsToMany(Occasions::class, 'kebaya_occasion', 'kebaya_id', 'occasion_id');
+        return $this->belongsToMany(Occasions::class, 'kebaya_occasions', 'kebaya_id', 'occasion_id');
+    }
+
+    public function item()
+    {
+        return $this->belongsTo(Items::class);
     }
 
     public static function getKebayaList($payload)
     {
-
-        $query = self::with(['subcolor.color', 'occasions', 'firstImage']);
-
+        $query = self::with([
+            'item.firstImage',
+            'item.subcolor.color',
+            'occasions.kebayas'
+        ]);
         // Search filter (code OR name)
-        if (!empty($payload['kebaya_filter'])) {
-            $query->where(function ($q) use ($payload) {
-                $q->where('code', 'like', '%' . $payload['kebaya_filter'] . '%')
-                    ->orWhere('name', 'like', '%' . $payload['kebaya_filter'] . '%');
+        if (!empty($payload['search_filter'])) {
+            $query->whereHas('item', function ($q) use ($payload) {
+                $q->where('code', 'like', '%' . $payload['search_filter'] . '%')
+                    ->orWhere('name', 'like', '%' . $payload['search_filter'] . '%');
             });
         }
-
         // Filter by color (via relation)
         if (!empty($payload['color'])) {
-            $query->whereHas('subcolor.color', function ($q) use ($payload) {
-                $q->where('name', $payload['color']);
+            $query->whereHas('item.subcolor.color', function ($q) use ($payload) {
+                $q->where('id', $payload['color']);
             });
         }
 
         // Filter by subcolor (via relation)
         if (!empty($payload['subcolor'])) {
-            $query->whereHas('subcolor', function ($q) use ($payload) {
+            $query->whereHas('item.subcolor', function ($q) use ($payload) {
                 $q->where('name', $payload['subcolor']);
+            });
+        }
+        if (!empty($payload['fromMonth'])) {
+            $query->whereHas('item', function ($q) use ($payload) {
+                $q->where('production_month', '>=', $payload['fromMonth']);
+            });
+        }
+        if (!empty($payload['toMonth'])) {
+            $query->whereHas('item', function ($q) use ($payload) {
+                $q->where('production_month', '<=', $payload['toMonth']);
+            });
+        }
+        if (!empty($payload['fromYear'])) {
+            $query->whereHas('item', function ($q) use ($payload) {
+                $q->where('production_year', '>=', $payload['fromYear']);
+            });
+        }
+        if (!empty($payload['toYear'])) {
+            $query->whereHas('item', function ($q) use ($payload) {
+                $q->where('production_year', '<=', $payload['toYear']);
             });
         }
 
@@ -72,49 +76,49 @@ class Kebaya extends Model
                 $q->where('name', $payload['occasion']);
             });
         }
-        if (!empty($payload['fromAt'])) {
-            $query->where('production_date', '>=', $payload['fromAt']);
-        }
-        if (!empty($payload['toAt'])) {
-            $query->where('production_date', '<=', $payload['toAt']);
-        }
+
 
         $sort = $payload['sort'] ?? 'production_date';
         $limit = $payload['limit'] ?? 10;
-
         $kebayas = $query->orderBy($sort, 'desc')
             ->paginate($limit)
             ->through(function ($kebaya) {
                 return [
                     'id' => $kebaya->id,
-                    'code' => $kebaya->code,
-                    'name' => $kebaya->name,
-                    'color' => $kebaya->subcolor->color->name,
-                    'subcolor' => $kebaya->subcolor->name,
-                    'length' => $kebaya->length,
-                    'production_date' => $kebaya->production_date,
+                    'code' => $kebaya->item->code,
+                    'name' => $kebaya->item->name,
+                    'color' => $kebaya->item->subcolor->color->name,
+                    'subcolor' => $kebaya->item->subcolor->name,
                     'occasions' => $kebaya->occasions->pluck('name')->implode(', '),
-                    'image_url' => asset('storage/' . $kebaya->firstImage?->image_url),
+                    'production_month' => $kebaya->item->production_month,
+                    'production_year' => $kebaya->item->production_year,
+                    'image_url' => asset('storage/' . $kebaya->item->firstImage?->image_url),
                 ];
             });
-
 
         return $kebayas;
     }
 
     public static function getKebayaById($id)
     {
-        $query = self::with(['subcolor.color', 'occasions', 'images'])
-            ->findOrFail($id);
+        $query = self::with([
+            'item.firstImage',
+            'item.subcolor.color',
+            'occasions.kebayas'
+        ])->findOrFail($id);
         $mapped = [
             'id' => $query->id,
-            'code' => $query->code,
-            'name' => $query->name,
-            'color_id' => $query->subcolor->color->id,
-            'subcolor_id' => $query->subcolor->id,
-            'production_month' => $query->production_month,
-            'production_year' => $query->production_year,
-            'images' => $query->images->map(function ($img) {
+            'parent_id' => $query->item->id,
+            'code' => $query->item->code,
+            'name' => $query->item->name,
+            'length' => $query->length,
+            'color_id' => $query->item->subcolor->color->id,
+            'occasions' => $query->occasions->pluck('name')->implode(', '),
+            'occasions_id' => $query->occasions->pluck('id'),
+            'subcolor_id' => $query->item->subcolor->id,
+            'production_month' => $query->item->production_month,
+            'production_year' => $query->item->production_year,
+            'images' => $query->item->images->map(function ($img) {
                 return [
                     'id' => $img->id,
                     'url' => asset('storage/' . $img->image_url),

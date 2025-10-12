@@ -49,10 +49,10 @@ class DatabaseSeeder extends Seeder
         SubColors::factory(15)->create();
 
         // Items with images (requires SubColors)
-        $this->call(ItemsSeeder::class);
-        // Headwear and item-linked tables
-        $this->call(HeadwearSeeder::class);
-        $this->call(ItemLinkedSeeder::class);
+        // $this->call(ItemsSeeder::class);
+        // // Headwear and item-linked tables
+
+        // $this->call(ItemLinkedSeeder::class);
         // Kebaya::factory(15)->create();
         // KebayaImages::factory(30)->create();
         // Beskap::factory(15)->create();

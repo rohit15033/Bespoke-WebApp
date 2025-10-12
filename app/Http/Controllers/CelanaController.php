@@ -52,6 +52,15 @@ class CelanaController extends Controller
      */
     public function store(Request $request)
     {
+        $request->merge([
+            'production_month' => in_array($request->production_month, [null, '', 'null', 'Choose Month'])
+                ? null
+                : $request->production_month,
+            'production_year' => in_array($request->production_year, [null, '', 'null', 'Choose Year'])
+                ? null
+                : $request->production_year,
+        ]);
+
         try {
             $validated = $request->validate([
                 'code' => 'required|string|max:255|unique:items,code',
@@ -114,6 +123,14 @@ class CelanaController extends Controller
     public function update(Request $request, $id)
     {
         //
+        $request->merge([
+            'production_month' => in_array($request->production_month, [null, '', 'null', 'Choose Month'])
+                ? null
+                : $request->production_month,
+            'production_year' => in_array($request->production_year, [null, '', 'null', 'Choose Year'])
+                ? null
+                : $request->production_year,
+        ]);
         $celana = Celana::findOrFail($id);
         if (!$celana) {
             return response()->json([
@@ -121,6 +138,7 @@ class CelanaController extends Controller
             ], 404);
         }
         try {
+
             $validated = $request->validate([
                 'code' => [
                     'required',

@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Manset;
+use App\Models\Accessory;
 use App\Models\Items;
-use Illuminate\Http\Request;
 use App\Models\ItemsImagesUrls;
-use Illuminate\Validation\Rule;
+use Illuminate\Http\Request;
 use \Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
-class MansetController extends Controller
+
+class AccessoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -29,14 +30,17 @@ class MansetController extends Controller
             'page' => $request->input('page', 1), // Default to page 1 if not provided
             'limit' => $request->input('limit', 10), // Default to 5 items per page if not provided
             'sort' => $request->input('sort', 'created_at'), // 
+            'accessories_type' => $request->input('accessories_type', null), // Optional filter parameter 
+            'parent_type' => $request->input('parent_type', null)
         ];
-        $mansetList = Manset::getMansetList($payload);
 
+        $accessoriesList = Accessory::getAccessoriesList($payload);
         return response()->json([
-            'message' => "Manset List has been retrieved",
-            'manset' => $mansetList
+            'message' => "Accessories List has been retrieved",
+            'accessories' => $accessoriesList
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -61,53 +65,54 @@ class MansetController extends Controller
         ]);
 
         //
-        {
-            try {
-                $validated = $request->validate([
-                    'code' => 'required|string|max:255|unique:items,code',
-                    'name' => 'required|string|max:255',
-                    'qty' => 'required|integer',
-                    'production_month' => 'nullable|integer',
-                    'production_year' => 'nullable|integer',
-                    'subcolor_id' => 'required|exists:subcolors,id',
-                    'images' => 'required',
-                    'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
-                ]);
-                $item = Items::create([
-                    'code' => $validated['code'],
-                    'name' => $validated['name'],
-                    'type' => 'manset', // identify it's manset
-                    'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
-                    'production_year' => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
-                    'subcolor_id' => $validated['subcolor_id'],
-                ]);
-                Manset::create([
-                    'item_id' => $item->id,
-                    'qty' => $validated['qty'],
-                ]);
-                if ($request->hasFile('images')) {
-                    foreach ($request->file('images') as $file) {
-                        $path = $file->store('items_images', 'public');
-                        ItemsImagesUrls::create([
-                            'item_id' => $item->id,
-                            'image_url' => $path,
-                        ]);
-                    }
+        try {
+            //code...
+            $validated = $request->validate([
+                'code' => 'required|string|max:255|unique:items,code',
+                'name' => 'required|string|max:255',
+                'production_month' => 'nullable|integer',
+                'production_year' => 'nullable|integer',
+                'subcolor_id' => 'required|exists:subcolors,id',
+                'images' => 'required',
+                'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'accessories_type' => ['required', Rule::in(['Crown', 'Bros', 'Kembang Goyang', 'Karset', 'Obi', 'Selendang'])],
+                'parent_type' => 'nullable|string|max:255',
+            ]);
+            $item = Items::create([
+                'code' => $validated['code'],
+                'name' => $validated['name'],
+                'type' => 'accessories', // identify it's accessories
+                'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
+                'production_year' => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
+                'subcolor_id' => $validated['subcolor_id'],
+            ]);
+            Accessory::create([
+                'item_id' => $item->id,
+                'accessories_type' => $validated['accessories_type'],
+                'parent_type' => $validated['parent_type'] ?? null,
+            ]);
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $file) {
+                    $path = $file->store('items_images', 'public');
+                    ItemsImagesUrls::create([
+                        'item_id' => $item->id,
+                        'image_url' => $path,
+                    ]);
                 }
-                return response()->json([
-                    'message' => "Manset created successfully",
-                    'data' => $item
-                ], 201);
-            } catch (ValidationException $e) {
-                return response()->json([
-                    'message' => 'Validation failed',
-                    'errors' => $e->errors(),
-                ], 422);
-            } catch (\Exception $e) {
-                return response()->json([
-                    'message' => 'Error creating Manset: ' . $e->getMessage(),
-                ], 500); // 500 = Internal Server Error
             }
+            return response()->json([
+                'message' => "Accessory created successfully",
+                'data' => $item
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error creating Accessory: ' . $e->getMessage(),
+            ], 500); // 500 = Internal Server Error
         }
     }
 
@@ -117,14 +122,14 @@ class MansetController extends Controller
     public function show($id)
     {
         //
-        $manset = Manset::getMansetById($id);
-        return response()->json($manset);
+        $accessory = Accessory::getAccessoryById($id);
+        return response()->json($accessory);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Manset $manset)
+    public function edit(Accessory $accessory)
     {
         //
     }
@@ -144,10 +149,10 @@ class MansetController extends Controller
         ]);
 
         //
-        $manset = Manset::findOrFail($id);
-        if (!$manset) {
+        $accessory = Accessory::findOrFail($id);
+        if (!$accessory) {
             return response()->json([
-                'message' => 'Manset not found',
+                'message' => 'Accessory not found',
             ], 404);
         }
         try {
@@ -156,33 +161,35 @@ class MansetController extends Controller
                     'required',
                     'string',
                     'max:255',
-                    Rule::unique('items', 'code')->ignore($manset->item_id),
+                    Rule::unique('items', 'code')->ignore($accessory->item_id),
                 ],
                 'name' => 'required|string|max:255',
-                'qty' => 'required|integer',
                 'production_month' => 'nullable|integer',
                 'production_year' => 'nullable|integer',
                 'subcolor_id' => 'required|exists:subcolors,id',
                 'images' => 'nullable',
                 'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'parent_type' => 'nullable|string|max:255',
+                'accessories_type' => ['required', Rule::in(['Crown', 'Bros', 'Kembang Goyang', 'Karset', 'Obi', 'Selendang'])],
             ]);
-            $item = Items::findOrFail($manset->item_id);
+            $item = Items::findOrFail($accessory->item_id);
             $item->update([
                 'code' => $validated['code'],
                 'name' => $validated['name'],
-                'type' => 'manset', // identify it's manset
+                'type' => 'accessories', // identify it's accessories
                 'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
                 'production_year' => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
                 'subcolor_id' => $validated['subcolor_id'],
             ]);
-            if (isset($validated['qty'])) {
-                $manset = Manset::where('item_id', $manset->item_id)->first();
-                if ($manset) {
-                    $manset->update([
-                        'qty' => $validated['qty'],
-                    ]);
-                }
+            $accessory = Accessory::where('item_id', $accessory->item_id)->first();
+            if ($accessory->accessories_type === 'Bros' && isset($validated['parent_type'])) {
+                $accessory->update(['parent_type' => $validated['parent_type']]);
+            } else if ($accessory) {
+                $accessory->update([
+                    'accessories_type' => $validated['accessories_type'],
+                ]);
             }
+
             $existingImageIds = $request->input('existing_images', []);
             $newImages = $request->file('new_images', []);
             $item->images()->whereNotIn('id', $existingImageIds)->get()->each(function ($img) {
@@ -197,8 +204,8 @@ class MansetController extends Controller
             }
 
             return response()->json([
-                'message' => "Manset updated successfully",
-                'data' => $manset
+                'message' => "Accessory updated successfully",
+                'data' => $accessory
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -207,7 +214,7 @@ class MansetController extends Controller
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Error updating Manset: ' . $e->getMessage(),
+                'message' => 'Error updating Accessory: ' . $e->getMessage(),
             ], 500); // 500 = Internal Server Error
 
         }
@@ -216,18 +223,18 @@ class MansetController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Manset $manset)
+    public function destroy($id)
     {
         //
-        $deletedCount = Manset::destroy($manset->id); // Returns 1 if deleted, 0 if not found
+        $deletedCount = Accessory::destroy($id); // Returns 1 if deleted, 0 if not found
 
         if ($deletedCount === 0) {
             return response()->json([
-                'message' => 'Manset not found',
+                'message' => 'Accessory not found',
             ], 404);
         }
         return response()->json([
-            'message' => 'Manset deleted successfully',
+            'message' => 'Accessory deleted successfully',
         ], 200);
     }
 }
