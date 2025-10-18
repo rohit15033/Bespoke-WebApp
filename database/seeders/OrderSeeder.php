@@ -61,7 +61,7 @@ class OrderSeeder extends Seeder
         // Create items for the bride's set
         $brideKebaya = OrderItem::create([
             'order_set_id' => $womanSet->id,
-            'item_sku' => 'KBY-MRH-SMT',
+            'item_id' => 1,
             'note' => 'Traditional red kebaya for the bride',
             'status' => 'active',
             'is_additional' => false,
@@ -80,7 +80,7 @@ class OrderSeeder extends Seeder
 
         $brideSarung = OrderItem::create([
             'order_set_id' => $womanSet->id,
-            'item_sku' => 'ROK-BTK',
+            'item_id' => 1,
             'note' => 'Rok Batik',
             'status' => 'active',
             'is_additional' => false,
@@ -99,7 +99,7 @@ class OrderSeeder extends Seeder
 
         $brideShoes = OrderItem::create([
             'order_set_id' => $womanSet->id,
-            'item_sku' => 'SLP-CWK-HTM-UK37',
+            'item_id' => 1,
             'note' => 'Add colorful beads',
             'status' => 'active',
             'is_additional' => false,
@@ -119,7 +119,7 @@ class OrderSeeder extends Seeder
         // Create items for the groom's set
         $groomBeskap = OrderItem::create([
             'order_set_id' => $manSet->id,
-            'item_sku' => 'BSK-MRH-COAK',
+            'item_id' => 1,
             'note' => 'Classic red beskap for the groom',
             'status' => 'active',
             'is_additional' => false,
@@ -137,7 +137,7 @@ class OrderSeeder extends Seeder
 
         $groomCelana = OrderItem::create([
             'order_set_id' => $manSet->id,
-            'item_sku' => null,
+            'item_id' => null,
             'note' => 'No need',
             'status' => 'removed',
             'is_additional' => false,
@@ -155,7 +155,7 @@ class OrderSeeder extends Seeder
 
         $groomBlangkon = OrderItem::create([
             'order_set_id' => $manSet->id,
-            'item_sku' => 'HW-BLNGK-JW',
+            'item_id' => 1,
             'note' => 'Big size',
             'status' => 'active',
             'is_additional' => false,
@@ -174,7 +174,7 @@ class OrderSeeder extends Seeder
 
         $groomAccessories = OrderItem::create([
             'order_set_id' => $manSet->id,
-            'item_sku' => 'AKSR-BROSBLNGK-GLD',
+            'item_id' => 1,
             'note' => 'Add beads',
             'status' => 'active',
             'is_additional' => false,
@@ -194,7 +194,7 @@ class OrderSeeder extends Seeder
         // Create a standalone item (not part of any package)
         $standaloneItem = OrderItem::create([
             'order_set_id' => null,
-            'item_sku' => null,
+            'item_id' => null,
             'note' => 'Custom jewelry set for the bride',
             'status' => 'active',
             'is_additional' => true,
@@ -265,7 +265,7 @@ class OrderSeeder extends Seeder
         // Create items for the simple set
         $simpleKebaya = OrderItem::create([
             'order_set_id' => $womanSet->id,
-            'item_sku' => 'KBY-BRU-PDK',
+            'item_id' => 1,
             'note' => 'Elegant blue kebaya',
             'status' => 'active',
             'is_additional' => false,
@@ -284,7 +284,7 @@ class OrderSeeder extends Seeder
 
         $simpleShoes = OrderItem::create([
             'order_set_id' => $womanSet->id,
-            'item_sku' => 'SLP-CWK-PTH-UK36',
+            'item_id' => 1,
             'note' => 'Clean and polish it',
             'status' => 'active',
             'is_additional' => true,
@@ -303,7 +303,7 @@ class OrderSeeder extends Seeder
 
         $simpleBeskap = OrderItem::create([
             'order_set_id' => $manSet->id,
-            'item_sku' => 'BSK-PTH-COAK',
+            'item_id' => 1,
             'note' => 'White beskap',
             'status' => 'active',
             'is_additional' => false,
@@ -322,7 +322,7 @@ class OrderSeeder extends Seeder
 
         $simpleCelana = OrderItem::create([
             'order_set_id' => $manSet->id,
-            'item_sku' => null,
+            'item_id' => null,
             'note' => '-',
             'status' => 'removed',
             'is_additional' => false,

@@ -57,22 +57,6 @@ class OrderController extends Controller
         return response()->json($orders);
     }
 
-    // TODO assess: do we need this?
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): JsonResponse
-    {
-        // Return available products and package blueprints for the form
-        $products = Items::all(['sku', 'name', 'type', 'color', 'size']);
-        
-        return response()->json([
-            'products' => $products,
-            'statuses' => ['draft', 'confirmed', 'completed', 'cancelled'],
-            'rental_statuses' => ['rent', 'purchase'],
-        ]);
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -136,35 +120,13 @@ class OrderController extends Controller
     {
         $order = Order::with([
             'orderProducts',
-            'packages.orderSets.orderItems.item',
+            'packages.orderSets.orderItems.item.subcolor',
             'packages.orderSets.orderItems.orderItemTypes',
-            'items.item',
+            'items.item.subcolor',
             'items.orderItemTypes',
         ])->findOrFail($id);
 
         return response()->json($order);
-    }
-
-    // TODO assess: do we need this?
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id): JsonResponse
-    {
-        $order = Order::with([
-            'orderProducts.product',
-            'packages.orderSets.orderItems.product',
-            'items.product'
-        ])->findOrFail($id);
-
-        $products = Items::all(['sku', 'name', 'type', 'color', 'size']);
-        
-        return response()->json([
-            'order' => $order,
-            'products' => $products,
-            'statuses' => ['draft', 'confirmed', 'completed', 'cancelled'],
-            'rental_statuses' => ['rent', 'purchase'],
-        ]);
     }
 
     /**
@@ -228,9 +190,9 @@ class OrderController extends Controller
             // Load relationships for response
             $order->load([
                 'orderProducts',
-                'packages.orderSets.orderItems.item',
+                'packages.orderSets.orderItems.item.subcolor',
                 'packages.orderSets.orderItems.orderItemTypes',
-                'items.item',
+                'items.item.subcolor',
                 'items.orderItemTypes',
             ]);
 

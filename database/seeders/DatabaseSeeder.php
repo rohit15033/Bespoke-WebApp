@@ -24,12 +24,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed master data first
-        $this->call([
-            // MasterDataSeeder::class,
-            // OrderSeeder::class,
-        ]);
-
         Appointments::factory(30)->create();
 
         // Seed a specific test user
@@ -49,19 +43,19 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Traditional Ceremony'],
         ]);
 
-
         // Ensure base color taxonomy exists
         $this->call(ColorSeeder::class);
         SubColors::factory(15)->create();
 
         // Items with images (requires SubColors)
-        // $this->call(ItemsSeeder::class);
-        // // Headwear and item-linked tables
-
+        $this->call(ItemsSeeder::class);
+        // Headwear and item-linked tables
         // $this->call(ItemLinkedSeeder::class);
         // Kebaya::factory(15)->create();
         // KebayaImages::factory(30)->create();
         // Beskap::factory(15)->create();
 
+        // Orders
+        $this->call(OrderSeeder::class);
     }
 }

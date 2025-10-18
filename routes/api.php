@@ -157,18 +157,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/appointments/{id}', [AppointmentsController::class, 'destroy']);
 
     // Order routes
-    Route::get('/orders/create', [OrderController::class, 'create']);
-    Route::get('/orders/{order}/edit', [OrderController::class, 'edit']);
     Route::apiResource('orders', OrderController::class);
 
     // Package routes
     Route::get('/packages', [PackageController::class, 'index']);
     Route::get('/packages/{id}', [PackageController::class, 'show']);
 
-    // TODO remove this after new items endpoint are made
-    // Item routes
-    Route::get('/items', [ItemController::class, 'index']);
-    Route::get('/items/{id}', [ItemController::class, 'show']);
-
-    //kebaya route
+    // Items routes
+    Route::apiResource('/items', ItemsController::class);
 });

@@ -12,9 +12,22 @@ class ItemsController extends Controller
      */
     public function index(Request $request)
     {
-        //
+        $query = Items::query();
 
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('code', 'like', "%$search%");
+            });
+        }
+        if ($request->has('type')) {
+            $query->where('type', $request->type);
+        }
+        $query->with('subcolor');
 
+        $items = $query->paginate($request->get('per_page', 15));
+        return response()->json($items);
     }
 
     /**
@@ -30,7 +43,17 @@ class ItemsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|unique:items,code',
+            'type' => 'required|string|max:255',
+            'production_month' => 'nullable|integer|min:1|max:12',
+            'production_year' => 'nullable|integer|min:1900|max:2100',
+            'subcolor_id' => 'nullable|exists:sub_colors,id',
+        ]);
+
+        $item = Items::create($validated);
+        return response()->json($item, 201);
     }
 
     /**
@@ -38,7 +61,8 @@ class ItemsController extends Controller
      */
     public function show(Items $items)
     {
-        //
+        $items->load(['subcolor', 'images', 'firstImage']);
+        return response()->json($items);
     }
 
     /**
@@ -54,7 +78,17 @@ class ItemsController extends Controller
      */
     public function update(Request $request, Items $items)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'code' => 'sometimes|string|unique:items,code,' . $items->id,
+            'type' => 'sometimes|string|max:255',
+            'production_month' => 'nullable|integer|min:1|max:12',
+            'production_year' => 'nullable|integer|min:1900|max:2100',
+            'subcolor_id' => 'nullable|exists:sub_colors,id',
+        ]);
+
+        $items->update($validated);
+        return response()->json($items);
     }
 
     /**
@@ -62,7 +96,8 @@ class ItemsController extends Controller
      */
     public function destroy(Items $items)
     {
-        //
+        $items->delete();
+        return response()->json(['message' => 'Item deleted successfully']);
     }
 
     public function getItemCode(Request $request)
