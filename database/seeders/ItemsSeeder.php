@@ -9,7 +9,7 @@ use App\Models\PackageBlueprint;
 use App\Models\SetBlueprint;
 use Illuminate\Database\Seeder;
 
-class MasterDataSeeder extends Seeder
+class ItemsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -18,22 +18,20 @@ class MasterDataSeeder extends Seeder
     {
         // Create item types first
         $itemTypes = [
-            ['name' => 'Kebaya'],
-            ['name' => 'Beskap'],
-            ['name' => 'Jas'],
-            ['name' => 'Celana'],
-            ['name' => 'Kain'],
-            ['name' => 'Headwear'],
-            ['name' => 'Gaun'],
-            ['name' => 'Bustier'],
-            ['name' => 'Rok'],
-            ['name' => 'Manset'],
-            ['name' => 'Selop Pria'],
-            ['name' => 'Selop Wanita'],
-            ['name' => 'Aksesoris'],
-            ['name' => 'Tail'],
-            ['name' => 'Kemeja'],
-            ['name' => 'Accesories'],
+            ['name' => 'kebaya'],
+            ['name' => 'beskap'],
+            ['name' => 'celana'],
+            ['name' => 'selop'],
+            ['name' => 'bustier'],
+            ['name' => 'manset'],
+            ['name' => 'hijab'],
+            ['name' => 'veil'],
+            ['name' => 'ekor'],
+            ['name' => 'vest'],
+            ['name' => 'dasi'],
+            ['name' => 'kemeja'],
+            ['name' => 'headwear'],
+            ['name' => 'accesories'],
         ];
 
         foreach ($itemTypes as $itemTypeData) {

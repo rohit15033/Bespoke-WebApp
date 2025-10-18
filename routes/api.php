@@ -82,8 +82,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/packages', [PackageController::class, 'index']);
     Route::get('/packages/{id}', [PackageController::class, 'show']);
 
+    // TODO remove this after new items endpoint are made
     // Item routes
     Route::get('/items', [ItemController::class, 'index']);
     Route::get('/items/{id}', [ItemController::class, 'show']);
+
     //kebaya route
 });

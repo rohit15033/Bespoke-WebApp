@@ -26,19 +26,19 @@ class DatabaseSeeder extends Seeder
     {
         // Seed master data first
         $this->call([
-            MasterDataSeeder::class,
-            OrderSeeder::class,
+            // MasterDataSeeder::class,
+            // OrderSeeder::class,
         ]);
 
         Appointments::factory(30)->create();
 
-        // // Seed a specific test user
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        //     'password' => Hash::make('password123'), // IMPORTANT: Always hash passwords!
-        //     // 'email_verified_at' => now(), // Optional, uncomment if you want them verified
-        // ]);
+        // Seed a specific test user
+        User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123'), // IMPORTANT: Always hash passwords!
+            // 'email_verified_at' => now(), // Optional, uncomment if you want them verified
+        ]);
 
         Occasions::insert([
             ['name' => 'Wedding'],
@@ -49,7 +49,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
 
-        // Colors::factory(5)->create();
+        Colors::factory(5)->create();
         SubColors::factory(15)->create();
         // Kebaya::factory(15)->create();
         // KebayaImages::factory(30)->create();

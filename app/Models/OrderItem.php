@@ -61,7 +61,7 @@ class OrderItem extends Model
      */
     public function item()
     {
-        return $this->belongsTo(Item::class, 'item_sku', 'sku');
+        return $this->belongsTo(Items::class, 'item_id', 'id');
     }
 
     /**

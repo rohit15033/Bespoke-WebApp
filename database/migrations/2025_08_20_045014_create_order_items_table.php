@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_set_id')->nullable()->constrained('order_sets')->onDelete('cascade');
-            $table->string('item_sku')->nullable(); // FK to items.sku, NULLABLE
+            $table->string('item_id')->nullable()->constrained('items')->onDelete('set null');
             $table->text('note')->nullable();
             $table->string('status')->nullable(); // "active" or "removed"
             $table->boolean('is_additional')->default(false);
@@ -29,9 +29,6 @@ return new class extends Migration
             $table->text('custom_details')->nullable(); // For custom item details
             $table->integer('sort_order')->default(0); // For ordering
             $table->timestamps();
-            
-            // Add foreign key constraint for item_sku
-            $table->foreign('item_sku')->references('sku')->on('items')->onDelete('set null');
         });
     }
 

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Item;
+use App\Models\Items;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderItemType;
@@ -57,13 +57,14 @@ class OrderController extends Controller
         return response()->json($orders);
     }
 
+    // TODO assess: do we need this?
     /**
      * Show the form for creating a new resource.
      */
     public function create(): JsonResponse
     {
         // Return available products and package blueprints for the form
-        $products = Item::all(['sku', 'name', 'type', 'color', 'size']);
+        $products = Items::all(['sku', 'name', 'type', 'color', 'size']);
         
         return response()->json([
             'products' => $products,
@@ -144,6 +145,7 @@ class OrderController extends Controller
         return response()->json($order);
     }
 
+    // TODO assess: do we need this?
     /**
      * Show the form for editing the specified resource.
      */
@@ -155,7 +157,7 @@ class OrderController extends Controller
             'items.product'
         ])->findOrFail($id);
 
-        $products = Item::all(['sku', 'name', 'type', 'color', 'size']);
+        $products = Items::all(['sku', 'name', 'type', 'color', 'size']);
         
         return response()->json([
             'order' => $order,
@@ -397,7 +399,7 @@ class OrderController extends Controller
         foreach ($items as $itemIndex => $itemData) {
             // Validate item data
             $validatedItem = Validator::make($itemData, [
-                'item_sku' => 'nullable|string',
+                'item_id' => 'nullable|numeric|min:0',
                 'note' => 'nullable|string',
                 'status' => 'required|string|in:active,removed',
                 'is_additional' => 'boolean',
@@ -419,7 +421,7 @@ class OrderController extends Controller
             // Create item
             $orderItem = OrderItem::create([
                 'order_set_id' => $set->id,
-                'item_sku' => $needSku ? $validatedItem['item_sku'] : null,
+                'item_id' => $needSku ? $validatedItem['item_id'] : null,
                 'note' => $validatedItem['note'] ?? null,
                 'status' => $validatedItem['status'],
                 'is_additional' => $validatedItem['is_additional'] ?? false,
@@ -449,7 +451,7 @@ class OrderController extends Controller
     {
         // Validate item data
         $validatedItem = Validator::make($itemData, [
-            'item_sku' => 'nullable|string',
+            'item_id' => 'nullable|numeric|min:0',
             'note' => 'nullable|string',
             'is_additional' => 'boolean',
             'is_custom' => 'boolean',
@@ -467,7 +469,7 @@ class OrderController extends Controller
         // Create standalone item
         $orderItem = OrderItem::create([
             'order_set_id' => null,
-            'item_sku' => $needSku ? $validatedItem['item_sku'] : null,
+            'item_id' => $needSku ? $validatedItem['item_id'] : null,
             'note' => $validatedItem['note'] ?? null,
             'status' => null,
             'is_additional' => $validatedItem['is_additional'] ?? false,

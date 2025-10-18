@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('item_types', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique(); // e.g., "Kebaya", "Beskap", "Selop", etc.
+            $table->string('name')->unique(); // e.g., "kebaya", "beskap", "selop", etc.
             $table->timestamps();
         });
     }
