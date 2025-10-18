@@ -3,22 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use PDO;
 
-class Beskap extends Model
+class Dasi extends Model
 {
     //
-    protected $fillable = [
-        'item_id',
-        'type'
-    ];
-
+    protected $table = 'dasis';
+    protected $fillable = ['item_id', 'type'];
     public function item()
     {
         return $this->belongsTo(Items::class, 'item_id');
     }
 
-    public static function getBeskapList($payload)
+    public static function getDasiList($payload)
     {
         $query = self::with([
             'item.firstImage',
@@ -70,26 +66,26 @@ class Beskap extends Model
 
         $sort = $payload['sort'] ?? 'production_date';
         $limit = $payload['limit'] ?? 10;
-        $beskaps = $query->orderBy($sort, 'desc')
+        $dasis = $query->orderBy($sort, 'desc')
             ->paginate($limit)
-            ->through(function ($beskap) {
+            ->through(function ($dasi) {
                 return [
-                    'id' => $beskap->id,
-                    'type' => $beskap->type,
-                    'code' => $beskap->item->code,
-                    'name' => $beskap->item->name,
-                    'color' => $beskap->item->subcolor->color->name,
-                    'subcolor' => $beskap->item->subcolor->name,
-                    'production_month' => $beskap->item->production_month,
-                    'production_year' => $beskap->item->production_year,
-                    'image_url' => asset('storage/' . $beskap->item->firstImage?->image_url),
+                    'id' => $dasi->id,
+                    'type' => $dasi->type,
+                    'code' => $dasi->item->code,
+                    'name' => $dasi->item->name,
+                    'color' => $dasi->item->subcolor->color->name,
+                    'subcolor' => $dasi->item->subcolor->name,
+                    'production_month' => $dasi->item->production_month,
+                    'production_year' => $dasi->item->production_year,
+                    'image_url' => asset('storage/' . $dasi->item->firstImage?->image_url),
                 ];
             });
 
-        return $beskaps;
+        return $dasis;
     }
 
-    public static function getBeskapById($id)
+    public static function getDasiById($id)
     {
         $query = self::with([
             'item.firstImage',

@@ -33,12 +33,13 @@ class DatabaseSeeder extends Seeder
         Appointments::factory(30)->create();
 
         // Seed a specific test user
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => Hash::make('password123'), // IMPORTANT: Always hash passwords!
-            // 'email_verified_at' => now(), // Optional, uncomment if you want them verified
-        ]);
+        User::updateOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => Hash::make('password123'),
+            ]
+        );
 
         Occasions::insert([
             ['name' => 'Wedding'],
@@ -49,8 +50,15 @@ class DatabaseSeeder extends Seeder
         ]);
 
 
-        Colors::factory(5)->create();
+        // Ensure base color taxonomy exists
+        $this->call(ColorSeeder::class);
         SubColors::factory(15)->create();
+
+        // Items with images (requires SubColors)
+        // $this->call(ItemsSeeder::class);
+        // // Headwear and item-linked tables
+
+        // $this->call(ItemLinkedSeeder::class);
         // Kebaya::factory(15)->create();
         // KebayaImages::factory(30)->create();
         // Beskap::factory(15)->create();

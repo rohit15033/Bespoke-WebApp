@@ -3,22 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use PDO;
 
-class Beskap extends Model
+class Manset extends Model
 {
     //
+    protected $table = 'mansets';
     protected $fillable = [
         'item_id',
-        'type'
+        'qty'
     ];
-
     public function item()
     {
-        return $this->belongsTo(Items::class, 'item_id');
+        return $this->belongsTo(Items::class);
     }
 
-    public static function getBeskapList($payload)
+    public static function getMansetList($payload)
     {
         $query = self::with([
             'item.firstImage',
@@ -64,32 +63,29 @@ class Beskap extends Model
                 $q->where('production_year', '<=', $payload['toYear']);
             });
         }
-        if (!empty($payload['type'])) {
-            $query->where('type', $payload['type']);
-        }
 
         $sort = $payload['sort'] ?? 'production_date';
         $limit = $payload['limit'] ?? 10;
-        $beskaps = $query->orderBy($sort, 'desc')
+        $mansets = $query->orderBy($sort, 'desc')
             ->paginate($limit)
-            ->through(function ($beskap) {
+            ->through(function ($manset) {
                 return [
-                    'id' => $beskap->id,
-                    'type' => $beskap->type,
-                    'code' => $beskap->item->code,
-                    'name' => $beskap->item->name,
-                    'color' => $beskap->item->subcolor->color->name,
-                    'subcolor' => $beskap->item->subcolor->name,
-                    'production_month' => $beskap->item->production_month,
-                    'production_year' => $beskap->item->production_year,
-                    'image_url' => asset('storage/' . $beskap->item->firstImage?->image_url),
+                    'id' => $manset->id,
+                    'qty' => $manset->qty,
+                    'code' => $manset->item->code,
+                    'name' => $manset->item->name,
+                    'color' => $manset->item->subcolor->color->name,
+                    'subcolor' => $manset->item->subcolor->name,
+                    'production_month' => $manset->item->production_month,
+                    'production_year' => $manset->item->production_year,
+                    'image_url' => asset('storage/' . $manset->item->firstImage?->image_url),
                 ];
             });
 
-        return $beskaps;
+        return $mansets;
     }
 
-    public static function getBeskapById($id)
+    public static function getMansetById($id)
     {
         $query = self::with([
             'item.firstImage',
@@ -100,7 +96,7 @@ class Beskap extends Model
             'parent_id' => $query->item->id,
             'code' => $query->item->code,
             'name' => $query->item->name,
-            'type' => $query->type,
+            'qty' => $query->qty,
             'color_id' => $query->item->subcolor->color->id,
             'subcolor_id' => $query->item->subcolor->id,
             'production_month' => $query->item->production_month,

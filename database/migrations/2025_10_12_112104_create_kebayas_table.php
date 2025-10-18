@@ -11,14 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('beskap', function (Blueprint $table) {
+        Schema::create('kebayas', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
-            $table->string('name');
-            $table->string('type');
-            $table->string('production_year');
-            $table->string('production_month');
-            $table->foreignId('subcolor_id')->constrained('subcolors')->onDelete('cascade');
+            $table->foreignId('item_id')->constrained('items')->onDelete('cascade');
+            $table->string("length");
             $table->timestamps();
         });
     }
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('beskap');
+        Schema::dropIfExists('kebayas');
     }
 };

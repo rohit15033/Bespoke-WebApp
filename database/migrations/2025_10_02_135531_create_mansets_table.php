@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kebaya_occasion', function (Blueprint $table) {
+        Schema::create('mansets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kebaya_id')->constrained('kebaya')->onDelete('cascade');
-            $table->foreignId('occasion_id')->constrained('occasions')->onDelete('cascade');
+            $table->foreignId('item_id')->constrained('items')->onDelete('cascade');
+            $table->integer('qty');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kebaya_occasion');
+        Schema::dropIfExists('mansets');
     }
 };

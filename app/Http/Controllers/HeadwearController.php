@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Selop;
+use App\Models\Headwear;
 use App\Models\Items;
 use App\Models\ItemsImagesUrls;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-
 use \Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
-class SelopController extends Controller
+class HeadwearController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -30,12 +29,14 @@ class SelopController extends Controller
             'page' => $request->input('page', 1), // Default to page 1 if not provided
             'limit' => $request->input('limit', 10), // Default to 5 items per page if not provided
             'sort' => $request->input('sort', 'created_at'), // 
+            'headwear_type' => $request->input('headwear_type', null), // Optional filter parameter 
+            'adat' => $request->input('adat', null)
         ];
-        $selopList = Selop::getSelopList($payload);
 
+        $headwearList = Headwear::getHeadwearList($payload);
         return response()->json([
-            'message' => "Selop List has been retrieved",
-            'selop' => $selopList
+            'message' => "Headwear List has been retrieved",
+            'headwears' => $headwearList
         ]);
     }
 
@@ -62,54 +63,54 @@ class SelopController extends Controller
         ]);
 
         //
-        {
-            try {
-                $validated = $request->validate([
-                    'code' => 'required|string|max:255|unique:items,code',
-                    'name' => 'required|string|max:255',
-                    'size' => 'required|string|max:50',
-                    'production_month' => 'nullable|integer',
-                    'production_year' => 'nullable|integer',
-                    'subcolor_id' => 'required|exists:subcolors,id',
-                    'images' => 'required',
-                    'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
-                ]);
-                $item = Items::create([
-                    'code' => $validated['code'],
-                    'name' => $validated['name'],
-                    'type' => 'selop', // identify it's selop
-                    'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
-                    'production_year' => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
-                    'subcolor_id' => $validated['subcolor_id'],
-                ]);
-                Selop::create([
-                    'item_id' => $item->id,
-                    'size' => $validated['size'],
-                ]);
-                if ($request->hasFile('images')) {
-                    foreach ($request->file('images') as $file) {
-                        $path = $file->store('items_images', 'public');
-                        ItemsImagesUrls::create([
-                            'item_id' => $item->id,
-                            'image_url' => $path,
-                        ]);
-                    }
+        try {
+            //code...
+            $validated = $request->validate([
+                'code' => 'required|string|max:255|unique:items,code',
+                'name' => 'required|string|max:255',
+                'production_month' => 'nullable|integer',
+                'production_year' => 'nullable|integer',
+                'subcolor_id' => 'required|exists:subcolors,id',
+                'images' => 'required',
+                'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'headwear_type' => ['required', Rule::in(['Blangkon', 'Peci', 'Tanjak'])],
+                'adat' => 'nullable|string|max:255',
+            ]);
+            $item = Items::create([
+                'code' => $validated['code'],
+                'name' => $validated['name'],
+                'type' => 'headwear', // identify it's headwear
+                'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
+                'production_year' => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
+                'subcolor_id' => $validated['subcolor_id'],
+            ]);
+            Headwear::create([
+                'item_id' => $item->id,
+                'headwear_type' => $validated['headwear_type'],
+                'adat' => $validated['adat'] ?? null,
+            ]);
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $file) {
+                    $path = $file->store('items_images', 'public');
+                    ItemsImagesUrls::create([
+                        'item_id' => $item->id,
+                        'image_url' => $path,
+                    ]);
                 }
-
-                return response()->json([
-                    'message' => "Selop created successfully",
-                    'data' => $item
-                ], 201);
-            } catch (ValidationException $e) {
-                return response()->json([
-                    'message' => 'Validation failed',
-                    'errors' => $e->errors(),
-                ], 422);
-            } catch (\Exception $e) {
-                return response()->json([
-                    'message' => 'Error creating Selop: ' . $e->getMessage(),
-                ], 500); // 500 = Internal Server Error
             }
+            return response()->json([
+                'message' => "Headwear created successfully",
+                'data' => $item
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error creating Headwear: ' . $e->getMessage(),
+            ], 500); // 500 = Internal Server Error
         }
     }
 
@@ -119,14 +120,14 @@ class SelopController extends Controller
     public function show($id)
     {
         //
-        $selop = Selop::getSelopById($id);
-        return response()->json($selop);
+        $headwear = Headwear::getHeadwearById($id);
+        return response()->json($headwear);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Selop $selop)
+    public function edit(Headwear $headwear)
     {
         //
     }
@@ -146,10 +147,10 @@ class SelopController extends Controller
         ]);
 
         //
-        $selop = Selop::findOrFail($id);
-        if (!$selop) {
+        $headwear = Headwear::findOrFail($id);
+        if (!$headwear) {
             return response()->json([
-                'message' => 'Selop not found',
+                'message' => 'Headwear not found',
             ], 404);
         }
         try {
@@ -158,33 +159,35 @@ class SelopController extends Controller
                     'required',
                     'string',
                     'max:255',
-                    Rule::unique('items', 'code')->ignore($selop->item_id),
+                    Rule::unique('items', 'code')->ignore($headwear->item_id),
                 ],
                 'name' => 'required|string|max:255',
-                'size' => 'required|string|max:50',
                 'production_month' => 'nullable|integer',
                 'production_year' => 'nullable|integer',
                 'subcolor_id' => 'required|exists:subcolors,id',
                 'images' => 'nullable',
                 'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'adat' => 'nullable|string|max:255',
+                'headwear_type' => ['required', Rule::in(['Blangkon', 'Peci', 'Tanjak'])],
             ]);
-            $item = Items::findOrFail($selop->item_id);
+            $item = Items::findOrFail($headwear->item_id);
             $item->update([
                 'code' => $validated['code'],
                 'name' => $validated['name'],
-                'type' => 'selop', // identify it's selop
+                'type' => 'headwear', // identify it's headwear
                 'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
                 'production_year' => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
                 'subcolor_id' => $validated['subcolor_id'],
             ]);
-            if (isset($validated['size'])) {
-                $selop = Selop::where('item_id', $selop->item_id)->first();
-                if ($selop) {
-                    $selop->update([
-                        'size' => $validated['size'],
-                    ]);
-                }
+            $headwear = Headwear::where('item_id', $headwear->item_id)->first();
+            if ($headwear->headwear_type === 'blangkon' && isset($validated['adat'])) {
+                $headwear->update(['adat' => $validated['adat']]);
+            } else if ($headwear) {
+                $headwear->update([
+                    'headwear_type' => $validated['headwear_type'],
+                ]);
             }
+
             $existingImageIds = $request->input('existing_images', []);
             $newImages = $request->file('new_images', []);
             $item->images()->whereNotIn('id', $existingImageIds)->get()->each(function ($img) {
@@ -199,8 +202,8 @@ class SelopController extends Controller
             }
 
             return response()->json([
-                'message' => "Selop updated successfully",
-                'data' => $selop
+                'message' => "Headwear updated successfully",
+                'data' => $headwear
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -209,7 +212,7 @@ class SelopController extends Controller
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Error updating Selop: ' . $e->getMessage(),
+                'message' => 'Error updating Headwear: ' . $e->getMessage(),
             ], 500); // 500 = Internal Server Error
 
         }
@@ -218,18 +221,18 @@ class SelopController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Selop $selop)
+    public function destroy($id)
     {
         //
-        $deletedCount = Selop::destroy($selop->id); // Returns 1 if deleted, 0 if not found
+        $deletedCount = Headwear::destroy($id); // Returns 1 if deleted, 0 if not found
 
         if ($deletedCount === 0) {
             return response()->json([
-                'message' => 'Selop not found',
+                'message' => 'Headwear not found',
             ], 404);
         }
         return response()->json([
-            'message' => 'Selop deleted successfully',
+            'message' => 'Headwear deleted successfully',
         ], 200);
     }
 }

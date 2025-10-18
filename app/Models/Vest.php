@@ -3,22 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use PDO;
 
-class Beskap extends Model
+class Vest extends Model
 {
     //
+    protected $table = 'vests';
     protected $fillable = [
-        'item_id',
-        'type'
+        'item_id'
     ];
-
     public function item()
     {
-        return $this->belongsTo(Items::class, 'item_id');
+        return $this->belongsTo(Items::class);
     }
 
-    public static function getBeskapList($payload)
+    public static function getVestList($payload)
     {
         $query = self::with([
             'item.firstImage',
@@ -64,32 +62,28 @@ class Beskap extends Model
                 $q->where('production_year', '<=', $payload['toYear']);
             });
         }
-        if (!empty($payload['type'])) {
-            $query->where('type', $payload['type']);
-        }
 
         $sort = $payload['sort'] ?? 'production_date';
         $limit = $payload['limit'] ?? 10;
-        $beskaps = $query->orderBy($sort, 'desc')
+        $vests = $query->orderBy($sort, 'desc')
             ->paginate($limit)
-            ->through(function ($beskap) {
+            ->through(function ($vest) {
                 return [
-                    'id' => $beskap->id,
-                    'type' => $beskap->type,
-                    'code' => $beskap->item->code,
-                    'name' => $beskap->item->name,
-                    'color' => $beskap->item->subcolor->color->name,
-                    'subcolor' => $beskap->item->subcolor->name,
-                    'production_month' => $beskap->item->production_month,
-                    'production_year' => $beskap->item->production_year,
-                    'image_url' => asset('storage/' . $beskap->item->firstImage?->image_url),
+                    'id' => $vest->id,
+                    'code' => $vest->item->code,
+                    'name' => $vest->item->name,
+                    'color' => $vest->item->subcolor->color->name,
+                    'subcolor' => $vest->item->subcolor->name,
+                    'production_month' => $vest->item->production_month,
+                    'production_year' => $vest->item->production_year,
+                    'image_url' => asset('storage/' . $vest->item->firstImage?->image_url),
                 ];
             });
 
-        return $beskaps;
+        return $vests;
     }
 
-    public static function getBeskapById($id)
+    public static function getVestById($id)
     {
         $query = self::with([
             'item.firstImage',
@@ -100,7 +94,6 @@ class Beskap extends Model
             'parent_id' => $query->item->id,
             'code' => $query->item->code,
             'name' => $query->item->name,
-            'type' => $query->type,
             'color_id' => $query->item->subcolor->color->id,
             'subcolor_id' => $query->item->subcolor->id,
             'production_month' => $query->item->production_month,

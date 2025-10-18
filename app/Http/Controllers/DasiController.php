@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Selop;
+use App\Models\Dasi;
 use App\Models\Items;
 use App\Models\ItemsImagesUrls;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-
 use \Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Storage;
 
-class SelopController extends Controller
+class DasiController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -21,6 +20,7 @@ class SelopController extends Controller
         //
         $payload = [
             'search_filter' => $request->input('search_filter', null), // Optional filter parameter 
+            'type' => $request->input('type', null), // Optional filter parameter   
             'color' => $request->input('color', null), // Optional filter parameter  
             'subcolor' => $request->input('subcolor', null), // Optional filter parameter
             'fromMonth' => $request->input('from_month', null),
@@ -31,13 +31,14 @@ class SelopController extends Controller
             'limit' => $request->input('limit', 10), // Default to 5 items per page if not provided
             'sort' => $request->input('sort', 'created_at'), // 
         ];
-        $selopList = Selop::getSelopList($payload);
+        $dasiList = Dasi::getDasiList($payload);
 
         return response()->json([
-            'message' => "Selop List has been retrieved",
-            'selop' => $selopList
+            'message' => "Dasi List has been retrieved",
+            'dasis' => $dasiList
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -67,7 +68,7 @@ class SelopController extends Controller
                 $validated = $request->validate([
                     'code' => 'required|string|max:255|unique:items,code',
                     'name' => 'required|string|max:255',
-                    'size' => 'required|string|max:50',
+                    'type' => 'required|string|max:50',
                     'production_month' => 'nullable|integer',
                     'production_year' => 'nullable|integer',
                     'subcolor_id' => 'required|exists:subcolors,id',
@@ -77,14 +78,14 @@ class SelopController extends Controller
                 $item = Items::create([
                     'code' => $validated['code'],
                     'name' => $validated['name'],
-                    'type' => 'selop', // identify it's selop
+                    'type' => 'dasi', // identify it's dasi
                     'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
                     'production_year' => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
                     'subcolor_id' => $validated['subcolor_id'],
                 ]);
-                Selop::create([
+                Dasi::create([
                     'item_id' => $item->id,
-                    'size' => $validated['size'],
+                    'type' => $validated['type'],
                 ]);
                 if ($request->hasFile('images')) {
                     foreach ($request->file('images') as $file) {
@@ -95,9 +96,8 @@ class SelopController extends Controller
                         ]);
                     }
                 }
-
                 return response()->json([
-                    'message' => "Selop created successfully",
+                    'message' => "Dasi created successfully",
                     'data' => $item
                 ], 201);
             } catch (ValidationException $e) {
@@ -107,11 +107,12 @@ class SelopController extends Controller
                 ], 422);
             } catch (\Exception $e) {
                 return response()->json([
-                    'message' => 'Error creating Selop: ' . $e->getMessage(),
+                    'message' => 'Error creating Dasi: ' . $e->getMessage(),
                 ], 500); // 500 = Internal Server Error
             }
         }
     }
+
 
     /**
      * Display the specified resource.
@@ -119,14 +120,14 @@ class SelopController extends Controller
     public function show($id)
     {
         //
-        $selop = Selop::getSelopById($id);
-        return response()->json($selop);
+        $dasi = Dasi::getDasiById($id);
+        return response()->json($dasi);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Selop $selop)
+    public function edit(Dasi $dasi)
     {
         //
     }
@@ -146,10 +147,10 @@ class SelopController extends Controller
         ]);
 
         //
-        $selop = Selop::findOrFail($id);
-        if (!$selop) {
+        $dasi = Dasi::findOrFail($id);
+        if (!$dasi) {
             return response()->json([
-                'message' => 'Selop not found',
+                'message' => 'Dasi not found',
             ], 404);
         }
         try {
@@ -158,30 +159,30 @@ class SelopController extends Controller
                     'required',
                     'string',
                     'max:255',
-                    Rule::unique('items', 'code')->ignore($selop->item_id),
+                    Rule::unique('items', 'code')->ignore($dasi->item_id),
                 ],
                 'name' => 'required|string|max:255',
-                'size' => 'required|string|max:50',
+                'type' => 'required|string|max:50',
                 'production_month' => 'nullable|integer',
                 'production_year' => 'nullable|integer',
                 'subcolor_id' => 'required|exists:subcolors,id',
                 'images' => 'nullable',
                 'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
-            $item = Items::findOrFail($selop->item_id);
+            $item = Items::findOrFail($dasi->item_id);
             $item->update([
                 'code' => $validated['code'],
                 'name' => $validated['name'],
-                'type' => 'selop', // identify it's selop
+                'type' => 'dasi', // identify it's dasi
                 'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
                 'production_year' => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
                 'subcolor_id' => $validated['subcolor_id'],
             ]);
-            if (isset($validated['size'])) {
-                $selop = Selop::where('item_id', $selop->item_id)->first();
-                if ($selop) {
-                    $selop->update([
-                        'size' => $validated['size'],
+            if (isset($validated['type'])) {
+                $dasi = Dasi::where('item_id', $dasi->item_id)->first();
+                if ($dasi) {
+                    $dasi->update([
+                        'type' => $validated['type'],
                     ]);
                 }
             }
@@ -199,8 +200,8 @@ class SelopController extends Controller
             }
 
             return response()->json([
-                'message' => "Selop updated successfully",
-                'data' => $selop
+                'message' => "Dasi updated successfully",
+                'data' => $dasi
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -209,7 +210,7 @@ class SelopController extends Controller
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Error updating Selop: ' . $e->getMessage(),
+                'message' => 'Error updating Dasi: ' . $e->getMessage(),
             ], 500); // 500 = Internal Server Error
 
         }
@@ -218,18 +219,18 @@ class SelopController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Selop $selop)
+    public function destroy(Dasi $dasi)
     {
         //
-        $deletedCount = Selop::destroy($selop->id); // Returns 1 if deleted, 0 if not found
+        $deletedCount = Dasi::destroy($dasi->id); // Returns 1 if deleted, 0 if not found
 
         if ($deletedCount === 0) {
             return response()->json([
-                'message' => 'Selop not found',
+                'message' => 'Dasi not found',
             ], 404);
         }
         return response()->json([
-            'message' => 'Selop deleted successfully',
+            'message' => 'Dasi deleted successfully',
         ], 200);
     }
 }

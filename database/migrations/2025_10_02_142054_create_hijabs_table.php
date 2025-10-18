@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('beskap_images', function (Blueprint $table) {
+        Schema::create('hijabs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('beskap_id')->constrained('beskap')->onDelete('cascade');
-            $table->string('image_url');
+            $table->foreignId('item_id')->constrained('items')->onDelete('cascade');
+            $table->integer('qty');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('beskap_images');
+        Schema::dropIfExists('hijabs');
     }
 };

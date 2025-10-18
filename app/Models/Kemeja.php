@@ -3,22 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use PDO;
 
-class Beskap extends Model
+class Kemeja extends Model
 {
     //
-    protected $fillable = [
-        'item_id',
-        'type'
-    ];
-
+    protected $table = 'kemejas';
+    protected $fillable = ['item_id', 'type'];
     public function item()
     {
         return $this->belongsTo(Items::class, 'item_id');
     }
-
-    public static function getBeskapList($payload)
+    public static function getKemejaList($payload)
     {
         $query = self::with([
             'item.firstImage',
@@ -70,26 +65,26 @@ class Beskap extends Model
 
         $sort = $payload['sort'] ?? 'production_date';
         $limit = $payload['limit'] ?? 10;
-        $beskaps = $query->orderBy($sort, 'desc')
+        $kemejas = $query->orderBy($sort, 'desc')
             ->paginate($limit)
-            ->through(function ($beskap) {
+            ->through(function ($kemeja) {
                 return [
-                    'id' => $beskap->id,
-                    'type' => $beskap->type,
-                    'code' => $beskap->item->code,
-                    'name' => $beskap->item->name,
-                    'color' => $beskap->item->subcolor->color->name,
-                    'subcolor' => $beskap->item->subcolor->name,
-                    'production_month' => $beskap->item->production_month,
-                    'production_year' => $beskap->item->production_year,
-                    'image_url' => asset('storage/' . $beskap->item->firstImage?->image_url),
+                    'id' => $kemeja->id,
+                    'type' => $kemeja->type,
+                    'code' => $kemeja->item->code,
+                    'name' => $kemeja->item->name,
+                    'color' => $kemeja->item->subcolor->color->name,
+                    'subcolor' => $kemeja->item->subcolor->name,
+                    'production_month' => $kemeja->item->production_month,
+                    'production_year' => $kemeja->item->production_year,
+                    'image_url' => asset('storage/' . $kemeja->item->firstImage?->image_url),
                 ];
             });
 
-        return $beskaps;
+        return $kemejas;
     }
 
-    public static function getBeskapById($id)
+    public static function getKemejaById($id)
     {
         $query = self::with([
             'item.firstImage',

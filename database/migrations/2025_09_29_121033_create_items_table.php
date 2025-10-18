@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('code')->unique();
-            $table->enum('type', ['kebaya', 'beskap', 'celana', 'selop', 'bustier', 'manset', 'hijab', 'veil', 'ekor', 'vest', 'dasi', 'kemeja', 'headwear', 'accesories']);
+            $table->enum('type', ['kebaya', 'beskap', 'celana', 'selop', 'bustier', 'manset', 'hijab', 'veil', 'ekor', 'vest', 'dasi', 'kemeja', 'headwear', 'accessories']);
             $table->integer('production_month')->nullable();
             $table->integer('production_year')->nullable();
             $table->foreignId('subcolor_id')->constrained('subcolors')->onDelete('cascade');
