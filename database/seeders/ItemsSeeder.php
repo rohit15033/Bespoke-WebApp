@@ -32,7 +32,7 @@ class ItemsSeeder extends Seeder
             'dasi',
             'kemeja',
             'headwear',
-            'accesories'
+            'accessories'
         ];
 
         $subcolorIds = SubColors::query()->pluck('id')->all();

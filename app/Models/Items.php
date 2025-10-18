@@ -32,9 +32,4 @@ class Items extends Model
     {
         return $this->hasOne(ItemsImagesUrls::class, 'item_id')->oldestOfMany();
     }
-
-    public function celana()
-    {
-        return $this->hasMany(Celana::class);
-    }
 }
