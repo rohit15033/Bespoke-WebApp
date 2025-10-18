@@ -16,7 +16,7 @@ class OrderItem extends Model
      */
     protected $fillable = [
         'order_set_id',
-        'item_sku',
+        'item_id',
         'note',
         'status',
         'is_additional',

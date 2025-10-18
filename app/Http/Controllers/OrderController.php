@@ -378,7 +378,7 @@ class OrderController extends Controller
                 'order_item_types' => 'array',
             ])->validate();
 
-            $needSku = $validatedItem['status'] == 'active' && (!$validatedItem['is_tentative'] && !$validatedItem['is_custom']);
+            $needSku = $validatedItem['status'] == 'active' && !$validatedItem['is_tentative'] && !$validatedItem['is_custom'];
 
             // Create item
             $orderItem = OrderItem::create([
@@ -455,7 +455,7 @@ class OrderController extends Controller
 
     private function createOrderItemTypes(OrderItem $orderItem, array $orderItemTypeList)
     {
-        foreach ($orderItemTypeList as $itemTypeIndex => $itemType) {
+        foreach ($orderItemTypeList as $itemType) {
             $validatedItemType = Validator::make($itemType, [
                 "name" => "required|string|max:255",
                 'sort_order' => 'required|numeric|min:0',
