@@ -16,14 +16,14 @@ class ColorSeeder extends Seeder
     {
         //
         $colors = [
-            'Blue',
-            'Red',
+            'Biru',
+            'Merah',
             'Gold',
-            'Brown',
-            'Green',
-            'Purple',
-            'Black',
-            'White',
+            'Cokelat',
+            'Hijau',
+            'Ungu',
+            'Hitam',
+            'Putih',
             'Silver',
             'Pink',
         ];
