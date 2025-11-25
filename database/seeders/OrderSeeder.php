@@ -20,327 +20,327 @@ class OrderSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create a sample order
-        $order = Order::create([
-            'order_number' => 'ORD-2025-001',
-            'status' => 'confirmed',
-            'customer_name' => 'John Doe',
-            'customer_address' => '123 Main Street, Jakarta, Indonesia',
-            'customer_phone_number' => '+62-812-3456-7890',
-            'event_place' => 'Grand Ballroom Hotel Indonesia',
-            'event_date' => '2025-12-25',
-            'total_price' => 3500000,
-            'total_discount' => 350000,
-            'final_price' => 3150000,
-        ]);
+        // // Create a sample order
+        // $order = Order::create([
+        //     'order_number' => 'ORD-2025-001',
+        //     'status' => 'confirmed',
+        //     'customer_name' => 'John Doe',
+        //     'customer_address' => '123 Main Street, Jakarta, Indonesia',
+        //     'customer_phone_number' => '+62-812-3456-7890',
+        //     'event_place' => 'Grand Ballroom Hotel Indonesia',
+        //     'event_date' => '2025-12-25',
+        //     'total_price' => 3500000,
+        //     'total_discount' => 350000,
+        //     'final_price' => 3150000,
+        // ]);
 
-        // Create a package for this order
-        $package = OrderPackage::create([
-            'name' => 'Asmara Dana Wedding Package',
-            'price' => 2500000,
-            'discount' => 250000,
-            'note' => 'Complete wedding package for the bride and groom',
-        ]);
+        // // Create a package for this order
+        // $package = OrderPackage::create([
+        //     'name' => 'Asmara Dana Wedding Package',
+        //     'price' => 2500000,
+        //     'discount' => 250000,
+        //     'note' => 'Complete wedding package for the bride and groom',
+        // ]);
 
-        // Link the package to the order
-        OrderProduct::create([
-            'order_id' => $order->id,
-            'product_id' => $package->id,
-            'product_type' => 'package',
-            'sort_order' => 1,
-        ]);
+        // // Link the package to the order
+        // OrderProduct::create([
+        //     'order_id' => $order->id,
+        //     'product_id' => $package->id,
+        //     'product_type' => 'package',
+        //     'sort_order' => 1,
+        // ]);
 
-        // Create sets for the package
-        $womanSet = OrderSet::create([
-            'order_package_id' => $package->id,
-            'name' => "Woman's Set",
-        ]);
+        // // Create sets for the package
+        // $womanSet = OrderSet::create([
+        //     'order_package_id' => $package->id,
+        //     'name' => "Woman's Set",
+        // ]);
 
-        $manSet = OrderSet::create([
-            'order_package_id' => $package->id,
-            'name' => "Man's Set",
-        ]);
+        // $manSet = OrderSet::create([
+        //     'order_package_id' => $package->id,
+        //     'name' => "Man's Set",
+        // ]);
 
-        // Create items for the bride's set
-        $brideKebaya = OrderItem::create([
-            'order_set_id' => $womanSet->id,
-            'item_id' => 1,
-            'note' => 'Traditional red kebaya for the bride',
-            'status' => 'active',
-            'is_additional' => false,
-            'is_custom' => false,
-            'rental_status' => 'rent',
-            'description' => 'Bride',
-            'price' => null,
-            'discount' => null,
-        ]);
+        // // Create items for the bride's set
+        // $brideKebaya = OrderItem::create([
+        //     'order_set_id' => $womanSet->id,
+        //     'item_id' => 1,
+        //     'note' => 'Traditional red kebaya for the bride',
+        //     'status' => 'active',
+        //     'is_additional' => false,
+        //     'is_custom' => false,
+        //     'rental_status' => 'rent',
+        //     'description' => 'Bride',
+        //     'price' => null,
+        //     'discount' => null,
+        // ]);
 
-        // Create order item types for bride kebaya
-        $brideKebaya->orderItemTypes()->create([
-            'name' => 'Kebaya',
-            'sort_order' => 0,
-        ]);
+        // // Create order item types for bride kebaya
+        // $brideKebaya->orderItemTypes()->create([
+        //     'name' => 'Kebaya',
+        //     'sort_order' => 0,
+        // ]);
 
-        $brideSarung = OrderItem::create([
-            'order_set_id' => $womanSet->id,
-            'item_id' => 1,
-            'note' => 'Rok Batik',
-            'status' => 'active',
-            'is_additional' => false,
-            'is_custom' => false,
-            'rental_status' => 'rent',
-            'description' => 'Bride',
-            'price' => null,
-            'discount' => null,
-        ]);
+        // $brideSarung = OrderItem::create([
+        //     'order_set_id' => $womanSet->id,
+        //     'item_id' => 1,
+        //     'note' => 'Rok Batik',
+        //     'status' => 'active',
+        //     'is_additional' => false,
+        //     'is_custom' => false,
+        //     'rental_status' => 'rent',
+        //     'description' => 'Bride',
+        //     'price' => null,
+        //     'discount' => null,
+        // ]);
 
-        // Create order item types for bride sarung
-        $brideSarung->orderItemTypes()->create([
-            'name' => 'Rok',
-            'sort_order' => 0,
-        ]);
+        // // Create order item types for bride sarung
+        // $brideSarung->orderItemTypes()->create([
+        //     'name' => 'Rok',
+        //     'sort_order' => 0,
+        // ]);
 
-        $brideShoes = OrderItem::create([
-            'order_set_id' => $womanSet->id,
-            'item_id' => 1,
-            'note' => 'Add colorful beads',
-            'status' => 'active',
-            'is_additional' => false,
-            'is_custom' => false,
-            'rental_status' => 'rent',
-            'description' => 'Bride',
-            'price' => null,
-            'discount' => null,
-        ]);
+        // $brideShoes = OrderItem::create([
+        //     'order_set_id' => $womanSet->id,
+        //     'item_id' => 1,
+        //     'note' => 'Add colorful beads',
+        //     'status' => 'active',
+        //     'is_additional' => false,
+        //     'is_custom' => false,
+        //     'rental_status' => 'rent',
+        //     'description' => 'Bride',
+        //     'price' => null,
+        //     'discount' => null,
+        // ]);
 
-        // Create order item types for bride shoes
-        $brideShoes->orderItemTypes()->create([
-            'name' => 'Selop Wanita',
-            'sort_order' => 0,
-        ]);
+        // // Create order item types for bride shoes
+        // $brideShoes->orderItemTypes()->create([
+        //     'name' => 'Selop Wanita',
+        //     'sort_order' => 0,
+        // ]);
 
-        // Create items for the groom's set
-        $groomBeskap = OrderItem::create([
-            'order_set_id' => $manSet->id,
-            'item_id' => 1,
-            'note' => 'Classic red beskap for the groom',
-            'status' => 'active',
-            'is_additional' => false,
-            'is_custom' => false,
-            'rental_status' => 'purchase',
-            'price' => null,
-            'discount' => null,
-        ]);
+        // // Create items for the groom's set
+        // $groomBeskap = OrderItem::create([
+        //     'order_set_id' => $manSet->id,
+        //     'item_id' => 1,
+        //     'note' => 'Classic red beskap for the groom',
+        //     'status' => 'active',
+        //     'is_additional' => false,
+        //     'is_custom' => false,
+        //     'rental_status' => 'purchase',
+        //     'price' => null,
+        //     'discount' => null,
+        // ]);
 
-        // Create order item types for groom beskap
-        $groomBeskap->orderItemTypes()->create([
-            'name' => 'Beskap',
-            'sort_order' => 0,
-        ]);
+        // // Create order item types for groom beskap
+        // $groomBeskap->orderItemTypes()->create([
+        //     'name' => 'Beskap',
+        //     'sort_order' => 0,
+        // ]);
 
-        $groomCelana = OrderItem::create([
-            'order_set_id' => $manSet->id,
-            'item_id' => null,
-            'note' => 'No need',
-            'status' => 'removed',
-            'is_additional' => false,
-            'is_custom' => false,
-            'rental_status' => 'rent',
-            'price' => null,
-            'discount' => null,
-        ]);
+        // $groomCelana = OrderItem::create([
+        //     'order_set_id' => $manSet->id,
+        //     'item_id' => null,
+        //     'note' => 'No need',
+        //     'status' => 'removed',
+        //     'is_additional' => false,
+        //     'is_custom' => false,
+        //     'rental_status' => 'rent',
+        //     'price' => null,
+        //     'discount' => null,
+        // ]);
 
-        // Create order item types for groom celana
-        $groomCelana->orderItemTypes()->create([
-            'name' => 'Celana',
-            'sort_order' => 0,
-        ]);
+        // // Create order item types for groom celana
+        // $groomCelana->orderItemTypes()->create([
+        //     'name' => 'Celana',
+        //     'sort_order' => 0,
+        // ]);
 
-        $groomBlangkon = OrderItem::create([
-            'order_set_id' => $manSet->id,
-            'item_id' => 1,
-            'note' => 'Big size',
-            'status' => 'active',
-            'is_additional' => false,
-            'is_custom' => false,
-            'rental_status' => 'rent',
-            'description' => 'Groom',
-            'price' => null,
-            'discount' => null,
-        ]);
+        // $groomBlangkon = OrderItem::create([
+        //     'order_set_id' => $manSet->id,
+        //     'item_id' => 1,
+        //     'note' => 'Big size',
+        //     'status' => 'active',
+        //     'is_additional' => false,
+        //     'is_custom' => false,
+        //     'rental_status' => 'rent',
+        //     'description' => 'Groom',
+        //     'price' => null,
+        //     'discount' => null,
+        // ]);
 
-        // Create order item types for groom blangkon
-        $groomBlangkon->orderItemTypes()->create([
-            'name' => 'Headwear',
-            'sort_order' => 0,
-        ]);
+        // // Create order item types for groom blangkon
+        // $groomBlangkon->orderItemTypes()->create([
+        //     'name' => 'Headwear',
+        //     'sort_order' => 0,
+        // ]);
 
-        $groomAccessories = OrderItem::create([
-            'order_set_id' => $manSet->id,
-            'item_id' => 1,
-            'note' => 'Add beads',
-            'status' => 'active',
-            'is_additional' => false,
-            'is_custom' => false,
-            'rental_status' => 'rent',
-            'description' => 'Groom',
-            'price' => null,
-            'discount' => null,
-        ]);
+        // $groomAccessories = OrderItem::create([
+        //     'order_set_id' => $manSet->id,
+        //     'item_id' => 1,
+        //     'note' => 'Add beads',
+        //     'status' => 'active',
+        //     'is_additional' => false,
+        //     'is_custom' => false,
+        //     'rental_status' => 'rent',
+        //     'description' => 'Groom',
+        //     'price' => null,
+        //     'discount' => null,
+        // ]);
 
-        // Create order item types for groom accessories
-        $groomAccessories->orderItemTypes()->create([
-            'name' => 'Aksesoris',
-            'sort_order' => 0,
-        ]);
+        // // Create order item types for groom accessories
+        // $groomAccessories->orderItemTypes()->create([
+        //     'name' => 'Aksesoris',
+        //     'sort_order' => 0,
+        // ]);
 
-        // Create a standalone item (not part of any package)
-        $standaloneItem = OrderItem::create([
-            'order_set_id' => null,
-            'item_id' => null,
-            'note' => 'Custom jewelry set for the bride',
-            'status' => 'active',
-            'is_additional' => true,
-            'is_custom' => true,
-            'rental_status' => 'purchase',
-            'price' => 500000,
-            'discount' => 50000,
-            'custom_name' => 'Diamond Jewelry Set',
-            'custom_type' => 'Accessory',
-            'custom_details' => 'Custom made diamond jewelry set including necklace, earrings, and bracelet',
-        ]);
+        // // Create a standalone item (not part of any package)
+        // $standaloneItem = OrderItem::create([
+        //     'order_set_id' => null,
+        //     'item_id' => null,
+        //     'note' => 'Custom jewelry set for the bride',
+        //     'status' => 'active',
+        //     'is_additional' => true,
+        //     'is_custom' => true,
+        //     'rental_status' => 'purchase',
+        //     'price' => 500000,
+        //     'discount' => 50000,
+        //     'custom_name' => 'Diamond Jewelry Set',
+        //     'custom_type' => 'Accessory',
+        //     'custom_details' => 'Custom made diamond jewelry set including necklace, earrings, and bracelet',
+        // ]);
 
-        // Create order item types for standalone item
-        $standaloneItem->orderItemTypes()->create([
-            'name' => 'Aksesoris',
-            'sort_order' => 0,
-        ]);
+        // // Create order item types for standalone item
+        // $standaloneItem->orderItemTypes()->create([
+        //     'name' => 'Aksesoris',
+        //     'sort_order' => 0,
+        // ]);
 
-        // Link the standalone item to the order
-        OrderProduct::create([
-            'order_id' => $order->id,
-            'product_id' => $standaloneItem->id,
-            'product_type' => 'item',
-            'sort_order' => 2,
-        ]);
+        // // Link the standalone item to the order
+        // OrderProduct::create([
+        //     'order_id' => $order->id,
+        //     'product_id' => $standaloneItem->id,
+        //     'product_type' => 'item',
+        //     'sort_order' => 2,
+        // ]);
 
-        // Create another order with different structure
-        $order2 = Order::create([
-            'order_number' => 'ORD-2025-002',
-            'status' => 'draft',
-            'customer_name' => 'Jane Smith',
-            'customer_address' => '456 Oak Avenue, Bandung, Indonesia',
-            'customer_phone_number' => '+62-813-9876-5432',
-            'event_place' => 'Bandung Convention Center',
-            'event_date' => '2025-11-15',
-            'total_price' => 1200000,
-            'total_discount' => 60000,
-            'final_price' => 1140000,
-        ]);
+    //     // Create another order with different structure
+    //     $order2 = Order::create([
+    //         'order_number' => 'ORD-2025-002',
+    //         'status' => 'draft',
+    //         'customer_name' => 'Jane Smith',
+    //         'customer_address' => '456 Oak Avenue, Bandung, Indonesia',
+    //         'customer_phone_number' => '+62-813-9876-5432',
+    //         'event_place' => 'Bandung Convention Center',
+    //         'event_date' => '2025-11-15',
+    //         'total_price' => 1200000,
+    //         'total_discount' => 60000,
+    //         'final_price' => 1140000,
+    //     ]);
 
-        // Create a simple package for the second order
-        $package2 = OrderPackage::create([
-            'name' => 'Simple Traditional',
-            'price' => 1200000,
-            'discount' => 60000,
-            'note' => 'Simple traditional ceremony package',
-        ]);
+    //     // Create a simple package for the second order
+    //     $package2 = OrderPackage::create([
+    //         'name' => 'Simple Traditional',
+    //         'price' => 1200000,
+    //         'discount' => 60000,
+    //         'note' => 'Simple traditional ceremony package',
+    //     ]);
 
-        // Link the package to the second order
-        OrderProduct::create([
-            'order_id' => $order2->id,
-            'product_id' => $package2->id,
-            'product_type' => 'package',
-            'sort_order' => 1,
-        ]);
+    //     // Link the package to the second order
+    //     OrderProduct::create([
+    //         'order_id' => $order2->id,
+    //         'product_id' => $package2->id,
+    //         'product_type' => 'package',
+    //         'sort_order' => 1,
+    //     ]);
 
-        // Create a single set for this package
-        $womanSet = OrderSet::create([
-            'order_package_id' => $package2->id,
-            'name' => "Woman's Set",
-        ]);
+    //     // Create a single set for this package
+    //     $womanSet = OrderSet::create([
+    //         'order_package_id' => $package2->id,
+    //         'name' => "Woman's Set",
+    //     ]);
 
-        $manSet = OrderSet::create([
-            'order_package_id' => $package2->id,
-            'name' => "Man's Set",
-        ]);
+    //     $manSet = OrderSet::create([
+    //         'order_package_id' => $package2->id,
+    //         'name' => "Man's Set",
+    //     ]);
 
-        // Create items for the simple set
-        $simpleKebaya = OrderItem::create([
-            'order_set_id' => $womanSet->id,
-            'item_id' => 1,
-            'note' => 'Elegant blue kebaya',
-            'status' => 'active',
-            'is_additional' => false,
-            'is_custom' => false,
-            'rental_status' => 'rent',
-            'price' => null,
-            'discount' => null,
-            'sort_order' => 0,
-        ]);
+    //     // Create items for the simple set
+    //     $simpleKebaya = OrderItem::create([
+    //         'order_set_id' => $womanSet->id,
+    //         'item_id' => 1,
+    //         'note' => 'Elegant blue kebaya',
+    //         'status' => 'active',
+    //         'is_additional' => false,
+    //         'is_custom' => false,
+    //         'rental_status' => 'rent',
+    //         'price' => null,
+    //         'discount' => null,
+    //         'sort_order' => 0,
+    //     ]);
 
-        // Create order item types for simple kebaya
-        $simpleKebaya->orderItemTypes()->create([
-            'name' => 'Kebaya',
-            'sort_order' => 0,
-        ]);
+    //     // Create order item types for simple kebaya
+    //     $simpleKebaya->orderItemTypes()->create([
+    //         'name' => 'Kebaya',
+    //         'sort_order' => 0,
+    //     ]);
 
-        $simpleShoes = OrderItem::create([
-            'order_set_id' => $womanSet->id,
-            'item_id' => 1,
-            'note' => 'Clean and polish it',
-            'status' => 'active',
-            'is_additional' => true,
-            'is_custom' => false,
-            'rental_status' => 'rent',
-            'price' => null,
-            'discount' => null,
-            'sort_order' => 1,
-        ]);
+    //     $simpleShoes = OrderItem::create([
+    //         'order_set_id' => $womanSet->id,
+    //         'item_id' => 1,
+    //         'note' => 'Clean and polish it',
+    //         'status' => 'active',
+    //         'is_additional' => true,
+    //         'is_custom' => false,
+    //         'rental_status' => 'rent',
+    //         'price' => null,
+    //         'discount' => null,
+    //         'sort_order' => 1,
+    //     ]);
 
-        // Create order item types for simple shoes
-        $simpleShoes->orderItemTypes()->create([
-            'name' => 'Selop Wanita',
-            'sort_order' => 0,
-        ]);
+    //     // Create order item types for simple shoes
+    //     $simpleShoes->orderItemTypes()->create([
+    //         'name' => 'Selop Wanita',
+    //         'sort_order' => 0,
+    //     ]);
 
-        $simpleBeskap = OrderItem::create([
-            'order_set_id' => $manSet->id,
-            'item_id' => 1,
-            'note' => 'White beskap',
-            'status' => 'active',
-            'is_additional' => false,
-            'is_custom' => false,
-            'rental_status' => 'rent',
-            'price' => null,
-            'discount' => null,
-            'sort_order' => 0,
-        ]);
+    //     $simpleBeskap = OrderItem::create([
+    //         'order_set_id' => $manSet->id,
+    //         'item_id' => 1,
+    //         'note' => 'White beskap',
+    //         'status' => 'active',
+    //         'is_additional' => false,
+    //         'is_custom' => false,
+    //         'rental_status' => 'rent',
+    //         'price' => null,
+    //         'discount' => null,
+    //         'sort_order' => 0,
+    //     ]);
 
-        // Create order item types for simple beskap
-        $simpleBeskap->orderItemTypes()->create([
-            'name' => 'Beskap',
-            'sort_order' => 0,
-        ]);
+    //     // Create order item types for simple beskap
+    //     $simpleBeskap->orderItemTypes()->create([
+    //         'name' => 'Beskap',
+    //         'sort_order' => 0,
+    //     ]);
 
-        $simpleCelana = OrderItem::create([
-            'order_set_id' => $manSet->id,
-            'item_id' => null,
-            'note' => '-',
-            'status' => 'removed',
-            'is_additional' => false,
-            'is_custom' => false,
-            'rental_status' => 'rent',
-            'price' => null,
-            'discount' => null,
-            'sort_order' => 1,
-        ]);
+    //     $simpleCelana = OrderItem::create([
+    //         'order_set_id' => $manSet->id,
+    //         'item_id' => null,
+    //         'note' => '-',
+    //         'status' => 'removed',
+    //         'is_additional' => false,
+    //         'is_custom' => false,
+    //         'rental_status' => 'rent',
+    //         'price' => null,
+    //         'discount' => null,
+    //         'sort_order' => 1,
+    //     ]);
 
-        // Create order item types for simple celana
-        $simpleCelana->orderItemTypes()->create([
-            'name' => 'Celana',
-            'sort_order' => 0,
-        ]);
+    //     // Create order item types for simple celana
+    //     $simpleCelana->orderItemTypes()->create([
+    //         'name' => 'Celana',
+    //         'sort_order' => 0,
+    //     ]);
 
         $this->seedPackage();
     }

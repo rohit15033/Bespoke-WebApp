@@ -24,16 +24,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Appointments::factory(30)->create();
+        // Appointments::factory(30)->create();
 
         // Seed a specific test user
-        User::updateOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => Hash::make('password123'),
-            ]
-        );
+        // User::updateOrCreate(
+        //     ['email' => 'test@example.com'],
+        //     [
+        //         'name' => 'Test User',
+        //         'password' => Hash::make('password123'),
+        //     ]
+        // );
 
         Occasions::insert([
             ['name' => 'Wedding'],
