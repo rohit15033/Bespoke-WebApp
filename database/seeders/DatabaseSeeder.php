@@ -45,8 +45,9 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Ensure base color taxonomy exists
-        $this->call(SubColorSeeder::class); 
-        $this->call(SubColorSeeder::class);
+        $this->call(ColorSeeder::class);
+        SubColors::factory()->create();
+
 
         // Items with images (requires SubColors)
         $this->call(ItemsSeeder::class);
