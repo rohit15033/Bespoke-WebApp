@@ -13,7 +13,6 @@ use App\Models\KebayaOccasion;
 use App\Models\Beskap;
 use App\Models\BeskapImages;
 
-
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Seeder;
 
@@ -44,19 +43,15 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Lamaran'],
         ]);
 
-        // Ensure base color taxonomy exists
+        // Ensure base color taxonomy exists FIRST
         $this->call(ColorSeeder::class);
-        SubColors::factory()->create();
-
+        
+        // Now seed sub-colors using a proper seeder instead of factory
+        $this->call(SubColorsSeeder::class);
 
         // Items with images (requires SubColors)
         $this->call(ItemsSeeder::class);
-        // Headwear and item-linked tables
-        // $this->call(ItemLinkedSeeder::class);
-        // Kebaya::factory(15)->create();
-        // KebayaImages::factory(30)->create();
-        // Beskap::factory(15)->create();
-
+        
         // Orders
         $this->call(OrderSeeder::class);
     }
