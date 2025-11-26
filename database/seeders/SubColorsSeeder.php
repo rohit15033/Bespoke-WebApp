@@ -15,7 +15,7 @@ class SubColorsSeeder extends Seeder
     public function run(): void
     {
         // Clear existing sub colors to avoid duplicates
-        SubColors::truncate();
+        // SubColors::truncate();
 
         $colorMap = [
             'Biru' => [
