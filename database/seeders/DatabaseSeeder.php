@@ -36,11 +36,12 @@ class DatabaseSeeder extends Seeder
         // );
 
         Occasions::insert([
-            ['name' => 'Wedding'],
-            ['name' => 'Engagement'],
-            ['name' => 'Graduation'],
-            ['name' => 'Party'],
-            ['name' => 'Traditional Ceremony'],
+            ['name' => 'Resepsi'],
+            ['name' => 'Akad'],
+            ['name' => 'Wisuda'],
+            ['name' => 'Kondangan'],
+            ['name' => 'Traditional Event'],
+            ['name' => 'Lamaran'],
         ]);
 
         // Ensure base color taxonomy exists

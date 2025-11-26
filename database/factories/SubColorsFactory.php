@@ -6,54 +6,54 @@ use App\Models\SubColors;
 use App\Models\Colors;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\SubColors>
- */
 class SubColorsFactory extends Factory
 {
     protected $model = SubColors::class;
 
     public function definition(): array
     {
-        // Define realistic fashion-related sub-colors for each main color name
+        // Final real sub-color mapping based on your list
         $colorMap = [
             'Biru' => [
-                'Biru Muda', 'Biru Langit', 'Biru Navy', 'Biru Royal', 'Biru Toska'
+                'Biru Donker / Navy', 'Biru Muda', 'Sky Blue', 'Royal Blue',
+                'Turquoise', 'Tosca', 'Electric Blue'
             ],
             'Merah' => [
-                'Merah Marun', 'Merah Bata', 'Merah Hati', 'Merah Terang', 'Merah Anggur'
+                'Maroon', 'Merah Cabe'
             ],
             'Gold' => [
-                'Emas Klasik', 'Emas Muda', 'Champagne Gold', 'Rose Gold', 'Golden Bronze'
+                'Gold Tua', 'Gold Muda', 'Rose Gold', 'Champagne Gold', 'Yellow Gold'
             ],
             'Cokelat' => [
-                'Cokelat Susu', 'Cokelat Tua', 'Cokelat Kopi', 'Beige', 'Mocha'
+                'Cokelat Susu', 'Kopi', 'Nude Brown'
             ],
             'Hijau' => [
-                'Hijau Emerald', 'Hijau Sage', 'Hijau Mint', 'Hijau Olive', 'Hijau Toska'
+                'Army', 'Sage', 'Mint', 'Emerald', 'Tosca', 'Olive', 'Lumut', 'Botol'
             ],
             'Ungu' => [
-                'Lavender', 'Ungu Tua', 'Lilac', 'Plum', 'Mauve'
+                'Lavender', 'Lilac', 'Violet', 'Mauve', 'Magenta', 'Grape', 'Burgundy', 'Wine'
             ],
             'Hitam' => [
-                'Hitam Pekat', 'Abu Gelap', 'Charcoal', 'Graphite', 'Midnight Black'
+                'Jet Black', 'Metallic Black'
             ],
             'Putih' => [
-                'Putih Gading', 'Putih Mutiara', 'Ivory', 'Off White', 'Putih Salju'
+                'Snow White', 'Off White', 'Ivory', 'Cream', 'Pure White'
             ],
             'Silver' => [
-                'Abu Muda', 'Abu Silver', 'Platinum', 'Steel Grey', 'Pewter'
+                'Silver Muda', 'Silver Tua', 'Metallic Silver', 'Grey Silver'
             ],
             'Pink' => [
-                'Dusty Pink', 'Blush', 'Fuchsia', 'Rose', 'Soft Pink'
+                'Baby Pink', 'Fuchsia', 'Rose', 'Dusty Pink', 'Salmon', 'Magenta Pink'
             ],
         ];
 
-        // Pick a random color from the Colors table
+        // Random parent color
         $color = Colors::inRandomOrder()->first();
 
-        // Choose a sub-color based on the parent color name (fallback to random if missing)
-        $subName = $this->faker->randomElement($colorMap[$color->name] ?? [$this->faker->colorName()]);
+        // Pick sub-color from mapping (fallback to safe value)
+        $subName = $this->faker->randomElement(
+            $colorMap[$color->name] ?? ['Undefined Sub Color']
+        );
 
         return [
             'name' => $subName,
