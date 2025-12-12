@@ -26,12 +26,12 @@ class Kebaya extends Model
 public static function getKebayaList($payload)
 {
     $query = self::with([
-        'item.images',          // load ALL images
+        'item.images',
         'item.subcolor.color',
         'occasions'
     ]);
 
-    // --- Filters ---
+    // Filters
     if (!empty($payload['search_filter'])) {
         $query->whereHas('item', function ($q) use ($payload) {
             $q->where('code', 'like', '%' . $payload['search_filter'] . '%')
@@ -81,7 +81,7 @@ public static function getKebayaList($payload)
         });
     }
 
-    // Pagination & sorting
+    // Pagination
     $limit = $payload['limit'] ?? 10;
     $sort  = $payload['sort'] ?? 'created_at';
 
@@ -101,14 +101,18 @@ public static function getKebayaList($payload)
                 'production_month' => $kebaya->item->production_month,
                 'production_year' => $kebaya->item->production_year,
 
-                // --- FIXED thumbnail ---
-                'image_url' => $firstImg ? $firstImg->url : null,
+                // FIXED
+                'image_url' => $firstImg
+                    ? asset('storage/' . $firstImg->image_url)
+                    : null,
 
-                // --- FIXED images array ---
+                // FIXED
                 'images' => $kebaya->item->images->map(function ($img) {
                     return [
                         'id' => $img->id,
-                        'url' => $img->url, // uses mutated / mapped URL
+                        'url' => $img->image_url
+                            ? asset('storage/' . $img->image_url)
+                            : null,
                     ];
                 }),
             ];
