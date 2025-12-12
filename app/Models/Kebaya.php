@@ -23,81 +23,98 @@ class Kebaya extends Model
         return $this->belongsTo(Items::class);
     }
 
-    public static function getKebayaList($payload)
-    {
-        $query = self::with([
-            'item.firstImage',
-            'item.subcolor.color',
-            'occasions.kebayas'
-        ]);
-        // Search filter (code OR name)
-        if (!empty($payload['search_filter'])) {
-            $query->whereHas('item', function ($q) use ($payload) {
-                $q->where('code', 'like', '%' . $payload['search_filter'] . '%')
-                    ->orWhere('name', 'like', '%' . $payload['search_filter'] . '%');
-            });
-        }
-        // Filter by color (via relation)
-        if (!empty($payload['color'])) {
-            $query->whereHas('item.subcolor.color', function ($q) use ($payload) {
-                $q->where('id', $payload['color']);
-            });
-        }
+public static function getKebayaList($payload)
+{
+    $query = self::with([
+        'item.images',          // load ALL images
+        'item.subcolor.color',
+        'occasions'
+    ]);
 
-        // Filter by subcolor (via relation)
-        if (!empty($payload['subcolor'])) {
-            $query->whereHas('item.subcolor', function ($q) use ($payload) {
-                $q->where('name', $payload['subcolor']);
-            });
-        }
-        if (!empty($payload['fromMonth'])) {
-            $query->whereHas('item', function ($q) use ($payload) {
-                $q->where('production_month', '>=', $payload['fromMonth']);
-            });
-        }
-        if (!empty($payload['toMonth'])) {
-            $query->whereHas('item', function ($q) use ($payload) {
-                $q->where('production_month', '<=', $payload['toMonth']);
-            });
-        }
-        if (!empty($payload['fromYear'])) {
-            $query->whereHas('item', function ($q) use ($payload) {
-                $q->where('production_year', '>=', $payload['fromYear']);
-            });
-        }
-        if (!empty($payload['toYear'])) {
-            $query->whereHas('item', function ($q) use ($payload) {
-                $q->where('production_year', '<=', $payload['toYear']);
-            });
-        }
-
-        if (!empty($payload['occasion'])) {
-            $query->whereHas('occasions', function ($q) use ($payload) {
-                $q->where('name', $payload['occasion']);
-            });
-        }
-
-
-        $sort = $payload['sort'] ?? 'production_date';
-        $limit = $payload['limit'] ?? 10;
-        $kebayas = $query->orderBy($sort, 'desc')
-            ->paginate($limit)
-            ->through(function ($kebaya) {
-                return [
-                    'id' => $kebaya->id,
-                    'code' => $kebaya->item->code,
-                    'name' => $kebaya->item->name,
-                    'color' => $kebaya->item->subcolor->color->name,
-                    'subcolor' => $kebaya->item->subcolor->name,
-                    'occasions' => $kebaya->occasions->pluck('name')->implode(', '),
-                    'production_month' => $kebaya->item->production_month,
-                    'production_year' => $kebaya->item->production_year,
-                    'image_url' => asset('storage/' . $kebaya->item->firstImage?->image_url),
-                ];
-            });
-
-        return $kebayas;
+    // --- Filters ---
+    if (!empty($payload['search_filter'])) {
+        $query->whereHas('item', function ($q) use ($payload) {
+            $q->where('code', 'like', '%' . $payload['search_filter'] . '%')
+              ->orWhere('name', 'like', '%' . $payload['search_filter'] . '%');
+        });
     }
+
+    if (!empty($payload['color'])) {
+        $query->whereHas('item.subcolor.color', function ($q) use ($payload) {
+            $q->where('id', $payload['color']);
+        });
+    }
+
+    if (!empty($payload['subcolor'])) {
+        $query->whereHas('item.subcolor', function ($q) use ($payload) {
+            $q->where('name', $payload['subcolor']);
+        });
+    }
+
+    if (!empty($payload['fromMonth'])) {
+        $query->whereHas('item', function ($q) use ($payload) {
+            $q->where('production_month', '>=', $payload['fromMonth']);
+        });
+    }
+
+    if (!empty($payload['toMonth'])) {
+        $query->whereHas('item', function ($q) use ($payload) {
+            $q->where('production_month', '<=', $payload['toMonth']);
+        });
+    }
+
+    if (!empty($payload['fromYear'])) {
+        $query->whereHas('item', function ($q) use ($payload) {
+            $q->where('production_year', '>=', $payload['fromYear']);
+        });
+    }
+
+    if (!empty($payload['toYear'])) {
+        $query->whereHas('item', function ($q) use ($payload) {
+            $q->where('production_year', '<=', $payload['toYear']);
+        });
+    }
+
+    if (!empty($payload['occasion'])) {
+        $query->whereHas('occasions', function ($q) use ($payload) {
+            $q->where('name', $payload['occasion']);
+        });
+    }
+
+    // Pagination & sorting
+    $limit = $payload['limit'] ?? 10;
+    $sort  = $payload['sort'] ?? 'created_at';
+
+    return $query->orderBy($sort, 'desc')
+        ->paginate($limit)
+        ->through(function ($kebaya) {
+
+            $firstImg = $kebaya->item->images->first();
+
+            return [
+                'id' => $kebaya->id,
+                'code' => $kebaya->item->code,
+                'name' => $kebaya->item->name,
+                'color' => $kebaya->item->subcolor->color->name,
+                'subcolor' => $kebaya->item->subcolor->name,
+                'occasions' => $kebaya->occasions->pluck('name')->implode(', '),
+                'production_month' => $kebaya->item->production_month,
+                'production_year' => $kebaya->item->production_year,
+
+                // --- FIXED thumbnail ---
+                'image_url' => $firstImg ? $firstImg->url : null,
+
+                // --- FIXED images array ---
+                'images' => $kebaya->item->images->map(function ($img) {
+                    return [
+                        'id' => $img->id,
+                        'url' => $img->url, // uses mutated / mapped URL
+                    ];
+                }),
+            ];
+        });
+}
+
 
     public static function getKebayaById($id)
     {

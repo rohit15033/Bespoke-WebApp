@@ -45,7 +45,7 @@ class CreateAdminUser extends Command
         ], [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8',
+            'password' => 'required',
         ]);
 
         if ($validator->fails()) {
