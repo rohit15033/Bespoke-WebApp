@@ -67,7 +67,7 @@ class EkorController extends Controller
                 'production_year' => 'nullable|integer',
                 'subcolor_id' => 'required|exists:subcolors,id',
                 'images' => 'required',
-                'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:51200',
             ]);
             $item = Items::create([
                 'code' => $validated['code'],
@@ -160,7 +160,7 @@ class EkorController extends Controller
                 'production_year' => 'nullable|integer',
                 'subcolor_id' => 'required|exists:subcolors,id',
                 'images' => 'nullable',
-                'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:51200',
             ]);
             $item = Items::findOrFail($ekor->item_id);
             $item->update([

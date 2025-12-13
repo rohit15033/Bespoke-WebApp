@@ -72,7 +72,7 @@ class HeadwearController extends Controller
                 'production_year' => 'nullable|integer',
                 'subcolor_id' => 'required|exists:subcolors,id',
                 'images' => 'required',
-                'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:51200',
                 'headwear_type' => ['required', Rule::in(['Blangkon', 'Peci', 'Tanjak'])],
                 'adat' => 'nullable|string|max:255',
             ]);
@@ -166,7 +166,7 @@ class HeadwearController extends Controller
                 'production_year' => 'nullable|integer',
                 'subcolor_id' => 'required|exists:subcolors,id',
                 'images' => 'nullable',
-                'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:51200',
                 'adat' => 'nullable|string|max:255',
                 'headwear_type' => ['required', Rule::in(['Blangkon', 'Peci', 'Tanjak'])],
             ]);

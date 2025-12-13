@@ -74,7 +74,7 @@ class AccessoryController extends Controller
                 'production_year' => 'nullable|integer',
                 'subcolor_id' => 'required|exists:subcolors,id',
                 'images' => 'required',
-                'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:51200',
                 'accessories_type' => ['required', Rule::in(['Crown', 'Bros', 'Kembang Goyang', 'Karset', 'Obi', 'Selendang'])],
                 'parent_type' => 'nullable|string|max:255',
             ]);
@@ -168,7 +168,7 @@ class AccessoryController extends Controller
                 'production_year' => 'nullable|integer',
                 'subcolor_id' => 'required|exists:subcolors,id',
                 'images' => 'nullable',
-                'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:51200',
                 'parent_type' => 'nullable|string|max:255',
                 'accessories_type' => ['required', Rule::in(['Crown', 'Bros', 'Kembang Goyang', 'Karset', 'Obi', 'Selendang'])],
             ]);
