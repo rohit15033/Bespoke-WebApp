@@ -35,6 +35,7 @@ class Kernel extends HttpKernel
 
         'api' => [
             // Sanctum middleware ensures SPA / API token handling
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
