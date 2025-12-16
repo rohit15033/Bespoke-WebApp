@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Kebaya extends Model
 {
-    //
     protected $table = 'kebayas';
+
     protected $fillable = [
         'item_id',
         'length',
@@ -15,7 +15,12 @@ class Kebaya extends Model
 
     public function occasions()
     {
-        return $this->belongsToMany(Occasions::class, 'kebaya_occasions', 'kebaya_id', 'occasion_id');
+        return $this->belongsToMany(
+            Occasions::class,
+            'kebaya_occasions',
+            'kebaya_id',
+            'occasion_id'
+        );
     }
 
     public function item()
@@ -23,111 +28,107 @@ class Kebaya extends Model
         return $this->belongsTo(Items::class);
     }
 
-public static function getKebayaList($payload)
-{
-    $query = self::with([
-        'item.images',
-        'item.subcolor.color',
-        'occasions'
-    ]);
+    public static function getKebayaList($payload)
+    {
+        $query = self::with([
+            'item.images',
+            'item.subcolor.color',
+            'occasions'
+        ]);
 
-    // Filters
-    if (!empty($payload['search_filter'])) {
-        $query->whereHas('item', function ($q) use ($payload) {
-            $q->where('code', 'like', '%' . $payload['search_filter'] . '%')
-              ->orWhere('name', 'like', '%' . $payload['search_filter'] . '%');
-        });
+        if (!empty($payload['search_filter'])) {
+            $query->whereHas('item', function ($q) use ($payload) {
+                $q->where('code', 'like', '%' . $payload['search_filter'] . '%')
+                  ->orWhere('name', 'like', '%' . $payload['search_filter'] . '%');
+            });
+        }
+
+        if (!empty($payload['color'])) {
+            $query->whereHas('item.subcolor.color', function ($q) use ($payload) {
+                $q->where('id', $payload['color']);
+            });
+        }
+
+        if (!empty($payload['subcolor'])) {
+            $query->whereHas('item.subcolor', function ($q) use ($payload) {
+                $q->where('name', $payload['subcolor']);
+            });
+        }
+
+        if (!empty($payload['fromMonth'])) {
+            $query->whereHas('item', function ($q) use ($payload) {
+                $q->where('production_month', '>=', $payload['fromMonth']);
+            });
+        }
+
+        if (!empty($payload['toMonth'])) {
+            $query->whereHas('item', function ($q) use ($payload) {
+                $q->where('production_month', '<=', $payload['toMonth']);
+            });
+        }
+
+        if (!empty($payload['fromYear'])) {
+            $query->whereHas('item', function ($q) use ($payload) {
+                $q->where('production_year', '>=', $payload['fromYear']);
+            });
+        }
+
+        if (!empty($payload['toYear'])) {
+            $query->whereHas('item', function ($q) use ($payload) {
+                $q->where('production_year', '<=', $payload['toYear']);
+            });
+        }
+
+        if (!empty($payload['occasion'])) {
+            $query->whereHas('occasions', function ($q) use ($payload) {
+                $q->where('name', $payload['occasion']);
+            });
+        }
+
+        $limit = $payload['limit'] ?? 10;
+        $sort  = $payload['sort'] ?? 'created_at';
+
+        return $query->orderBy($sort, 'desc')
+            ->paginate($limit)
+            ->through(function ($kebaya) {
+
+                $firstImg = $kebaya->item->images->first();
+
+                return [
+                    'id' => $kebaya->id,
+                    'code' => $kebaya->item->code,
+                    'name' => $kebaya->item->name,
+                    'color' => $kebaya->item->subcolor->color->name,
+                    'subcolor' => $kebaya->item->subcolor->name,
+                    'occasions' => $kebaya->occasions->pluck('name')->implode(', '),
+                    'production_month' => $kebaya->item->production_month,
+                    'production_year' => $kebaya->item->production_year,
+
+                    // WEBP AWARE
+                    'image_url' => $firstImg
+                        ? $firstImg->resolved_url
+                        : null,
+
+                    // WEBP AWARE
+                    'images' => $kebaya->item->images->map(function ($img) {
+                        return [
+                            'id' => $img->id,
+                            'url' => $img->resolved_url,
+                        ];
+                    }),
+                ];
+            });
     }
-
-    if (!empty($payload['color'])) {
-        $query->whereHas('item.subcolor.color', function ($q) use ($payload) {
-            $q->where('id', $payload['color']);
-        });
-    }
-
-    if (!empty($payload['subcolor'])) {
-        $query->whereHas('item.subcolor', function ($q) use ($payload) {
-            $q->where('name', $payload['subcolor']);
-        });
-    }
-
-    if (!empty($payload['fromMonth'])) {
-        $query->whereHas('item', function ($q) use ($payload) {
-            $q->where('production_month', '>=', $payload['fromMonth']);
-        });
-    }
-
-    if (!empty($payload['toMonth'])) {
-        $query->whereHas('item', function ($q) use ($payload) {
-            $q->where('production_month', '<=', $payload['toMonth']);
-        });
-    }
-
-    if (!empty($payload['fromYear'])) {
-        $query->whereHas('item', function ($q) use ($payload) {
-            $q->where('production_year', '>=', $payload['fromYear']);
-        });
-    }
-
-    if (!empty($payload['toYear'])) {
-        $query->whereHas('item', function ($q) use ($payload) {
-            $q->where('production_year', '<=', $payload['toYear']);
-        });
-    }
-
-    if (!empty($payload['occasion'])) {
-        $query->whereHas('occasions', function ($q) use ($payload) {
-            $q->where('name', $payload['occasion']);
-        });
-    }
-
-    // Pagination
-    $limit = $payload['limit'] ?? 10;
-    $sort  = $payload['sort'] ?? 'created_at';
-
-    return $query->orderBy($sort, 'desc')
-        ->paginate($limit)
-        ->through(function ($kebaya) {
-
-            $firstImg = $kebaya->item->images->first();
-
-            return [
-                'id' => $kebaya->id,
-                'code' => $kebaya->item->code,
-                'name' => $kebaya->item->name,
-                'color' => $kebaya->item->subcolor->color->name,
-                'subcolor' => $kebaya->item->subcolor->name,
-                'occasions' => $kebaya->occasions->pluck('name')->implode(', '),
-                'production_month' => $kebaya->item->production_month,
-                'production_year' => $kebaya->item->production_year,
-
-                // FIXED
-                'image_url' => $firstImg
-                    ? asset('storage/' . $firstImg->image_url)
-                    : null,
-
-                // FIXED
-                'images' => $kebaya->item->images->map(function ($img) {
-                    return [
-                        'id' => $img->id,
-                        'url' => $img->image_url
-                            ? asset('storage/' . $img->image_url)
-                            : null,
-                    ];
-                }),
-            ];
-        });
-}
-
 
     public static function getKebayaById($id)
     {
         $query = self::with([
-            'item.firstImage',
+            'item.images',
             'item.subcolor.color',
             'occasions.kebayas'
         ])->findOrFail($id);
-        $mapped = [
+
+        return [
             'id' => $query->id,
             'parent_id' => $query->item->id,
             'code' => $query->item->code,
@@ -139,13 +140,14 @@ public static function getKebayaList($payload)
             'subcolor_id' => $query->item->subcolor->id,
             'production_month' => $query->item->production_month,
             'production_year' => $query->item->production_year,
+
+            // WEBP AWARE
             'images' => $query->item->images->map(function ($img) {
                 return [
                     'id' => $img->id,
-                    'url' => asset('storage/' . $img->image_url),
+                    'url' => $img->resolved_url,
                 ];
             }),
         ];
-        return $mapped;
     }
 }
