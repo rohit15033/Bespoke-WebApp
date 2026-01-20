@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use App\Models\Items;
 use App\Models\ItemsImagesUrls;
 use App\Models\SubColors;
@@ -12,84 +11,54 @@ use App\Models\SubColors;
 class ItemsSeeder extends Seeder
 {
     /**
-     * Seed the items table with a large dataset and related images.
+     * Seed the items table with essential data only.
      */
     public function run(): void
     {
-        $faker = \Faker\Factory::create();
-
-        $allowedTypes = [
-            'kebaya',
-            'beskap',
-            'celana',
-            'selop',
-            'bustier',
-            'manset',
-            'hijab',
-            'veil',
-            'ekor',
-            'vest',
-            'dasi',
-            'kemeja',
-            'headwear',
-            'accessories'
-        ];
-
+        // Check if subcolors exist first
         $subcolorIds = SubColors::query()->pluck('id')->all();
         if (empty($subcolorIds)) {
-            return; // Preconditions not met; upstream seeder should create subcolors
+            $this->command->info('No subcolors found. Please run SubColors seeder first.');
+            return;
         }
 
-        $now = now();
-        $itemsToInsert = [];
+        $this->command->info('Items seeder completed. No sample items created.');
+        
+        // If you want to create a few essential items for testing, uncomment below:
+        /*
+        $essentialItems = [
+            [
+                'name' => 'Sample Kebaya Traditional',
+                'code' => 'KBY-TRAD-001',
+                'type' => 'kebaya',
+                'production_month' => 6,
+                'production_year' => 2024,
+                'subcolor_id' => $subcolorIds[array_rand($subcolorIds)],
+            ],
+            [
+                'name' => 'Sample Beskap Formal',
+                'code' => 'BSK-FRM-001', 
+                'type' => 'beskap',
+                'production_month' => 3,
+                'production_year' => 2024,
+                'subcolor_id' => $subcolorIds[array_rand($subcolorIds)],
+            ],
+        ];
 
-        $targetCount = 500; // "huge" dataset
-        for ($i = 0; $i < $targetCount; $i++) {
-            $name = ucfirst($faker->words(rand(2, 4), true));
-            $code = strtoupper(Str::slug($name, '')) . '-' . strtoupper(Str::random(6));
-            $type = $allowedTypes[array_rand($allowedTypes)];
-            $month = $faker->optional(0.8)->numberBetween(1, 12);
-            $year = $faker->optional(0.9)->numberBetween(2015, (int) date('Y'));
-            $subcolorId = $subcolorIds[array_rand($subcolorIds)];
+        foreach ($essentialItems as $itemData) {
+            $item = Items::firstOrCreate(
+                ['code' => $itemData['code']],
+                $itemData
+            );
 
-            $itemsToInsert[] = [
-                'name' => $name,
-                'code' => $code,
-                'type' => $type,
-                'production_month' => $month,
-                'production_year' => $year,
-                'subcolor_id' => $subcolorId,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-        }
-
-        // Bulk insert for performance
-        foreach (array_chunk($itemsToInsert, 500) as $chunk) {
-            DB::table('items')->insert($chunk);
-        }
-
-        // Fetch inserted items ids to create images
-        $itemIds = Items::query()->orderByDesc('id')->limit($targetCount)->pluck('id')->all();
-
-        $imagesToInsert = [];
-        foreach ($itemIds as $itemId) {
-            $imagesCount = rand(1, 4);
-            for ($k = 0; $k < $imagesCount; $k++) {
-                $imagesToInsert[] = [
-                    'item_id' => $itemId,
-                    'image_url' => $faker->imageUrl(800, 1200, 'fashion', true),
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
+            // Add sample image if item was created
+            if ($item->wasRecentlyCreated) {
+                ItemsImagesUrls::firstOrCreate([
+                    'item_id' => $item->id,
+                    'image_url' => '/images/placeholder-item.jpg'
+                ]);
             }
         }
-
-        foreach (array_chunk($imagesToInsert, 1000) as $chunk) {
-            DB::table('items_images_urls')->insert($chunk);
-        }
+        */
     }
 }
-
-
-

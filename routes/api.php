@@ -165,4 +165,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Items routes
     Route::apiResource('/items', ItemsController::class);
+
+    // Payment routes
+    Route::get('/payments', [App\Http\Controllers\PaymentRecordController::class, 'index']);
+    Route::post('/payments', [App\Http\Controllers\PaymentRecordController::class, 'store']);
+    Route::delete('/payments/{id}', [App\Http\Controllers\PaymentRecordController::class, 'destroy']);
 });

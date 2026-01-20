@@ -67,4 +67,12 @@ class Order extends Model
         return $this->hasManyThrough(OrderItem::class, OrderProduct::class, 'order_id', 'id', 'id', 'product_id')
             ->where('order_products.product_type', 'item');
     }
+
+    /**
+     * Get the payment records for this order.
+     */
+    public function payments()
+    {
+        return $this->hasMany(PaymentRecord::class);
+    }
 }

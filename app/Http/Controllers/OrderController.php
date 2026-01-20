@@ -22,11 +22,23 @@ class OrderController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Order::query();
+        $query = Order::query()->withSum('payments', 'amount');
 
         // Apply filters
         if ($request->has('status')) {
             $query->where('status', $request->status);
+        }
+
+        if ($request->has('payment_status')) {
+            $status = $request->payment_status;
+            if ($status === 'unpaid') {
+                $query->doesntHave('payments');
+            } elseif ($status === 'partial') {
+                $query->whereHas('payments')
+                      ->whereRaw('(select coalesce(sum(amount), 0) from payment_records where order_id = orders.id) < final_price');
+            } elseif ($status === 'paid') {
+                $query->whereRaw('(select coalesce(sum(amount), 0) from payment_records where order_id = orders.id) >= final_price');
+            }
         }
 
         if ($request->has('customer_name')) {
@@ -47,8 +59,15 @@ class OrderController extends Controller
 
         // Apply sorting
         $sortBy = $request->get('sort_by', 'created_at');
-        $sortOrder = $request->get('sort_order', 'desc');
-        $query->orderBy($sortBy, $sortOrder);
+        // Handle sorting by computed column
+        if ($sortBy === 'payment_status') {
+             // Logic for sorting by payment status is complex, skipping for now or default to created_at
+             // Alternatively could sort by ratio of paid/final
+        } else {
+             $sortOrder = $request->get('sort_order', 'desc');
+             $query->orderBy($sortBy, $sortOrder);
+        }
+
 
         // Pagination
         $perPage = $request->get('per_page', 15);
@@ -124,6 +143,7 @@ class OrderController extends Controller
             'packages.orderSets.orderItems.orderItemTypes',
             'items.item.subcolor',
             'items.orderItemTypes',
+            'payments',
         ])->findOrFail($id);
 
         return response()->json($order);
