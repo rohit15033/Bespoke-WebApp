@@ -76,6 +76,10 @@ class Kebaya extends Model
                 $q->where('name', $payload['occasion']);
             });
         }
+        if (!empty($payload['length'])) {
+            $query->where('length', $payload['length']);
+        }
+
 
 
         $sort = $payload['sort'] ?? 'production_date';
@@ -87,6 +91,7 @@ class Kebaya extends Model
                     'id' => $kebaya->id,
                     'code' => $kebaya->item->code,
                     'name' => $kebaya->item->name,
+                    'length' => $kebaya->length,
                     'color' => $kebaya->item->subcolor->color->name,
                     'subcolor' => $kebaya->item->subcolor->name,
                     'occasions' => $kebaya->occasions->pluck('name')->implode(', '),

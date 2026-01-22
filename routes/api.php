@@ -142,6 +142,7 @@ Route::delete('accessories/{id}', [AccessoryController::class, 'destroy']);
 
 //items
 Route::get('get-item-code', [ItemsController::class, 'getItemCode']);
+Route::get('/all-items', [ItemsController::class, 'index']);
 
 
 // Protected routes (require authentication with Sanctum token)
