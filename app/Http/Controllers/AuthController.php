@@ -38,7 +38,10 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Login successful!',
-            'user' => $user->only('id', 'name', 'email'),
+            'user' => array_merge(
+                $user->only('id', 'name', 'email', 'role', 'permissions'),
+                ['login_date' => now()->toDateString()]
+            ),
             'access_token' => $token,
             'token_type' => 'Bearer',
         ]);
@@ -70,7 +73,7 @@ class AuthController extends Controller
     public function user(Request $request)
     {
         return response()->json([
-            'user' => $request->user()->only('id', 'name', 'email')
+            'user' => $request->user()->only('id', 'name', 'email', 'role')
         ]);
     }
 }

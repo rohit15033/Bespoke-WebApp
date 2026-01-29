@@ -19,8 +19,9 @@ use App\Http\Controllers\VestController;
 use App\Http\Controllers\DasiController;
 use App\Http\Controllers\KemejaController;
 use App\Http\Controllers\HeadwearController;
-use App\Http\Controllers\AccessoryController;
 use App\Http\Controllers\ItemsController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\AuditLogController;
 
 
 /*
@@ -158,6 +159,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Order routes
     Route::apiResource('orders', OrderController::class);
+    Route::get('/events', [OrderController::class, 'events']);
 
     // Package routes
     Route::get('/packages', [PackageController::class, 'index']);
@@ -170,4 +172,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/payments', [App\Http\Controllers\PaymentRecordController::class, 'index']);
     Route::post('/payments', [App\Http\Controllers\PaymentRecordController::class, 'store']);
     Route::delete('/payments/{id}', [App\Http\Controllers\PaymentRecordController::class, 'destroy']);
+
+    Route::get('/daily-reports', [App\Http\Controllers\DailyReportController::class, 'index']);
+    Route::post('/daily-reports', [App\Http\Controllers\DailyReportController::class, 'store']);
+
+    Route::get('/attendance/status', [App\Http\Controllers\AttendanceController::class, 'status']);
+    Route::get('/attendance/history', [App\Http\Controllers\AttendanceController::class, 'history']);
+    Route::post('/attendance/clock-in', [App\Http\Controllers\AttendanceController::class, 'clockIn']);
+    Route::post('/attendance/clock-out', [App\Http\Controllers\AttendanceController::class, 'clockOut']);
+
+    // Master-only routes
+    Route::get('salespeople', [UserController::class, 'salespeople']);
+    Route::apiResource('users', UserController::class);
+    Route::get('/audit-logs', [AuditLogController::class, 'index']);
 });

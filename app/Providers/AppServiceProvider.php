@@ -7,6 +7,8 @@ use App\Models\OrderPackage;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Gate;
+use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,5 +33,9 @@ class AppServiceProvider extends ServiceProvider
             'package' => OrderPackage::class,
             'item' => OrderItem::class,
         ]);
+
+        Gate::define('delete-inventory', function (User $user) {
+            return $user->isMaster();
+        });
     }
 }

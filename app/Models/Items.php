@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use PDO;
 
+use App\Traits\LogsActivity;
+
 class Items extends Model
 {
-    //
+    use LogsActivity;
     protected $table = 'items';
     protected $fillable = [
         'name',

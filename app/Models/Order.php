@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\LogsActivity;
+
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -25,6 +27,16 @@ class Order extends Model
         'total_price',
         'total_discount',
         'final_price',
+        'instagram_bride',
+        'instagram_groom',
+        'instagram_mua',
+        'instagram_hairdo',
+        'instagram_accessories',
+        'instagram_photography',
+        'instagram_wo',
+        'instagram_decor',
+        'salesperson1_id',
+        'salesperson2_id',
     ];
 
     /**
@@ -40,6 +52,22 @@ class Order extends Model
             'total_discount' => 'decimal:2',
             'final_price' => 'decimal:2',
         ];
+    }
+
+    /**
+     * Get the first salesperson for this order.
+     */
+    public function salesperson1()
+    {
+        return $this->belongsTo(User::class, 'salesperson1_id');
+    }
+
+    /**
+     * Get the second salesperson for this order.
+     */
+    public function salesperson2()
+    {
+        return $this->belongsTo(User::class, 'salesperson2_id');
     }
 
     /**

@@ -181,13 +181,17 @@ class AppointmentsController extends Controller
      */
     public function destroy($id)
     {
-        $deletedCount = Appointments::destroy($id); // Returns 1 if deleted, 0 if not found
+        $appointment = Appointments::find($id);
 
-        if ($deletedCount === 0) {
+        if (!$appointment) {
             return response()->json([
                 'message' => 'Appointment not found',
             ], 404);
         }
+
+        $this->authorize('delete', $appointment);
+
+        $appointment->delete();
 
         return response()->json([
             'message' => 'Appointment deleted successfully',

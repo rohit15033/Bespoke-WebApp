@@ -96,6 +96,7 @@ class ItemsController extends Controller
      */
     public function destroy(Items $items)
     {
+        $this->authorize('delete-inventory');
         $items->delete();
         return response()->json(['message' => 'Item deleted successfully']);
     }

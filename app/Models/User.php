@@ -22,6 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'permissions',
     ];
 
     /**
@@ -44,6 +46,64 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'permissions' => 'array',
         ];
+    }
+
+    /**
+     * Check if the user is a master.
+     */
+    public function isMaster(): bool
+    {
+        return $this->role === 'master';
+    }
+
+    /**
+     * Check if the user is an owner.
+     */
+    public function isOwner(): bool
+    {
+        return $this->role === 'owner';
+    }
+
+    /**
+     * Check if the user is master or owner.
+     */
+    public function isMasterOrOwner(): bool
+    {
+        return in_array($this->role, ['master', 'owner']);
+    }
+
+    /**
+     * Check if the user is a marketer.
+     */
+    public function isMarketer(): bool
+    {
+        return $this->role === 'marketer';
+    }
+
+    /**
+     * Check if the user is a content creator.
+     */
+    public function isContentCreator(): bool
+    {
+        return $this->role === 'content_creator';
+    }
+
+    /**
+     * Check if user has permission to a specific module.
+     */
+    public function hasPermission(string $module): bool
+    {
+        // Master always has all permissions
+        if ($this->isMaster()) {
+            return true;
+        }
+
+        if (!$this->permissions) {
+            return false;
+        }
+
+        return in_array($module, $this->permissions);
     }
 }

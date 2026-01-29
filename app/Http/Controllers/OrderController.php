@@ -22,7 +22,9 @@ class OrderController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Order::query()->withSum('payments', 'amount');
+        $query = Order::query()
+            ->with(['salesperson1', 'salesperson2'])
+            ->withSum('payments', 'amount');
 
         // Apply filters
         if ($request->has('status')) {
@@ -96,6 +98,16 @@ class OrderController extends Controller
                 'total_price' => 'required|numeric|min:0',
                 'total_discount' => 'required|numeric|min:0',
                 'final_price' => 'required|numeric|min:0',
+                'instagram_bride' => 'nullable|string|max:255',
+                'instagram_groom' => 'nullable|string|max:255',
+                'instagram_mua' => 'nullable|string|max:255',
+                'instagram_hairdo' => 'nullable|string|max:255',
+                'instagram_accessories' => 'nullable|string|max:255',
+                'instagram_photography' => 'nullable|string|max:255',
+                'instagram_wo' => 'nullable|string|max:255',
+                'instagram_decor' => 'nullable|string|max:255',
+                'salesperson1_id' => 'nullable|exists:users,id',
+                'salesperson2_id' => 'nullable|exists:users,id',
             ]);
 
             // Create the order
@@ -112,7 +124,9 @@ class OrderController extends Controller
             $order->load([
                 'orderProducts',
                 'packages.orderSets.orderItems.item',
-                'items.item'
+                'items.item',
+                'salesperson1',
+                'salesperson2'
             ]);
 
             return response()->json($order, 201);
@@ -144,6 +158,8 @@ class OrderController extends Controller
             'items.item.subcolor',
             'items.orderItemTypes',
             'payments',
+            'salesperson1',
+            'salesperson2',
         ])->findOrFail($id);
 
         return response()->json($order);
@@ -171,6 +187,16 @@ class OrderController extends Controller
                 'total_price' => 'required|numeric|min:0',
                 'total_discount' => 'required|numeric|min:0',
                 'final_price' => 'required|numeric|min:0',
+                'instagram_bride' => 'nullable|string|max:255',
+                'instagram_groom' => 'nullable|string|max:255',
+                'instagram_mua' => 'nullable|string|max:255',
+                'instagram_hairdo' => 'nullable|string|max:255',
+                'instagram_accessories' => 'nullable|string|max:255',
+                'instagram_photography' => 'nullable|string|max:255',
+                'instagram_wo' => 'nullable|string|max:255',
+                'instagram_decor' => 'nullable|string|max:255',
+                'salesperson1_id' => 'nullable|exists:users,id',
+                'salesperson2_id' => 'nullable|exists:users,id',
             ]);
 
             // Update the order
@@ -214,6 +240,8 @@ class OrderController extends Controller
                 'packages.orderSets.orderItems.orderItemTypes',
                 'items.item.subcolor',
                 'items.orderItemTypes',
+                'salesperson1',
+                'salesperson2',
             ]);
 
             return response()->json($order);
@@ -244,6 +272,8 @@ class OrderController extends Controller
             $order = Order::with([
                 'orderProducts',
             ])->findOrFail($id);
+
+            $this->authorize('delete', $order);
 
             foreach ($order->orderProducts as $productIndex => $productData) {
                 $id = $productData->product_id;
@@ -487,5 +517,39 @@ class OrderController extends Controller
                 'sort_order' => $validatedItemType['sort_order'],
             ]);
         }
+    }
+
+    /**
+     * Display listing of events (orders with payments).
+     */
+    public function events(Request $request): JsonResponse
+    {
+        $query = Order::whereHas('payments')
+            ->orderBy('event_date', 'asc');
+
+        if ($request->has('from')) {
+            $query->where('event_date', '>=', $request->from);
+        }
+        if ($request->has('to')) {
+            $query->where('event_date', '<=', $request->to);
+        }
+
+        $events = $query->get([
+            'id', 
+            'customer_name', 
+            'event_date', 
+            'event_place', 
+            'order_number',
+            'instagram_bride',
+            'instagram_groom',
+            'instagram_mua',
+            'instagram_hairdo',
+            'instagram_accessories',
+            'instagram_photography',
+            'instagram_wo',
+            'instagram_decor'
+        ]);
+
+        return response()->json($events);
     }
 }

@@ -221,14 +221,21 @@ class KebayaController extends Controller
      */
     public function destroy($id)
     {
-        //
-        $deletedCount = Kebaya::destroy($id); // Returns 1 if deleted, 0 if not found
+        $this->authorize('delete-inventory');
+        $kebaya = Kebaya::findOrFail($id);
 
-        if ($deletedCount === 0) {
-            return response()->json([
-                'message' => 'Kebaya not found',
-            ], 404);
+        if ($kebaya->item_id) {
+             $item = Items::find($kebaya->item_id);
+             if ($item) {
+                 // Delete images
+                 foreach ($item->images as $img) {
+                     Storage::disk('public')->delete($img->image_url);
+                     $img->delete();
+                 }
+                 $item->delete();
+             }
         }
+        $kebaya->delete();
 
         return response()->json([
             'message' => 'Kebaya deleted successfully',
