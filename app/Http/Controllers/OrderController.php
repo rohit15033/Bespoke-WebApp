@@ -533,6 +533,14 @@ class OrderController extends Controller
         if ($request->has('to')) {
             $query->where('event_date', '<=', $request->to);
         }
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('customer_name', 'like', "%{$search}%")
+                  ->orWhere('order_number', 'like', "%{$search}%")
+                  ->orWhere('event_place', 'like', "%{$search}%");
+            });
+        }
 
         $events = $query->get([
             'id', 

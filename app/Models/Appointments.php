@@ -19,7 +19,9 @@ class Appointments extends Model
         'customer_phone',
         'at',
         'notes',
-
+        'purpose',
+        'result',
+        'result_notes',
     ];
 
     public static function getAppointmentList($payload){

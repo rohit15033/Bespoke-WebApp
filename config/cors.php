@@ -19,7 +19,12 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [
+        'https://admin.berkatkebaya.com',
+        'https://berkatkebaya.com',
+        'https://www.berkatkebaya.com',
+        env('FRONTEND_URL', 'http://localhost:5173'),
+    ],
 
     'allowed_origins_patterns' => [],
 
@@ -29,6 +34,6 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    'supports_credentials' => true,
 
 ];

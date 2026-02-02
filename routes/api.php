@@ -41,119 +41,126 @@ Route::get('/subcolors', [App\Http\Controllers\SubcolorsController::class, 'inde
 Route::get('/occasions', [App\Http\Controllers\OccasionsController::class, 'index']);
 Route::get('/subcolors/{colorId}', [App\Http\Controllers\SubcolorsController::class, 'subColorsbyColorId']);
 
+// Public login endpoint with rate limiting
+Route::middleware('throttle:10,1')->post('/auth/login', [AuthController::class, 'login']);
 
-Route::post('/auth/login', [AuthController::class, 'login']);
-//kebaya routes
+// Public READ-ONLY inventory routes (for berkatkebaya.com public site)
+// GET requests only - viewing inventory
 Route::get('kebaya', [KebayaController::class, 'index']);
-Route::post('kebaya', [KebayaController::class, 'store']);
 Route::get('kebaya/{id}', [KebayaController::class, 'show']);
-Route::patch('kebaya/{id}', [KebayaController::class, 'update']);
-Route::delete('kebaya/{id}', [KebayaController::class, 'destroy']);
 
-//beskap routes
 Route::get('beskap', [BeskapController::class, 'index']);
-Route::post('beskap', [BeskapController::class, 'store']);
 Route::get('beskap/{id}', [BeskapController::class, 'show']);
-Route::patch('beskap/{id}', [BeskapController::class, 'update']);
-Route::delete('beskap/{id}', [BeskapController::class, 'destroy']);
 
-//celana routes
 Route::get('celana', [CelanaController::class, 'index']);
-Route::post('celana', [CelanaController::class, 'store']);
 Route::get('celana/{id}', [CelanaController::class, 'show']);
-Route::patch('celana/{id}', [CelanaController::class, 'update']);
-Route::delete('celana/{id}', [CelanaController::class, 'destroy']);
 
-//selop routes
 Route::get('selop', [SelopController::class, 'index']);
-Route::post('selop', [SelopController::class, 'store']);
 Route::get('selop/{id}', [SelopController::class, 'show']);
-Route::patch('selop/{id}', [SelopController::class, 'update']);
-Route::delete('selop/{id}', [SelopController::class, 'destroy']);
 
-//bustier routes
 Route::get('bustier', [BustierController::class, 'index']);
-Route::post('bustier', [BustierController::class, 'store']);
 Route::get('bustier/{id}', [BustierController::class, 'show']);
-Route::patch('bustier/{id}', [BustierController::class, 'update']);
-Route::delete('bustier/{id}', [BustierController::class, 'destroy']);
 
-//manset routes
 Route::get('manset', [MansetController::class, 'index']);
-Route::post('manset', [MansetController::class, 'store']);
 Route::get('manset/{id}', [MansetController::class, 'show']);
-Route::patch('manset/{id}', [MansetController::class, 'update']);
-Route::delete('manset/{id}', [MansetController::class, 'destroy']);
 
-//hijab routes
 Route::get('hijab', [HijabController::class, 'index']);
-Route::post('hijab', [HijabController::class, 'store']);
 Route::get('hijab/{id}', [HijabController::class, 'show']);
-Route::patch('hijab/{id}', [HijabController::class, 'update']);
-Route::delete('hijab/{id}', [HijabController::class, 'destroy']);
 
-//veil routes
 Route::get('veil', [VeilController::class, 'index']);
-Route::post('veil', [VeilController::class, 'store']);
 Route::get('veil/{id}', [VeilController::class, 'show']);
-Route::patch('veil/{id}', [VeilController::class, 'update']);
-Route::delete('veil/{id}', [VeilController::class, 'destroy']);
 
-//ekor routes
 Route::get('ekor', [EkorController::class, 'index']);
-Route::post('ekor', [EkorController::class, 'store']);
 Route::get('ekor/{id}', [EkorController::class, 'show']);
-Route::patch('ekor/{id}', [EkorController::class, 'update']);
-Route::delete('ekor/{id}', [EkorController::class, 'destroy']);
 
-//vest routes
 Route::get('vest', [VestController::class, 'index']);
-Route::post('vest', [VestController::class, 'store']);
 Route::get('vest/{id}', [VestController::class, 'show']);
-Route::patch('vest/{id}', [VestController::class, 'update']);
-Route::delete('vest/{id}', [VestController::class, 'destroy']);
 
-//dasi routes
 Route::get('dasi', [DasiController::class, 'index']);
-Route::post('dasi', [DasiController::class, 'store']);
 Route::get('dasi/{id}', [DasiController::class, 'show']);
-Route::patch('dasi/{id}', [DasiController::class, 'update']);
-Route::delete('dasi/{id}', [DasiController::class, 'destroy']);
 
-//kemeja routes 
 Route::get('kemeja', [KemejaController::class, 'index']);
-Route::post('kemeja', [KemejaController::class, 'store']);
 Route::get('kemeja/{id}', [KemejaController::class, 'show']);
-Route::patch('kemeja/{id}', [KemejaController::class, 'update']);
-Route::delete('kemeja/{id}', [KemejaController::class, 'destroy']);
 
-//headwear routes
 Route::get('headwear', [HeadwearController::class, 'index']);
-Route::post('headwear', [HeadwearController::class, 'store']);
 Route::get('headwear/{id}', [HeadwearController::class, 'show']);
-Route::patch('headwear/{id}', [HeadwearController::class, 'update']);
-Route::delete('headwear/{id}', [HeadwearController::class, 'destroy']);
 
-//accessories routes
 Route::get('accessories', [AccessoryController::class, 'index']);
-Route::post('accessories', [AccessoryController::class, 'store']);
 Route::get('accessories/{id}', [AccessoryController::class, 'show']);
-Route::patch('accessories/{id}', [AccessoryController::class, 'update']);
-Route::delete('accessories/{id}', [AccessoryController::class, 'destroy']);
 
 //items
 Route::get('get-item-code', [ItemsController::class, 'getItemCode']);
 
 
 // Protected routes (require authentication with Sanctum token)
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/users/me', [AuthController::class, 'user']);
 
+    // Dashboard (protected)
+    Route::get('/dashboard/stats', [App\Http\Controllers\DashboardController::class, 'stats']);
+
+    // Inventory WRITE operations (protected - admin only)
+    Route::post('kebaya', [KebayaController::class, 'store']);
+    Route::patch('kebaya/{id}', [KebayaController::class, 'update']);
+    Route::delete('kebaya/{id}', [KebayaController::class, 'destroy']);
+
+    Route::post('beskap', [BeskapController::class, 'store']);
+    Route::patch('beskap/{id}', [BeskapController::class, 'update']);
+    Route::delete('beskap/{id}', [BeskapController::class, 'destroy']);
+
+    Route::post('celana', [CelanaController::class, 'store']);
+    Route::patch('celana/{id}', [CelanaController::class, 'update']);
+    Route::delete('celana/{id}', [CelanaController::class, 'destroy']);
+
+    Route::post('selop', [SelopController::class, 'store']);
+    Route::patch('selop/{id}', [SelopController::class, 'update']);
+    Route::delete('selop/{id}', [SelopController::class, 'destroy']);
+
+    Route::post('bustier', [BustierController::class, 'store']);
+    Route::patch('bustier/{id}', [BustierController::class, 'update']);
+    Route::delete('bustier/{id}', [BustierController::class, 'destroy']);
+
+    Route::post('manset', [MansetController::class, 'store']);
+    Route::patch('manset/{id}', [MansetController::class, 'update']);
+    Route::delete('manset/{id}', [MansetController::class, 'destroy']);
+
+    Route::post('hijab', [HijabController::class, 'store']);
+    Route::patch('hijab/{id}', [HijabController::class, 'update']);
+    Route::delete('hijab/{id}', [HijabController::class, 'destroy']);
+
+    Route::post('veil', [VeilController::class, 'store']);
+    Route::patch('veil/{id}', [VeilController::class, 'update']);
+    Route::delete('veil/{id}', [VeilController::class, 'destroy']);
+
+    Route::post('ekor', [EkorController::class, 'store']);
+    Route::patch('ekor/{id}', [EkorController::class, 'update']);
+    Route::delete('ekor/{id}', [EkorController::class, 'destroy']);
+
+    Route::post('vest', [VestController::class, 'store']);
+    Route::patch('vest/{id}', [VestController::class, 'update']);
+    Route::delete('vest/{id}', [VestController::class, 'destroy']);
+
+    Route::post('dasi', [DasiController::class, 'store']);
+    Route::patch('dasi/{id}', [DasiController::class, 'update']);
+    Route::delete('dasi/{id}', [DasiController::class, 'destroy']);
+
+    Route::post('kemeja', [KemejaController::class, 'store']);
+    Route::patch('kemeja/{id}', [KemejaController::class, 'update']);
+    Route::delete('kemeja/{id}', [KemejaController::class, 'destroy']);
+
+    Route::post('headwear', [HeadwearController::class, 'store']);
+    Route::patch('headwear/{id}', [HeadwearController::class, 'update']);
+    Route::delete('headwear/{id}', [HeadwearController::class, 'destroy']);
+
+    Route::post('accessories', [AccessoryController::class, 'store']);
+    Route::patch('accessories/{id}', [AccessoryController::class, 'update']);
+    Route::delete('accessories/{id}', [AccessoryController::class, 'destroy']);
+
     Route::get('/appointments', [AppointmentsController::class, 'index']);
-    Route::post('/appointments', [AppointmentsController::class, 'create']);
+    Route::post('/appointments', [AppointmentsController::class, 'store']);
     Route::get('/appointments/count', [AppointmentsController::class, 'count']);
-    Route::get('/appointments/{id}', [AppointmentsController::class, 'get']);
+    Route::get('/appointments/{id}', [AppointmentsController::class, 'show']);
     Route::patch('/appointments/{id}', [AppointmentsController::class, 'update']);
     Route::delete('/appointments/{id}', [AppointmentsController::class, 'destroy']);
 

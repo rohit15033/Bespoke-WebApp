@@ -66,6 +66,7 @@ class AttendanceController extends Controller
             ], 422);
         }
 
+
         // Check if user has submitted a daily report for the date of this shift
         $reportExists = \App\Models\DailyReport::where('user_id', auth()->id())
             ->where('report_date', $attendance->date->format('Y-m-d'))
@@ -78,6 +79,38 @@ class AttendanceController extends Controller
             ], 422);
         }
 
+        // Check for pending appointments (past time, confirmed status, but missing details)
+        $pendingAppointments = \App\Models\Appointments::whereDate('at', $attendance->date)
+            ->where('at', '<', now()) // Time has passed
+            ->where('booking_status', '!=', 'cancelled') // Ignore cancelled
+            ->where('booking_status', '!=', 'rescheduled') // Ignore rescheduled
+            ->get();
+
+        foreach ($pendingAppointments as $appointment) {
+            $missing = [];
+            
+            // Check Context/Purpose
+            if (empty($appointment->purpose)) {
+                $missing[] = 'Purpose';
+            }
+
+            // Check Result Notes (Required for all types as per user request for "Notes")
+            if (empty($appointment->result_notes)) {
+                $missing[] = 'Result Notes';
+            }
+
+            // Check Result for New Customers
+            if ($appointment->purpose === 'new_customer' && empty($appointment->result)) {
+                $missing[] = 'Result (Deal/No Deal)';
+            }
+
+            if (!empty($missing)) {
+                return response()->json([
+                    'message' => "Cannot clock out. Appointment for {$appointment->customer_name} at " . $appointment->at . " is missing: " . implode(', ', $missing),
+                ], 422);
+            }
+        }
+
         $attendance->update(['clock_out' => now()]);
 
         return response()->json($attendance);
@@ -85,23 +118,38 @@ class AttendanceController extends Controller
 
     public function history(Request $request): \Illuminate\Http\JsonResponse
     {
-        $query = \App\Models\Attendance::query();
+        $query = \App\Models\Attendance::with('user');
         
-        if (!auth()->user()->isMaster()) {
+        // Master and Owner can see everyone's records
+        if (!auth()->user()->isMaster() && auth()->user()->role !== 'owner') {
             $query->where('user_id', auth()->id());
         } else if ($request->has('user_id')) {
+            // Allow filtering by user_id for admins
             $query->where('user_id', $request->user_id);
         }
 
-        $attendances = $query->orderBy('date', 'desc')->paginate(15);
+        // Filter by specific date or date range
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('date', [$request->start_date, $request->end_date]);
+        } else if ($request->filled('date')) {
+            $query->where('date', $request->date);
+        }
 
-        // For each attendance, try to find the corresponding daily report
+        $attendances = $query->orderBy('date', 'desc')->paginate(50); // Increased pagination for range reports
+
+        // For each attendance, try to find the corresponding daily report and appointments
         $attendances->getCollection()->transform(function ($attendance) {
             $report = \App\Models\DailyReport::where('user_id', $attendance->user_id)
                 ->where('report_date', $attendance->date)
                 ->first();
             
-            $attendance->report = $report;
+            $appointments = \App\Models\Appointments::whereDate('at', $attendance->date)
+                ->select('id', 'customer_name', 'customer_phone', 'at', 'booking_status', 'purpose', 'result', 'result_notes', 'notes')
+                ->orderBy('at', 'asc')
+                ->get();
+            
+            $attendance->setAttribute('report', $report);
+            $attendance->setAttribute('appointments', $appointments);
             return $attendance;
         });
 

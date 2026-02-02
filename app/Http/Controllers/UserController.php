@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        if (!auth()->user()->isMaster()) {
+        if (!auth()->user()->isMaster() && !auth()->user()->isOwner()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 

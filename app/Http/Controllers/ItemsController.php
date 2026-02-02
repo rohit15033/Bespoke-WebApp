@@ -49,7 +49,7 @@ class ItemsController extends Controller
             'type' => 'required|string|max:255',
             'production_month' => 'nullable|integer|min:1|max:12',
             'production_year' => 'nullable|integer|min:1900|max:2100',
-            'subcolor_id' => 'nullable|exists:sub_colors,id',
+            'subcolor_id' => 'nullable|exists:subcolors,id',
         ]);
 
         $item = Items::create($validated);
@@ -84,7 +84,7 @@ class ItemsController extends Controller
             'type' => 'sometimes|string|max:255',
             'production_month' => 'nullable|integer|min:1|max:12',
             'production_year' => 'nullable|integer|min:1900|max:2100',
-            'subcolor_id' => 'nullable|exists:sub_colors,id',
+            'subcolor_id' => 'nullable|exists:subcolors,id',
         ]);
 
         $items->update($validated);

@@ -39,16 +39,17 @@ class AppointmentsController extends Controller
     }
 
     /**
-     * Create appointment
+     * Store a newly created appointment in storage.
      */
-    public function create(Request $request)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'customerName' => 'required|string|max:255',
             'customerPhone' => 'required|string|max:255',
             'at' => 'required|date_format:Y-m-d\TH:i:s.v\Z',
             'note' => 'nullable|string',
-            'bookingStatus' => ['nullable', Rule::in(['Scheduled', 'Canceled', 'Deal'])]
+            'bookingStatus' => ['nullable', Rule::in(['Scheduled', 'Confirmed', 'Canceled', 'Rescheduled'])],
+            'purpose' => 'nullable|string',
         ]);
 
         $appointmentData = [
@@ -57,6 +58,7 @@ class AppointmentsController extends Controller
             'at' => Carbon::parse($validated['at']),
             'notes' => $validated['note'],
             'booking_status' => $validated['bookingStatus'] ?? 'Scheduled',
+            'purpose' => $validated['purpose'] ?? null,
         ];
 
         $appointment = Appointments::create($appointmentData);
@@ -64,6 +66,23 @@ class AppointmentsController extends Controller
         return response()->json($appointment, 201);
     }
 
+    /**
+     * Display the specified resource.
+     */
+    public function show($id)
+    {
+        $appointment = Appointments::find($id);
+        
+        if (!$appointment) {
+            return response()->json(['message' => 'Appointment not found'], 404);
+        }
+
+        return response()->json($appointment, 200);
+    }
+
+    /**
+     * Display the count of appointments with filters.
+     */
     public function count(Request $request)
     {
         $payload = [
@@ -79,34 +98,7 @@ class AppointmentsController extends Controller
         
         return response()->json([
             'count' => $count
-        ], 200); // 200 = OK
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Appointments $appointments)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Appointments $appointments)
-    {
-        //
-    }
-
-    public function get(Request $request, $id)
-    {
-        $appointment = Appointments::find($id);
-        if (!$appointment) {
-            return response()->json([
-                'message' => 'Appointment not found',
-            ], 404);
-        }
-        return response()->json($appointment, 200);
+        ], 200);
     }
 
     /**
@@ -119,8 +111,11 @@ class AppointmentsController extends Controller
             'customerName' => 'sometimes|string|max:255',
             'customerPhone' => 'sometimes|string|max:20',
             'at' => 'sometimes|date_format:Y-m-d\TH:i:s.v\Z',
-            'bookingStatus' => 'sometimes|string|in:Scheduled,Canceled,Deal',
-            'note' => 'sometimes|nullable|string'
+            'bookingStatus' => 'sometimes|string|in:Scheduled,Confirmed,Canceled,Rescheduled',
+            'note' => 'sometimes|nullable|string',
+            'purpose' => 'sometimes|nullable|string',
+            'result' => 'sometimes|nullable|string',
+            'resultNotes' => 'sometimes|nullable|string'
         ]);
 
         $map = [
@@ -128,7 +123,10 @@ class AppointmentsController extends Controller
             'customerPhone' => 'customer_phone',
             'at' => 'at',
             'bookingStatus' => 'booking_status',
-            'note' => 'notes'
+            'note' => 'notes',
+            'purpose' => 'purpose',
+            'result' => 'result',
+            'resultNotes' => 'result_notes'
         ];
 
         $appointmentData = [];

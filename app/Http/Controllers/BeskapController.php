@@ -4,33 +4,35 @@ namespace App\Http\Controllers;
 
 use App\Models\Beskap;
 use App\Models\Items;
-use App\Models\ItemsImagesUrls;
+use App\Http\Requests\Inventory\StoreBeskapRequest;
+use App\Http\Requests\Inventory\UpdateBeskapRequest;
+use App\Traits\HandlesInventoryImages;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use \Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class BeskapController extends Controller
 {
+    use HandlesInventoryImages;
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        //
         $payload = [
-            'search_filter' => $request->input('search_filter', null), // Optional filter parameter 
-            'type' => $request->input('type', null), // Optional filter parameter   
-            'color' => $request->input('color', null), // Optional filter parameter  
-            'subcolor' => $request->input('subcolor', null), // Optional filter parameter
+            'search_filter' => $request->input('search_filter', null),
+            'type' => $request->input('type', null),
+            'color' => $request->input('color', null),
+            'subcolor' => $request->input('subcolor', null),
             'fromMonth' => $request->input('from_month', null),
             'toMonth' => $request->input('to_month', null),
             'fromYear' => $request->input('from_year', null),
             'toYear' => $request->input('to_year', null),
-            'page' => $request->input('page', 1), // Default to page 1 if not provided
-            'limit' => $request->input('limit', 10), // Default to 5 items per page if not provided
-            'sort' => $request->input('sort', 'created_at'), // 
+            'page' => $request->input('page', 1),
+            'limit' => $request->input('limit', 10),
+            'sort' => $request->input('sort', 'created_at'),
         ];
+        
         $beskapList = Beskap::getBeskapList($payload);
 
         return response()->json([
@@ -40,75 +42,39 @@ class BeskapController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreBeskapRequest $request)
     {
-        $request->merge([
-            'production_month' => in_array($request->production_month, [null, '', 'null', 'Choose Month'])
-                ? null
-                : $request->production_month,
-            'production_year' => in_array($request->production_year, [null, '', 'null', 'Choose Year'])
-                ? null
-                : $request->production_year,
-        ]);
+        try {
+            return DB::transaction(function () use ($request) {
+                $validated = $request->validated();
 
-        //
-        {
-            try {
-                $validated = $request->validate([
-                    'code' => 'required|string|max:255|unique:items,code',
-                    'name' => 'required|string|max:255',
-                    'type' => 'required|string|max:50',
-                    'production_month' => 'nullable|integer',
-                    'production_year' => 'nullable|integer',
-                    'subcolor_id' => 'required|exists:subcolors,id',
-                    'images' => 'required',
-                    'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:51200',
-                ]);
                 $item = Items::create([
                     'code' => $validated['code'],
                     'name' => $validated['name'],
-                    'type' => 'beskap', // identify it's beskap
-                    'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
-                    'production_year' => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
+                    'type' => 'beskap',
+                    'production_month' => $validated['production_month'],
+                    'production_year' => $validated['production_year'],
                     'subcolor_id' => $validated['subcolor_id'],
                 ]);
-                Beskap::create([
+
+                $beskap = Beskap::create([
                     'item_id' => $item->id,
                     'type' => $validated['type'],
                 ]);
-                if ($request->hasFile('images')) {
-                    foreach ($request->file('images') as $file) {
-                        $path = $file->store('items_images', 'public');
-                        ItemsImagesUrls::create([
-                            'item_id' => $item->id,
-                            'image_url' => $path,
-                        ]);
-                    }
-                }
+
+                $this->uploadImages($item, $request->file('images'));
+
                 return response()->json([
                     'message' => "Beskap created successfully",
                     'data' => $item
                 ], 201);
-            } catch (ValidationException $e) {
-                return response()->json([
-                    'message' => 'Validation failed',
-                    'errors' => $e->errors(),
-                ], 422);
-            } catch (\Exception $e) {
-                return response()->json([
-                    'message' => 'Error creating Beskap: ' . $e->getMessage(),
-                ], 500); // 500 = Internal Server Error
-            }
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error creating Beskap: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -117,100 +83,54 @@ class BeskapController extends Controller
      */
     public function show($id)
     {
-        //
         $beskap = Beskap::getBeskapById($id);
-        return response()->json($beskap);
-    }
+        
+        if (!$beskap) {
+            return response()->json(['message' => 'Beskap not found'], 404);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Beskap $beskap)
-    {
-        //
+        return response()->json($beskap);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(UpdateBeskapRequest $request, $id)
     {
-        $request->merge([
-            'production_month' => in_array($request->production_month, [null, '', 'null', 'Choose Month'])
-                ? null
-                : $request->production_month,
-            'production_year' => in_array($request->production_year, [null, '', 'null', 'Choose Year'])
-                ? null
-                : $request->production_year,
-        ]);
-
-        //
-        $beskap = Beskap::findOrFail($id);
-        if (!$beskap) {
-            return response()->json([
-                'message' => 'Beskap not found',
-            ], 404);
-        }
         try {
-            $validated = $request->validate([
-                'code' => [
-                    'required',
-                    'string',
-                    'max:255',
-                    Rule::unique('items', 'code')->ignore($beskap->item_id),
-                ],
-                'name' => 'required|string|max:255',
-                'type' => 'required|string|max:50',
-                'production_month' => 'nullable|integer',
-                'production_year' => 'nullable|integer',
-                'subcolor_id' => 'required|exists:subcolors,id',
-                'images' => 'nullable',
-                'images.*' => 'file|image|mimes:jpeg,png,jpg,gif|max:51200',
-            ]);
-            $item = Items::findOrFail($beskap->item_id);
-            $item->update([
-                'code' => $validated['code'],
-                'name' => $validated['name'],
-                'type' => 'beskap', // identify it's beskap
-                'production_month' => isset($validated['production_month']) ? (int) $validated['production_month'] : null,
-                'production_year' => isset($validated['production_year']) ? (int) $validated['production_year'] : null,
-                'subcolor_id' => $validated['subcolor_id'],
-            ]);
-            if (isset($validated['type'])) {
-                $beskap = Beskap::where('item_id', $beskap->item_id)->first();
-                if ($beskap) {
-                    $beskap->update([
-                        'type' => $validated['type'],
-                    ]);
-                }
-            }
-            $existingImageIds = $request->input('existing_images', []);
-            $newImages = $request->file('new_images', []);
-            $item->images()->whereNotIn('id', $existingImageIds)->get()->each(function ($img) {
-                Storage::disk('public')->delete($img->image_url);
-                $img->delete();
-            });
-            foreach ($newImages as $file) {
-                $path = $file->store('items_images', 'public'); // store in storage/app/public/kebaya_images
-                $item->images()->create([
-                    'image_url' => $path,
-                ]);
-            }
+            $beskap = Beskap::findOrFail($id);
 
-            return response()->json([
-                'message' => "Beskap updated successfully",
-                'data' => $beskap
-            ], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
+            return DB::transaction(function () use ($request, $beskap) {
+                $validated = $request->validated();
+
+                $item = Items::findOrFail($beskap->item_id);
+                $item->update([
+                    'code' => $validated['code'],
+                    'name' => $validated['name'],
+                    'production_month' => $validated['production_month'],
+                    'production_year' => $validated['production_year'],
+                    'subcolor_id' => $validated['subcolor_id'],
+                ]);
+
+                $beskap->update([
+                    'type' => $validated['type'],
+                ]);
+
+                $this->updateImages(
+                    $item, 
+                    $request->input('existing_images', []), 
+                    $request->file('new_images', [])
+                );
+
+                return response()->json([
+                    'message' => "Beskap updated successfully",
+                    'data' => $beskap
+                ], 200);
+            });
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error updating Beskap: ' . $e->getMessage(),
-            ], 500); // 500 = Internal Server Error
-
+            ], 500);
         }
     }
 
@@ -219,16 +139,28 @@ class BeskapController extends Controller
      */
     public function destroy($id)
     {
-        //
-        $deletedCount = Beskap::destroy($id); // Returns 1 if deleted, 0 if not found
+        try {
+            $beskap = Beskap::findOrFail($id);
 
-        if ($deletedCount === 0) {
+            return DB::transaction(function () use ($beskap) {
+                if ($beskap->item_id) {
+                    $item = Items::find($beskap->item_id);
+                    if ($item) {
+                        $this->deleteImages($item);
+                        $item->delete();
+                    }
+                }
+                
+                $beskap->delete();
+
+                return response()->json([
+                    'message' => 'Beskap deleted successfully',
+                ], 200);
+            });
+        } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Beskap not found',
+                'message' => 'Error deleting beskap: ' . $e->getMessage(),
             ], 404);
         }
-        return response()->json([
-            'message' => 'Beskap deleted successfully',
-        ], 200);
     }
 }
