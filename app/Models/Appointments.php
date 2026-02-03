@@ -22,7 +22,14 @@ class Appointments extends Model
         'purpose',
         'result',
         'result_notes',
+        'rescheduled_to_at',
+        'customer_id',
     ];
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
 
     public static function getAppointmentList($payload){
         $query = self::query();

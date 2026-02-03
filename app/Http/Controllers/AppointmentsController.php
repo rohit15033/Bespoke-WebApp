@@ -5,11 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Appointments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
-use PhpParser\Node\Stmt\TryCatch;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 
-use function Pest\Laravel\json;
+
 
 class AppointmentsController extends Controller
 {
@@ -50,6 +49,7 @@ class AppointmentsController extends Controller
             'note' => 'nullable|string',
             'bookingStatus' => ['nullable', Rule::in(['Scheduled', 'Confirmed', 'Canceled', 'Rescheduled'])],
             'purpose' => 'nullable|string',
+            'customer_id' => 'nullable|exists:customers,id',
         ]);
 
         $appointmentData = [
@@ -59,6 +59,7 @@ class AppointmentsController extends Controller
             'notes' => $validated['note'],
             'booking_status' => $validated['bookingStatus'] ?? 'Scheduled',
             'purpose' => $validated['purpose'] ?? null,
+            'customer_id' => $validated['customer_id'] ?? null,
         ];
 
         $appointment = Appointments::create($appointmentData);
@@ -115,7 +116,9 @@ class AppointmentsController extends Controller
             'note' => 'sometimes|nullable|string',
             'purpose' => 'sometimes|nullable|string',
             'result' => 'sometimes|nullable|string',
-            'resultNotes' => 'sometimes|nullable|string'
+            'result' => 'sometimes|nullable|string',
+            'resultNotes' => 'sometimes|nullable|string',
+            'customer_id' => 'sometimes|nullable|exists:customers,id'
         ]);
 
         $map = [
@@ -126,7 +129,9 @@ class AppointmentsController extends Controller
             'note' => 'notes',
             'purpose' => 'purpose',
             'result' => 'result',
-            'resultNotes' => 'result_notes'
+            'result' => 'result',
+            'resultNotes' => 'result_notes',
+            'customer_id' => 'customer_id'
         ];
 
         $appointmentData = [];
@@ -150,6 +155,27 @@ class AppointmentsController extends Controller
                 return response()->json([
                     'message' => 'Appointment not found!'
                 ], 404);
+            }
+
+            // Custom logic for Rescheduled status
+            if (isset($appointmentData['booking_status']) && $appointmentData['booking_status'] === 'Rescheduled') {
+                // If a new date was provided in 'at', we move it to 'rescheduled_to_at' 
+                // and keep the original 'at' date for the old record.
+                if (isset($appointmentData['at'])) {
+                    $rescheduledDate = $appointmentData['at'];
+                    $appointmentData['rescheduled_to_at'] = $rescheduledDate;
+                    unset($appointmentData['at']); // Keep original date
+
+                    // Create a duplicate record for the new date
+                    Appointments::create([
+                        'customer_name' => $appointmentData['customer_name'] ?? $appointment->customer_name,
+                        'customer_phone' => $appointmentData['customer_phone'] ?? $appointment->customer_phone,
+                        'at' => $rescheduledDate,
+                        'booking_status' => 'Scheduled',
+                        'purpose' => $appointmentData['purpose'] ?? $appointment->purpose,
+                        'notes' => $appointmentData['notes'] ?? $appointment->notes,
+                    ]);
+                }
             }
 
             // Update the appointment instance

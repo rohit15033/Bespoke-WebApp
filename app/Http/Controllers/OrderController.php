@@ -60,13 +60,15 @@ class OrderController extends Controller
         }
 
         // Apply sorting
-        $sortBy = $request->get('sort_by', 'created_at');
+        $sortBy = $request->get('sort_by', 'event_date');
+        $defaultOrder = ($sortBy === 'event_date') ? 'asc' : 'desc';
+        $sortOrder = $request->get('sort_order', $defaultOrder);
+
         // Handle sorting by computed column
         if ($sortBy === 'payment_status') {
-             // Logic for sorting by payment status is complex, skipping for now or default to created_at
-             // Alternatively could sort by ratio of paid/final
+             // Logic for sorting by payment status is complex, skipping for now
+             $query->orderBy('created_at', 'desc');
         } else {
-             $sortOrder = $request->get('sort_order', 'desc');
              $query->orderBy($sortBy, $sortOrder);
         }
 
@@ -107,7 +109,9 @@ class OrderController extends Controller
                 'instagram_wo' => 'nullable|string|max:255',
                 'instagram_decor' => 'nullable|string|max:255',
                 'salesperson1_id' => 'nullable|exists:users,id',
+                'salesperson1_id' => 'nullable|exists:users,id',
                 'salesperson2_id' => 'nullable|exists:users,id',
+                'customer_id' => 'nullable|exists:customers,id',
             ]);
 
             // Create the order
@@ -123,8 +127,10 @@ class OrderController extends Controller
             // Load relationships for response
             $order->load([
                 'orderProducts',
-                'packages.orderSets.orderItems.item',
-                'items.item',
+                'packages.orderSets.orderItems.item.images',
+                'packages.orderSets.orderItems.item.subcolor',
+                'items.item.images',
+                'items.item.subcolor',
                 'salesperson1',
                 'salesperson2'
             ]);
@@ -153,8 +159,10 @@ class OrderController extends Controller
     {
         $order = Order::with([
             'orderProducts',
+            'packages.orderSets.orderItems.item.images',
             'packages.orderSets.orderItems.item.subcolor',
             'packages.orderSets.orderItems.orderItemTypes',
+            'items.item.images',
             'items.item.subcolor',
             'items.orderItemTypes',
             'payments',
@@ -196,7 +204,9 @@ class OrderController extends Controller
                 'instagram_wo' => 'nullable|string|max:255',
                 'instagram_decor' => 'nullable|string|max:255',
                 'salesperson1_id' => 'nullable|exists:users,id',
+                'salesperson1_id' => 'nullable|exists:users,id',
                 'salesperson2_id' => 'nullable|exists:users,id',
+                'customer_id' => 'nullable|exists:customers,id',
             ]);
 
             // Update the order
@@ -236,8 +246,10 @@ class OrderController extends Controller
             // Load relationships for response
             $order->load([
                 'orderProducts',
+                'packages.orderSets.orderItems.item.images',
                 'packages.orderSets.orderItems.item.subcolor',
                 'packages.orderSets.orderItems.orderItemTypes',
+                'items.item.images',
                 'items.item.subcolor',
                 'items.orderItemTypes',
                 'salesperson1',

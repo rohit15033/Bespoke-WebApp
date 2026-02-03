@@ -13,7 +13,7 @@ class AppointmentsPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class AppointmentsPolicy
      */
     public function view(User $user, Appointments $appointments): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,7 +29,7 @@ class AppointmentsPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class AppointmentsPolicy
      */
     public function update(User $user, Appointments $appointments): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -45,7 +45,7 @@ class AppointmentsPolicy
      */
     public function delete(User $user, Appointments $appointments): bool
     {
-        return false;
+        return $user->isMaster();
     }
 
     /**
@@ -53,7 +53,7 @@ class AppointmentsPolicy
      */
     public function restore(User $user, Appointments $appointments): bool
     {
-        return false;
+        return $user->isMaster();
     }
 
     /**
@@ -61,6 +61,6 @@ class AppointmentsPolicy
      */
     public function forceDelete(User $user, Appointments $appointments): bool
     {
-        return false;
+        return $user->isMaster();
     }
 }

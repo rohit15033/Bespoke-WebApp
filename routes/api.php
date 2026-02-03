@@ -22,6 +22,7 @@ use App\Http\Controllers\HeadwearController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\CustomerController;
 
 
 /*
@@ -165,6 +166,10 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::delete('/appointments/{id}', [AppointmentsController::class, 'destroy']);
 
     // Order routes
+    Route::get('customers/analytics/status', [CustomerController::class, 'analyticsStatus']);
+    Route::get('customers/index-with-status', [CustomerController::class, 'indexWithStatus']);
+    Route::get('customers/{customer}/history', [CustomerController::class, 'history']);
+    Route::apiResource('customers', \App\Http\Controllers\CustomerController::class);
     Route::apiResource('orders', OrderController::class);
     Route::get('/events', [OrderController::class, 'events']);
 

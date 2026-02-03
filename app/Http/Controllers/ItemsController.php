@@ -14,19 +14,19 @@ class ItemsController extends Controller
     {
         $query = Items::query();
 
-        if ($request->has('search')) {
-            $search = $request->search;
+        if ($request->has('search') || $request->has('sku')) {
+            $search = $request->input('search') ?: $request->input('sku');
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%$search%")
-                  ->orWhere('code', 'like', "%$search%");
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('code', 'like', "%{$search}%");
             });
         }
         if ($request->has('type')) {
             $query->where('type', $request->type);
         }
-        $query->with('subcolor');
+        $query->with(['subcolor.color', 'images', 'firstImage']);
 
-        $items = $query->paginate($request->get('per_page', 15));
+        $items = $query->paginate($request->get('per_page', 50));
         return response()->json($items);
     }
 

@@ -37,7 +37,13 @@ class Order extends Model
         'instagram_decor',
         'salesperson1_id',
         'salesperson2_id',
+        'customer_id',
     ];
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
 
     /**
      * Get the attributes that should be cast.

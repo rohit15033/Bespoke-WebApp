@@ -80,34 +80,37 @@ class AttendanceController extends Controller
         }
 
         // Check for pending appointments (past time, confirmed status, but missing details)
-        $pendingAppointments = \App\Models\Appointments::whereDate('at', $attendance->date)
-            ->where('at', '<', now()) // Time has passed
-            ->where('booking_status', '!=', 'cancelled') // Ignore cancelled
-            ->where('booking_status', '!=', 'rescheduled') // Ignore rescheduled
-            ->get();
+        // Only enforce this for marketers as per user request
+        if (auth()->user()->isMarketer()) {
+            $appointments = \App\Models\Appointments::whereDate('at', $attendance->date)->get();
 
-        foreach ($pendingAppointments as $appointment) {
-            $missing = [];
-            
-            // Check Context/Purpose
-            if (empty($appointment->purpose)) {
-                $missing[] = 'Purpose';
-            }
+            foreach ($appointments as $appointment) {
+                if ($appointment->booking_status === 'Scheduled') {
+                     return response()->json([
+                        'message' => "Cannot clock out. Appointment for {$appointment->customer_name} at " . Carbon::parse($appointment->at)->format('H:i') . " is still marked as 'Scheduled'. Please update its status.",
+                    ], 422);
+                }
 
-            // Check Result Notes (Required for all types as per user request for "Notes")
-            if (empty($appointment->result_notes)) {
-                $missing[] = 'Result Notes';
-            }
+                $missing = [];
+                
+                // For Confirmed appointments, check Purpose, Result and Result Notes
+                if ($appointment->booking_status === 'Confirmed') {
+                    if (empty($appointment->purpose)) $missing[] = 'Purpose';
+                    if (empty($appointment->result_notes)) $missing[] = 'Result Notes';
+                    if ($appointment->purpose === 'new_customer' && empty($appointment->result)) $missing[] = 'Result (Deal/No Deal)';
+                } 
+                // For Rescheduled or Canceled, check for a Reason (stored in result_notes or notes)
+                else if (in_array($appointment->booking_status, ['Rescheduled', 'Canceled'])) {
+                    if (empty($appointment->result_notes) && empty($appointment->notes)) {
+                        $missing[] = 'Reason/Note';
+                    }
+                }
 
-            // Check Result for New Customers
-            if ($appointment->purpose === 'new_customer' && empty($appointment->result)) {
-                $missing[] = 'Result (Deal/No Deal)';
-            }
-
-            if (!empty($missing)) {
-                return response()->json([
-                    'message' => "Cannot clock out. Appointment for {$appointment->customer_name} at " . $appointment->at . " is missing: " . implode(', ', $missing),
-                ], 422);
+                if (!empty($missing)) {
+                    return response()->json([
+                        'message' => "Cannot clock out. {$appointment->booking_status} appointment for {$appointment->customer_name} is missing: " . implode(', ', $missing),
+                    ], 422);
+                }
             }
         }
 
@@ -143,10 +146,14 @@ class AttendanceController extends Controller
                 ->where('report_date', $attendance->date)
                 ->first();
             
-            $appointments = \App\Models\Appointments::whereDate('at', $attendance->date)
-                ->select('id', 'customer_name', 'customer_phone', 'at', 'booking_status', 'purpose', 'result', 'result_notes', 'notes')
-                ->orderBy('at', 'asc')
-                ->get();
+            // Only attach appointments for marketers
+            $appointments = [];
+            if ($attendance->user && $attendance->user->isMarketer()) {
+                $appointments = \App\Models\Appointments::whereDate('at', $attendance->date)
+                    ->select('id', 'customer_name', 'customer_phone', 'at', 'booking_status', 'purpose', 'result', 'result_notes', 'notes', 'rescheduled_to_at')
+                    ->orderBy('at', 'asc')
+                    ->get();
+            }
             
             $attendance->setAttribute('report', $report);
             $attendance->setAttribute('appointments', $appointments);
