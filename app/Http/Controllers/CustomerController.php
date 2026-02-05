@@ -151,12 +151,27 @@ class CustomerController extends Controller
         }, 'orders' => function($q) {
             $q->orderBy('event_date', 'desc');
         }])->get()->map(function($c) {
+            // Absolute latest for activity tracking
+            $absoluteLatest = $c->appointments->first();
+            
+            // Identify the appointment that defines the lead's current status in the pipeline.
+            // We prioritize the most recent appointment that actually HAS a result,
+            // specifically for new_customer or consultation purposes.
+            $statusDefining = $c->appointments->filter(function($a) {
+                return !empty($a->result) && in_array($a->purpose, ['new_customer', 'consultation']);
+            })->first();
+
+            // If no sales interaction has a result yet, fallback to the absolute latest (which would be 'Pending')
+            $displayAppointment = $statusDefining ?: $absoluteLatest;
+
             return [
                 'id' => $c->id,
                 'name' => $c->name,
                 'phone' => $c->phone,
-                'latest_appointment' => $c->appointments->first(),
+                'latest_appointment' => $displayAppointment,
+                'actual_latest_at' => $absoluteLatest ? $absoluteLatest->at : null,
                 'latest_order' => $c->orders->first(),
+                'source' => $c->source,
             ];
         });
 

@@ -24,6 +24,7 @@ class Appointments extends Model
         'result_notes',
         'rescheduled_to_at',
         'customer_id',
+        'order_id',
     ];
 
     public function customer()
@@ -48,6 +49,11 @@ class Appointments extends Model
         if (isset($payload['toAt'])) {
             $query->where('at', '<=', $payload['toAt']);
         }
+        if (isset($payload['has_no_result']) && $payload['has_no_result'] === 'true') {
+            $query->where('booking_status', 'Scheduled')
+                  ->whereNull('result')
+                  ->where('at', '<', now()->startOfDay());
+        }
         $sort = $payload['sort'] ?? 'at';
         $limit = $payload['limit'] ?? 5;
 
@@ -70,6 +76,11 @@ class Appointments extends Model
         }
         if (isset($payload['toAt'])) {
             $query->where('at', '<=', $payload['toAt']);
+        }
+        if (isset($payload['has_no_result']) && $payload['has_no_result'] === 'true') {
+            $query->where('booking_status', 'Scheduled')
+                  ->whereNull('result')
+                  ->where('at', '<', now()->startOfDay());
         }
         if (isset($payload['exceptId'])) {
             $query->where('id', '!=', $payload['exceptId']);

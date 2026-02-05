@@ -109,4 +109,57 @@ class Order extends Model
     {
         return $this->hasMany(PaymentRecord::class);
     }
+
+    /**
+     * Synchronize order status based on payments and event date.
+     */
+    public function syncStatus()
+    {
+        // Don't sync if order is cancelled
+        if ($this->status === 'cancelled') {
+            return;
+        }
+
+        $totalPaid = $this->payments()->sum('amount');
+        $isFullyPaid = $totalPaid >= (float) $this->final_price;
+        $eventPassed = $this->event_date && $this->event_date->isPast();
+
+        if ($totalPaid <= 0) {
+            $this->status = 'draft';
+        } elseif ($isFullyPaid && $eventPassed) {
+            $this->status = 'completed';
+        } else {
+            // At least some payment, and event hasn't passed or not full pay
+            $this->status = 'confirmed';
+        }
+
+        $this->save();
+
+        // AUTOMATIC DEAL CONVERSION:
+        // Trigger based on order status to keep CRM funnel accurate
+        if ($this->customer_id) {
+            $latestAppointment = \App\Models\Appointments::where('customer_id', $this->customer_id)
+                ->orderBy('at', 'desc')
+                ->first();
+            
+            if ($latestAppointment) {
+                if (in_array($this->status, ['confirmed', 'completed'])) {
+                    // Confirmed Order -> Booked Client
+                    if ($latestAppointment->result !== 'deal') {
+                        $latestAppointment->update([
+                            'booking_status' => 'Confirmed',
+                            'result' => 'deal',
+                            'result_notes' => 'Converted to Booked via Order #' . $this->order_number
+                        ]);
+                    }
+                } elseif ($latestAppointment->result === 'deal') {
+                    // Reverted if order is no longer confirmed/completed (e.g. moved to Draft or Cancelled)
+                    $latestAppointment->update([
+                        'result' => 'potential',
+                        'result_notes' => 'Reverted to Potential (Order #' . $this->order_number . ' is no longer Confirmed)'
+                    ]);
+                }
+            }
+        }
+    }
 }

@@ -27,6 +27,7 @@ class AppointmentsController extends Controller
             'page' => $request->input('page', 1), // Default to page 1 if not provided
             'limit' => $request->input('limit', 5), // Default to 5 items per page if not provided
             'sort' => $request->input('sort', 'at'), // Default sort by 'at' field
+            'has_no_result' => $request->input('has_no_result'),
         ];
 
         $appointmentList = Appointments::getAppointmentList($payload);
@@ -52,6 +53,26 @@ class AppointmentsController extends Controller
             'customer_id' => 'nullable|exists:customers,id',
         ]);
 
+        $customerId = $validated['customer_id'];
+
+        // Automatic Lead Creation: If no customer_id, try to find by phone or create
+        if (!$customerId) {
+            $customer = \App\Models\Customer::where('phone', $validated['customerPhone'])->first();
+            
+            if (!$customer) {
+                $customer = \App\Models\Customer::create([
+                    'name' => $validated['customerName'],
+                    'phone' => $validated['customerPhone'],
+                    'source' => 'Direct',
+                ]);
+                // Automatically set purpose if this is a newly created customer record
+                if (!isset($validated['purpose'])) {
+                    $validated['purpose'] = 'new_customer';
+                }
+            }
+            $customerId = $customer->id;
+        }
+
         $appointmentData = [
             'customer_name' => $validated['customerName'],
             'customer_phone' => $validated['customerPhone'],
@@ -59,7 +80,7 @@ class AppointmentsController extends Controller
             'notes' => $validated['note'],
             'booking_status' => $validated['bookingStatus'] ?? 'Scheduled',
             'purpose' => $validated['purpose'] ?? null,
-            'customer_id' => $validated['customer_id'] ?? null,
+            'customer_id' => $customerId,
         ];
 
         $appointment = Appointments::create($appointmentData);
@@ -93,6 +114,7 @@ class AppointmentsController extends Controller
             'fromAt' => $request->input('fromAt'),
             'toAt' => $request->input('toAt'),
             'exceptId' => $request->input('exceptId'),
+            'has_no_result' => $request->input('has_no_result'),
         ];
 
         $count = Appointments::countAppointments($payload);
@@ -116,9 +138,9 @@ class AppointmentsController extends Controller
             'note' => 'sometimes|nullable|string',
             'purpose' => 'sometimes|nullable|string',
             'result' => 'sometimes|nullable|string',
-            'result' => 'sometimes|nullable|string',
             'resultNotes' => 'sometimes|nullable|string',
-            'customer_id' => 'sometimes|nullable|exists:customers,id'
+            'customer_id' => 'sometimes|nullable|exists:customers,id',
+            'order_id' => 'sometimes|nullable|exists:orders,id'
         ]);
 
         $map = [
@@ -129,9 +151,9 @@ class AppointmentsController extends Controller
             'note' => 'notes',
             'purpose' => 'purpose',
             'result' => 'result',
-            'result' => 'result',
             'resultNotes' => 'result_notes',
-            'customer_id' => 'customer_id'
+            'customer_id' => 'customer_id',
+            'order_id' => 'order_id'
         ];
 
         $appointmentData = [];
@@ -186,11 +208,21 @@ class AppointmentsController extends Controller
                 return response()->json([
                     'message' => 'Failed to update appointment!',
                 ], 400);
-            } else {
-                return response()->json([
-                    'message' => 'Appointment updated successfully!'
-                ], 200);
             }
+
+            // If order_id is provided, link the order to this appointment
+            if (isset($validated['order_id'])) {
+                $order = \App\Models\Order::find($validated['order_id']);
+                if ($order) {
+                    $order->update(['appointment_id' => $appointment->id]);
+                    // Trigger sync to ensure lead status and history are updated
+                    $order->syncStatus();
+                }
+            }
+
+            return response()->json([
+                'message' => 'Appointment updated successfully!'
+            ], 200);
         } catch (\Exception $e) {
             // If any error occurs, catch it and return a failure response
             return response()->json([

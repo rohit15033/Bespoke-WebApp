@@ -109,13 +109,15 @@ class OrderController extends Controller
                 'instagram_wo' => 'nullable|string|max:255',
                 'instagram_decor' => 'nullable|string|max:255',
                 'salesperson1_id' => 'nullable|exists:users,id',
-                'salesperson1_id' => 'nullable|exists:users,id',
                 'salesperson2_id' => 'nullable|exists:users,id',
                 'customer_id' => 'nullable|exists:customers,id',
             ]);
 
-            // Create the order
+            // Link the order
             $order = Order::create($orderData);
+            
+            // Initial sync (Now handles automatic deal conversion if status enters confirmed/completed)
+            $order->syncStatus();
             
             // Handle products (packages and standalone items)
             if ($request->has('products')) {
@@ -204,13 +206,15 @@ class OrderController extends Controller
                 'instagram_wo' => 'nullable|string|max:255',
                 'instagram_decor' => 'nullable|string|max:255',
                 'salesperson1_id' => 'nullable|exists:users,id',
-                'salesperson1_id' => 'nullable|exists:users,id',
                 'salesperson2_id' => 'nullable|exists:users,id',
                 'customer_id' => 'nullable|exists:customers,id',
             ]);
 
             // Update the order
             $order->update($orderData);
+
+            // Re-sync status
+            $order->syncStatus();
 
             // Delete existing packages
             $existingPackages = $order->packages;

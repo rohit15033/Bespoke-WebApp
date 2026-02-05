@@ -28,9 +28,18 @@ class DashboardController extends Controller
             ->get()
             ->count();
 
-        // 3. Active Orders: Orders not 'done' or 'cancelled'
-        // Independent of date range, as it's a current snapshot
-        $activeOrders = Order::whereNotIn('status', ['done', 'cancelled']) // Adjust status values as per your specific keywords
+        // 3. Active Orders: Orders in 'confirmed' status
+        // We calculate this dynamically to ensure accuracy for orders that might have passed their event date
+        $activeOrders = Order::where(function($q) {
+                // Not Draft (has payments)
+                $q->whereHas('payments')
+                // Not yet Completed (either total < final OR event hasn't passed)
+                ->where(function($sq) {
+                    $sq->whereRaw('(select coalesce(sum(amount), 0) from payment_records where order_id = orders.id) < final_price')
+                       ->orWhere('event_date', '>', \Carbon\Carbon::now()->toDateString());
+                });
+            })
+            ->where('status', '!=', 'cancelled')
             ->count();
 
         // 4. Upcoming Events: Next 5 orders with event_date >= today

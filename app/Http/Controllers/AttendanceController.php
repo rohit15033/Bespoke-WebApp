@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
     public function status(): \Illuminate\Http\JsonResponse
     {
-        // First try to find a shift for today
+        $now = Carbon::now('Asia/Jakarta');
+        $today = $now->toDateString();
+
+        // First try to find a shift for today (in Asia/Jakarta)
         $attendance = \App\Models\Attendance::where('user_id', auth()->id())
-            ->where('date', date('Y-m-d'))
+            ->where('date', $today)
             ->first();
 
         // If no shift for today, check if there's an ongoing shift from "yesterday" (any record with no clock_out)
@@ -37,13 +41,15 @@ class AttendanceController extends Controller
             ], 422);
         }
 
+        $now = Carbon::now('Asia/Jakarta');
+
         $attendance = \App\Models\Attendance::updateOrCreate(
             [
                 'user_id' => auth()->id(),
-                'date' => date('Y-m-d'),
+                'date' => $now->toDateString(),
             ],
             [
-                'clock_in' => now(),
+                'clock_in' => $now,
                 'status' => 'present',
                 'clock_out' => null, // Ensure clock_out is cleared if re-clocking in for same day
             ]
@@ -97,7 +103,7 @@ class AttendanceController extends Controller
                 if ($appointment->booking_status === 'Confirmed') {
                     if (empty($appointment->purpose)) $missing[] = 'Purpose';
                     if (empty($appointment->result_notes)) $missing[] = 'Result Notes';
-                    if ($appointment->purpose === 'new_customer' && empty($appointment->result)) $missing[] = 'Result (Deal/No Deal)';
+                    if ($appointment->purpose === 'new_customer' && empty($appointment->result)) $missing[] = 'Result (Booked/Lost Lead)';
                 } 
                 // For Rescheduled or Canceled, check for a Reason (stored in result_notes or notes)
                 else if (in_array($appointment->booking_status, ['Rescheduled', 'Canceled'])) {
@@ -114,7 +120,7 @@ class AttendanceController extends Controller
             }
         }
 
-        $attendance->update(['clock_out' => now()]);
+        $attendance->update(['clock_out' => Carbon::now('Asia/Jakarta')]);
 
         return response()->json($attendance);
     }
