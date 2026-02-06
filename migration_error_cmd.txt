@@ -1,0 +1,26 @@
+
+   INFO  Running migrations.  
+
+  2026_02_05_152935_add_appointment_id_to_orders_table  9.42ms FAIL
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[42S21]: Column already exists: 1060 Duplicate column name 'appointment_id' (Connection: mysql, SQL: alter table `orders` add `appointment_id` bigint unsigned null)
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:825
+    821▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822▕                 );
+    823▕             }
+    824▕ 
+  ➜ 825▕             throw new QueryException(
+    826▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    827▕             );
+    828▕         }
+    829▕     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:571
+      PDOException::("SQLSTATE[42S21]: Column already exists: 1060 Duplicate column name 'appointment_id'")
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:571
+      PDOStatement::execute()
+

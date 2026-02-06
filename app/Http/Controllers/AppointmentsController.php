@@ -50,7 +50,10 @@ class AppointmentsController extends Controller
             'note' => 'nullable|string',
             'bookingStatus' => ['nullable', Rule::in(['Scheduled', 'Confirmed', 'Canceled', 'Rescheduled'])],
             'purpose' => 'nullable|string',
+            'result' => 'nullable|string',
+            'resultNotes' => 'nullable|string',
             'customer_id' => 'nullable|exists:customers,id',
+            'order_id' => 'nullable|exists:orders,id',
         ]);
 
         $customerId = $validated['customer_id'];
@@ -80,10 +83,23 @@ class AppointmentsController extends Controller
             'notes' => $validated['note'],
             'booking_status' => $validated['bookingStatus'] ?? 'Scheduled',
             'purpose' => $validated['purpose'] ?? null,
+            'result' => $validated['result'] ?? null,
+            'result_notes' => $validated['resultNotes'] ?? null,
             'customer_id' => $customerId,
+            'order_id' => $validated['order_id'] ?? null,
         ];
 
         $appointment = Appointments::create($appointmentData);
+
+        // If order_id is provided, link the order to this appointment
+        if (isset($validated['order_id'])) {
+            $order = \App\Models\Order::find($validated['order_id']);
+            if ($order) {
+                $order->update(['appointment_id' => $appointment->id]);
+                // Trigger sync to ensure lead status and history are updated
+                $order->syncStatus();
+            }
+        }
 
         return response()->json($appointment, 201);
     }

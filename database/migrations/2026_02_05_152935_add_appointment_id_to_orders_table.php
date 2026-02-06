@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('orders', 'customer_id')) {
+        if (!Schema::hasColumn('orders', 'appointment_id')) {
             Schema::table('orders', function (Blueprint $table) {
-                $table->unsignedBigInteger('customer_id')->nullable()->after('id');
-                $table->index('customer_id');
+                $table->unsignedBigInteger('appointment_id')->nullable();
+                $table->foreign('appointment_id')->references('id')->on('appointments')->onDelete('set null');
             });
         }
     }
@@ -25,7 +25,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('customer_id');
+            $table->dropForeign(['appointment_id']);
+            $table->dropColumn('appointment_id');
         });
     }
 };

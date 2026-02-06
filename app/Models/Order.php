@@ -38,7 +38,13 @@ class Order extends Model
         'salesperson1_id',
         'salesperson2_id',
         'customer_id',
+        'appointment_id',
     ];
+
+    public function appointment()
+    {
+        return $this->belongsTo(Appointments::class);
+    }
 
     public function customer()
     {
@@ -138,23 +144,30 @@ class Order extends Model
         // AUTOMATIC DEAL CONVERSION:
         // Trigger based on order status to keep CRM funnel accurate
         if ($this->customer_id) {
-            $latestAppointment = \App\Models\Appointments::where('customer_id', $this->customer_id)
-                ->orderBy('at', 'desc')
-                ->first();
+            $appointment = null;
+            if ($this->appointment_id) {
+                $appointment = \App\Models\Appointments::find($this->appointment_id);
+            }
             
-            if ($latestAppointment) {
+            if (!$appointment) {
+                $appointment = \App\Models\Appointments::where('customer_id', $this->customer_id)
+                    ->orderBy('at', 'desc')
+                    ->first();
+            }
+            
+            if ($appointment) {
                 if (in_array($this->status, ['confirmed', 'completed'])) {
                     // Confirmed Order -> Booked Client
-                    if ($latestAppointment->result !== 'deal') {
-                        $latestAppointment->update([
+                    if ($appointment->result !== 'deal') {
+                        $appointment->update([
                             'booking_status' => 'Confirmed',
                             'result' => 'deal',
                             'result_notes' => 'Converted to Booked via Order #' . $this->order_number
                         ]);
                     }
-                } elseif ($latestAppointment->result === 'deal') {
+                } elseif ($appointment->result === 'deal') {
                     // Reverted if order is no longer confirmed/completed (e.g. moved to Draft or Cancelled)
-                    $latestAppointment->update([
+                    $appointment->update([
                         'result' => 'potential',
                         'result_notes' => 'Reverted to Potential (Order #' . $this->order_number . ' is no longer Confirmed)'
                     ]);
