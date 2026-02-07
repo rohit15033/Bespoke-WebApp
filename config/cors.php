@@ -23,9 +23,7 @@ return [
         'https://admin.berkatkebaya.com',
         'https://berkatkebaya.com',
         'https://www.berkatkebaya.com',
-        'http://localhost:8080',
-        'http://localhost:8000',
-        env('FRONTEND_URL', 'http://localhost:5173'),
+        env('FRONTEND_URL'),
     ],
 
     'allowed_origins_patterns' => [],
