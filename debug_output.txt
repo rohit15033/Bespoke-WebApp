@@ -1,0 +1,5 @@
+Array
+(
+    [success] => 
+    [error] => API Error: {"error":{"message":"(#36104) You do not have permission to access this field outside of the Business Discovery API.","type":"OAuthException","code":36104,"fbtrace_id":"AY3A18xfnnJrqqiIF2C6Pp9"}}
+)

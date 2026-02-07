@@ -19,6 +19,14 @@ class CustomerController extends Controller
             });
         }
 
+        if ($request->has('customer_type')) {
+            if ($request->input('customer_type') === 'booked') {
+                $query->has('orders');
+            } elseif ($request->input('customer_type') === 'leads') {
+                $query->doesntHave('orders');
+            }
+        }
+
         return $query->orderBy('name')->paginate(20);
     }
 
@@ -48,6 +56,22 @@ class CustomerController extends Controller
 
     public function update(Request $request, Customer $customer)
     {
+        // Role-based check for "Edit Once" logic
+        $user = $request->user();
+        $isMaster = $user && ($user->role === 'master' || $user->role === 'owner');
+
+        // If not master/owner, and phone is already set (not "Unknown"), 
+        // prevent name/phone update.
+        if (!$isMaster && $customer->phone !== 'Unknown') {
+            if ($request->has('name') || $request->has('phone')) {
+                if ($request->input('name') !== $customer->name || $request->input('phone') !== $customer->phone) {
+                    return response()->json([
+                        'message' => 'Only Master admins can update contact details once identity has been established.'
+                    ], 403);
+                }
+            }
+        }
+
         $validated = $request->validate([
             'name' => 'string|max:255',
             'phone' => 'string|max:20',
@@ -94,7 +118,7 @@ class CustomerController extends Controller
         $orders = $customer->orders()->orderBy('created_at', 'desc')->get();
 
         return response()->json([
-            'customer' => $customer,
+            'customer' => $customer->load('leadIntent'),
             'appointments' => $appointments,
             'orders' => $orders,
         ]);
@@ -107,12 +131,12 @@ class CustomerController extends Controller
             $q->orderBy('at', 'desc');
         }, 'orders' => function($q) {
             $q->orderBy('event_date', 'desc');
-        }])->get();
+        }, 'leadIntent'])->get();
 
         // 2. The rest (Leads)
         $leads = Customer::doesntHave('orders')->with(['appointments' => function($q) {
             $q->orderBy('at', 'desc');
-        }])->get();
+        }, 'leadIntent'])->get();
 
         $potential = collect();
         $noDeal = collect();
@@ -150,10 +174,13 @@ class CustomerController extends Controller
             $q->orderBy('at', 'desc');
         }, 'orders' => function($q) {
             $q->orderBy('event_date', 'desc');
-        }])->get()->map(function($c) {
+        }, 'leadIntent'])->get()->map(function($c) {
             // Absolute latest for activity tracking
             $absoluteLatest = $c->appointments->first();
             
+            // INTERACTION FALLBACK: If no appointments, use tracking dates
+            $interactionAt = $absoluteLatest ? $absoluteLatest->at : ($c->first_whatsapp_interaction_at ?: $c->created_at);
+
             // Identify the appointment that defines the lead's current status in the pipeline.
             // We prioritize the most recent appointment that actually HAS a result,
             // specifically for new_customer or consultation purposes.
@@ -169,9 +196,10 @@ class CustomerController extends Controller
                 'name' => $c->name,
                 'phone' => $c->phone,
                 'latest_appointment' => $displayAppointment,
-                'actual_latest_at' => $absoluteLatest ? $absoluteLatest->at : null,
+                'actual_latest_at' => $interactionAt,
                 'latest_order' => $c->orders->first(),
                 'source' => $c->source,
+                'lead_intent' => $c->leadIntent,
             ];
         });
 
@@ -180,5 +208,24 @@ class CustomerController extends Controller
             'lists' => $lists,
             'clients' => $allClients
         ]);
+    }
+
+    public function destroy(Request $request, Customer $customer)
+    {
+        $user = $request->user();
+        if (!$user || !$user->isMaster()) {
+            return response()->json(['message' => 'Unauthorized. Only Master admins can delete records.'], 403);
+        }
+
+        // Safety: Prevent deletion if there are linked orders
+        if ($customer->orders()->count() > 0) {
+            return response()->json(['message' => 'Cannot delete customer with active orders.'], 422);
+        }
+
+        // Delete associated appointments and lead intent if necessary
+        $customer->appointments()->delete();
+        $customer->delete();
+
+        return response()->json(['message' => 'Customer record deleted successfully.']);
     }
 }

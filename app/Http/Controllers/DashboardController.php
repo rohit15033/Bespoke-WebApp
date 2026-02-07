@@ -62,4 +62,39 @@ class DashboardController extends Controller
             'upcoming_events' => $upcomingEvents,
         ]);
     }
+
+    public function impactAnalysis(Request $request)
+    {
+        $startDate = $request->input('start_date', Carbon::now()->subDays(30)->toDateString());
+        $endDate = $request->input('end_date', Carbon::now()->toDateString());
+
+        // 1. Posts per day
+        $posts = \App\Models\SocialPost::whereBetween('posted_at', [$startDate, $endDate])
+            ->select(DB::raw('DATE(posted_at) as date'), DB::raw('count(*) as count'))
+            ->groupBy('date')
+            ->get()
+            ->keyBy('date');
+
+        // 2. Leads Created (First WhatsApp Interaction) per day
+        $leads = \App\Models\Customer::whereBetween('first_whatsapp_interaction_at', [$startDate, $endDate])
+            ->select(DB::raw('DATE(first_whatsapp_interaction_at) as date'), DB::raw('count(*) as count'))
+            ->groupBy('date')
+            ->get()
+            ->keyBy('date');
+
+        // Merge dates
+        $period = \Carbon\CarbonPeriod::create($startDate, $endDate);
+        $data = [];
+
+        foreach ($period as $date) {
+            $d = $date->format('Y-m-d');
+            $data[] = [
+                'date' => $d,
+                'posts' => isset($posts[$d]) ? $posts[$d]->count : 0,
+                'leads' => isset($leads[$d]) ? $leads[$d]->count : 0,
+            ];
+        }
+
+        return response()->json($data);
+    }
 }

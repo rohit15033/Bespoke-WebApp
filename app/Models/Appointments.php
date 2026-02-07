@@ -25,6 +25,13 @@ class Appointments extends Model
         'rescheduled_to_at',
         'customer_id',
         'order_id',
+        'outcome_reasons',
+    ];
+
+    protected $casts = [
+        'at' => 'datetime',
+        'rescheduled_to_at' => 'datetime',
+        'outcome_reasons' => 'array',
     ];
 
     public function customer()

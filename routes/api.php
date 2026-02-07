@@ -23,7 +23,8 @@ use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\CustomerController;
-
+use App\Http\Controllers\WhatsAppController;
+use App\Http\Controllers\LeadTrackingController; // Added for frontend redirect logging
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +36,16 @@ use App\Http\Controllers\CustomerController;
 | middleware group. Enjoy building your API!
 |
 */
+
+// WhatsApp Webhook
+Route::match(['get', 'post'], '/webhooks/whatsapp', [WhatsAppController::class, 'webhook']);
+
+// Social Posts (Content Analytics)
+Route::resource('social-posts', App\Http\Controllers\SocialPostController::class);
+Route::post('social-posts/sync', [App\Http\Controllers\SocialPostController::class, 'sync']);
+
+// Logs an intent from the frontend without redirecting (since frontend handles it)
+Route::post('/log-lead-intent', [LeadTrackingController::class, 'logIntent'])->name('api.lead.intent.log');
 
 //route for colors and occasions later n for inventory
 Route::get('/colors', [App\Http\Controllers\ColorsController::class, 'index']);
@@ -100,6 +111,7 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
 
     // Dashboard (protected)
     Route::get('/dashboard/stats', [App\Http\Controllers\DashboardController::class, 'stats']);
+    Route::get('/dashboard/impact-analysis', [App\Http\Controllers\DashboardController::class, 'impactAnalysis']);
 
     // Inventory WRITE operations (protected - admin only)
     Route::post('kebaya', [KebayaController::class, 'store']);

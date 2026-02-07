@@ -1,0 +1,11 @@
+﻿Checking token type and expiration...
+
+Ô£à Token Information:
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+Type: USER
+App: Berkat Analytics
+Valid: Yes Ô£à
+Expires: 2026-02-07 14:00:00
+Days Remaining: 0 days
+
+ÔÜá´©Å  This token expires very soon!

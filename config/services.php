@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    'instagram' => [
+        'app_id' => env('FACEBOOK_APP_ID'),
+        'app_secret' => env('FACEBOOK_APP_SECRET'),
+        'access_token' => env('INSTAGRAM_ACCESS_TOKEN'),
+        'account_id' => env('INSTAGRAM_ACCOUNT_ID'),
+    ],
+
+    'whatsapp' => [
+        'number' => env('WHATSAPP_NUMBER', '6285190054707'),
+    ],
+
 ];

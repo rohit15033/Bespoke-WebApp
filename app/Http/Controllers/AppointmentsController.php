@@ -54,26 +54,81 @@ class AppointmentsController extends Controller
             'resultNotes' => 'nullable|string',
             'customer_id' => 'nullable|exists:customers,id',
             'order_id' => 'nullable|exists:orders,id',
+            'outcomeReasons' => 'nullable|array',
+            'lead_intent_id' => 'nullable|integer|exists:lead_intents,id',
         ]);
 
         $customerId = $validated['customer_id'];
+        $leadIntentId = $validated['lead_intent_id'] ?? null;
 
         // Automatic Lead Creation: If no customer_id, try to find by phone or create
         if (!$customerId) {
-            $customer = \App\Models\Customer::where('phone', $validated['customerPhone'])->first();
+            $phone = $validated['customerPhone'];
+            // Normalize phone for lookup (strip non-digits and handle prefix variations)
+            $normalizedPhone = preg_replace('/\D/', '', $phone);
+            if (str_starts_with($normalizedPhone, '0')) {
+                $strippedPhone = substr($normalizedPhone, 1);
+            } elseif (str_starts_with($normalizedPhone, '62')) {
+                $strippedPhone = substr($normalizedPhone, 2);
+            } else {
+                $strippedPhone = $normalizedPhone;
+            }
+
+            // Find customer by various phone formats
+            $customer = \App\Models\Customer::where('phone', $phone)
+                ->orWhere('phone', 'like', '%' . $strippedPhone)
+                ->first();
             
             if (!$customer) {
                 $customer = \App\Models\Customer::create([
                     'name' => $validated['customerName'],
                     'phone' => $validated['customerPhone'],
                     'source' => 'Direct',
+                    'lead_intent_id' => $leadIntentId,
                 ]);
                 // Automatically set purpose if this is a newly created customer record
                 if (!isset($validated['purpose'])) {
                     $validated['purpose'] = 'new_customer';
                 }
+            } else {
+                // Identity Completion: If customer exists but name is "Unknown", update it
+                $updateData = [];
+                if ($customer->name === 'Unknown' && $validated['customerName'] !== 'Unknown') {
+                    $updateData['name'] = $validated['customerName'];
+                }
+                // If the found customer has 'Unknown' phone (placeholder), update it to real phone
+                if ($customer->phone === 'Unknown' && $validated['customerPhone'] !== 'Unknown') {
+                    $updateData['phone'] = $validated['customerPhone'];
+                }
+                if ($leadIntentId && !$customer->lead_intent_id) {
+                    $updateData['lead_intent_id'] = $leadIntentId;
+                }
+
+                if (!empty($updateData)) {
+                    $customer->update($updateData);
+                }
             }
             $customerId = $customer->id;
+        } else {
+            // Even for existing customers, if a tracking ID is provided, link it
+            $customer = \App\Models\Customer::find($customerId);
+            if ($customer) {
+                // Identity Completion for specified existing customer
+                $updateData = [];
+                if (($customer->name === 'Unknown' || str_contains($customer->name, 'Visitor #')) && $validated['customerName'] !== $customer->name) {
+                    $updateData['name'] = $validated['customerName'];
+                }
+                if ($customer->phone === 'Unknown' && $validated['customerPhone'] !== 'Unknown') {
+                    $updateData['phone'] = $validated['customerPhone'];
+                }
+                if ($leadIntentId && !$customer->lead_intent_id) {
+                    $updateData['lead_intent_id'] = $leadIntentId;
+                }
+                
+                if (!empty($updateData)) {
+                    $customer->update($updateData);
+                }
+            }
         }
 
         $appointmentData = [
@@ -87,7 +142,15 @@ class AppointmentsController extends Controller
             'result_notes' => $validated['resultNotes'] ?? null,
             'customer_id' => $customerId,
             'order_id' => $validated['order_id'] ?? null,
+            'outcome_reasons' => $validated['outcomeReasons'] ?? null,
         ];
+
+        // RESTRICTION: Result "deal" (Booked) is order-driven only
+        if (isset($appointmentData['result']) && $appointmentData['result'] === 'deal') {
+            return response()->json([
+                'message' => 'The "Booked" status can only be set automatically when an order is created.',
+            ], 422);
+        }
 
         $appointment = Appointments::create($appointmentData);
 
@@ -156,7 +219,9 @@ class AppointmentsController extends Controller
             'result' => 'sometimes|nullable|string',
             'resultNotes' => 'sometimes|nullable|string',
             'customer_id' => 'sometimes|nullable|exists:customers,id',
-            'order_id' => 'sometimes|nullable|exists:orders,id'
+            'order_id' => 'sometimes|nullable|exists:orders,id',
+            'outcomeReasons' => 'sometimes|nullable|array',
+            'lead_intent_id' => 'sometimes|nullable|integer|exists:lead_intents,id',
         ]);
 
         $map = [
@@ -169,8 +234,20 @@ class AppointmentsController extends Controller
             'result' => 'result',
             'resultNotes' => 'result_notes',
             'customer_id' => 'customer_id',
-            'order_id' => 'order_id'
+            'order_id' => 'order_id',
+            'outcomeReasons' => 'outcome_reasons',
         ];
+
+        // We handle lead_intent_id separately since it updates the Customer model
+        if (isset($request->lead_intent_id)) {
+            $customerId = $request->customer_id ?? Appointments::find($id)->customer_id;
+            if ($customerId) {
+                $customer = \App\Models\Customer::find($customerId);
+                if ($customer && !$customer->lead_intent_id) {
+                    $customer->update(['lead_intent_id' => $request->lead_intent_id]);
+                }
+            }
+        }
 
         $appointmentData = [];
         foreach ($map as $input => $column) {
@@ -183,7 +260,6 @@ class AppointmentsController extends Controller
                 }
             }
         }
-
         try {
             // Find the appointment by its ID
             $appointment = Appointments::find($id);
@@ -193,6 +269,24 @@ class AppointmentsController extends Controller
                 return response()->json([
                     'message' => 'Appointment not found!'
                 ], 404);
+            }
+
+            // IMMUTABILITY & RESTRICTION: 
+            // 1. If already "Booked", block any changes to Phase 2 (result/notes)
+            if ($appointment->result === 'deal') {
+                if ((isset($appointmentData['result']) && $appointmentData['result'] !== 'deal') || 
+                    (isset($appointmentData['result_notes']) && $appointmentData['result_notes'] !== $appointment->result_notes)) {
+                    return response()->json([
+                        'message' => 'This lead is already Booked. Status and progress notes are immutable via CRM.',
+                    ], 422);
+                }
+            }
+
+            // 2. Setting TO "Booked" is order-driven only
+            if (isset($appointmentData['result']) && $appointmentData['result'] === 'deal' && $appointment->result !== 'deal') {
+                return response()->json([
+                    'message' => 'The "Booked" status can only be set automatically when an order is created.',
+                ], 422);
             }
 
             // Custom logic for Rescheduled status
