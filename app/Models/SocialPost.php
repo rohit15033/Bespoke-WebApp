@@ -42,9 +42,12 @@ class SocialPost extends Model
         $windowEnd = $hours ? $this->posted_at->copy()->addHours($hours) : Carbon::now()->addYear();
 
         // Fetch potential leads in the window
-        // Use 'like' for case-insensitive platform match
+        // Allow leads from the specific platform OR Generic leads from the main site
         $potentialLeads = Customer::whereBetween('first_whatsapp_interaction_at', [$windowStart, $windowEnd])
-            ->where('source', 'like', $this->platform . '%')
+            ->where(function($query) {
+                $query->where('source', 'like', $this->platform . '%')
+                      ->orWhere('source', 'Generic');
+            })
             ->get();
 
         $count = 0;

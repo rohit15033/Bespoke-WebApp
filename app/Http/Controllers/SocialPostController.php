@@ -24,6 +24,7 @@ class SocialPostController extends Controller
         $posts->append([
             'attributed_leads_count_12h', 
             'attributed_leads_count_24h',
+            'attributed_leads_count_lifetime',
             'link_clicks_count_12h',
             'link_clicks_count_24h'
         ]);
@@ -73,12 +74,15 @@ class SocialPostController extends Controller
 
         $count = 0;
         foreach ($result['data'] as $media) {
+            // Meta returns UTC. We must convert it to our app timezone (Jakarta) before saving.
+            $postedAt = \Carbon\Carbon::parse($media['timestamp'])->setTimezone(config('app.timezone'));
+
             SocialPost::updateOrCreate(
                 ['social_id' => $media['id']],
                 [
                     'platform' => 'instagram',
                     'url' => $media['permalink'] ?? $media['media_url'],
-                    'posted_at' => \Carbon\Carbon::parse($media['timestamp']),
+                    'posted_at' => $postedAt,
                     'caption' => $media['caption'] ?? '',
                     'thumbnail_url' => $media['thumbnail_url'] ?? $media['media_url'],
                     'metrics' => [
