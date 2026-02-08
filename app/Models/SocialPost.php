@@ -30,18 +30,22 @@ class SocialPost extends Model
     protected $appends = [
         'attributed_leads_count_12h', 
         'attributed_leads_count_24h',
+        'attributed_leads_count_lifetime',
         'link_clicks_count_12h',
         'link_clicks_count_24h'
     ];
 
     // Helper to calculate attribution for a specific window
-    public function calculateAttribution($hours)
+    public function calculateAttribution($hours = null)
     {
         $windowStart = $this->posted_at;
-        $windowEnd = $this->posted_at->copy()->addHours($hours);
+        $windowEnd = $hours ? $this->posted_at->copy()->addHours($hours) : Carbon::now()->addYear();
 
         // Fetch potential leads in the window
-        $potentialLeads = Customer::whereBetween('first_whatsapp_interaction_at', [$windowStart, $windowEnd])->get();
+        // Use 'like' for case-insensitive platform match
+        $potentialLeads = Customer::whereBetween('first_whatsapp_interaction_at', [$windowStart, $windowEnd])
+            ->where('source', 'like', $this->platform . '%')
+            ->get();
 
         $count = 0;
 
@@ -67,6 +71,11 @@ class SocialPost extends Model
     public function getAttributedLeadsCount24hAttribute()
     {
         return $this->calculateAttribution(24);
+    }
+
+    public function getAttributedLeadsCountLifetimeAttribute()
+    {
+        return $this->calculateAttribution(null);
     }
 
     // Link Clicks Calculation
