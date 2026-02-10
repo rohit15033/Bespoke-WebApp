@@ -201,9 +201,14 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::post('/daily-reports', [App\Http\Controllers\DailyReportController::class, 'store']);
 
     Route::get('/attendance/status', [App\Http\Controllers\AttendanceController::class, 'status']);
+    Route::get('/attendance/summary', [App\Http\Controllers\AttendanceController::class, 'summary']);
     Route::get('/attendance/history', [App\Http\Controllers\AttendanceController::class, 'history']);
     Route::post('/attendance/clock-in', [App\Http\Controllers\AttendanceController::class, 'clockIn']);
     Route::post('/attendance/clock-out', [App\Http\Controllers\AttendanceController::class, 'clockOut']);
+    Route::post('/attendance', [App\Http\Controllers\AttendanceController::class, 'store']); // Manual Create
+    Route::put('/attendance/{id}', [App\Http\Controllers\AttendanceController::class, 'update']); // Manual Update
+
+    Route::apiResource('absence', App\Http\Controllers\AbsenceController::class);
 
     // Master-only routes
     Route::get('salespeople', [UserController::class, 'salespeople']);

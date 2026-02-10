@@ -163,10 +163,98 @@ class AttendanceController extends Controller
             
             $attendance->setAttribute('report', $report);
             $attendance->setAttribute('appointments', $appointments);
+
+            // Calculate Late Status
+            if ($attendance->user && $attendance->user->work_start_time) {
+                $scheduledStart = Carbon::parse($attendance->date->format('Y-m-d') . ' ' . $attendance->user->work_start_time);
+                // Add a small buffer (e.g., 1 minute) or strict? Let's be strict but rely on seconds.
+                if ($attendance->clock_in->gt($scheduledStart)) {
+                    $attendance->setAttribute('is_late', true);
+                    $attendance->setAttribute('late_minutes', $attendance->clock_in->diffInMinutes($scheduledStart));
+                } else {
+                    $attendance->setAttribute('is_late', false);
+                    $attendance->setAttribute('late_minutes', 0);
+                }
+                $attendance->setAttribute('scheduled_start', $attendance->user->work_start_time);
+            }
+
             return $attendance;
         });
 
         return response()->json($attendances);
+    }
+
+    public function summary(Request $request): \Illuminate\Http\JsonResponse
+    {
+        if (!auth()->user()->isMaster() && auth()->user()->role !== 'owner') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $startDate = $request->query('start_date', Carbon::now('Asia/Jakarta')->startOfMonth()->toDateString());
+        $endDate = $request->query('end_date', Carbon::now('Asia/Jakarta')->endOfMonth()->toDateString());
+
+        $users = \App\Models\User::where('role', '!=', 'owner')->get();
+        $summary = [];
+
+        foreach ($users as $user) {
+            // Present and Late Stats
+            $attendances = \App\Models\Attendance::where('user_id', $user->id)
+                ->whereBetween('date', [$startDate, $endDate])
+                ->get();
+
+            $presentCount = $attendances->count();
+            $lateCount = 0;
+
+            if ($user->work_start_time) {
+                foreach ($attendances as $attendance) {
+                    $scheduledStart = Carbon::parse($attendance->date->format('Y-m-d') . ' ' . $user->work_start_time);
+                    if ($attendance->clock_in->gt($scheduledStart)) {
+                        $lateCount++;
+                    }
+                }
+            }
+
+            // Absence Stats (Sick, Holiday)
+            $absences = \App\Models\Absence::where('user_id', $user->id)
+                ->where(function ($query) use ($startDate, $endDate) {
+                    $query->whereBetween('start_date', [$startDate, $endDate])
+                        ->orWhereBetween('end_date', [$startDate, $endDate])
+                        ->orWhere(function ($q) use ($startDate, $endDate) {
+                            $q->where('start_date', '<=', $startDate)
+                              ->where('end_date', '>=', $endDate);
+                        });
+                })
+                ->get();
+
+            $sickCount = 0;
+            $holidayCount = 0;
+
+            foreach ($absences as $absence) {
+                $start = Carbon::parse($absence->start_date)->max(Carbon::parse($startDate));
+                $end = Carbon::parse($absence->end_date)->min(Carbon::parse($endDate));
+                $days = $start->diffInDays($end) + 1;
+
+                if ($absence->type === 'sick') {
+                    $sickCount += $days;
+                } elseif ($absence->type === 'holiday') {
+                    $holidayCount += $days;
+                }
+            }
+
+            $summary[] = [
+                'user_id' => $user->id,
+                'name' => $user->name,
+                'role' => $user->role,
+                'stats' => [
+                    'present' => $presentCount,
+                    'late' => $lateCount,
+                    'sick' => $sickCount,
+                    'holiday' => $holidayCount,
+                ]
+            ];
+        }
+
+        return response()->json($summary);
     }
 
     /**
@@ -182,7 +270,31 @@ class AttendanceController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        if (!auth()->user()->isMaster() && !auth()->user()->isOwner()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'date' => 'required|date',
+            'clock_in' => 'required|date_format:H:i',
+            'clock_out' => 'nullable|date_format:H:i|after:clock_in',
+            'status' => 'required|string',
+        ]);
+
+        $date = $validated['date'];
+        $clockIn = Carbon::parse("$date {$validated['clock_in']}");
+        $clockOut = $validated['clock_out'] ? Carbon::parse("$date {$validated['clock_out']}") : null;
+
+        $attendance = \App\Models\Attendance::create([
+            'user_id' => $validated['user_id'],
+            'date' => $validated['date'],
+            'clock_in' => $clockIn,
+            'clock_out' => $clockOut,
+            'status' => $validated['status'],
+        ]);
+
+        return response()->json($attendance, 201);
     }
 
     /**
@@ -198,7 +310,40 @@ class AttendanceController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        if (!auth()->user()->isMaster() && !auth()->user()->isOwner()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $attendance = \App\Models\Attendance::findOrFail($id);
+
+        $validated = $request->validate([
+            'date' => 'sometimes|required|date',
+            'clock_in' => 'sometimes|required|date_format:H:i',
+            'clock_out' => 'nullable|date_format:H:i',
+            'status' => 'sometimes|required|string',
+        ]);
+
+        $date = $validated['date'] ?? $attendance->date->format('Y-m-d');
+        
+        if (isset($validated['clock_in'])) {
+            $attendance->clock_in = Carbon::parse("$date {$validated['clock_in']}");
+        }
+        
+        if (array_key_exists('clock_out', $validated)) {
+             $attendance->clock_out = $validated['clock_out'] ? Carbon::parse("$date {$validated['clock_out']}") : null;
+        }
+        
+        if (isset($validated['date'])) {
+            $attendance->date = $validated['date'];
+        }
+
+        if (isset($validated['status'])) {
+            $attendance->status = $validated['status'];
+        }
+
+        $attendance->save();
+
+        return response()->json($attendance);
     }
 
     /**

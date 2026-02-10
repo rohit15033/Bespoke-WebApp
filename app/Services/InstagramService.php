@@ -67,7 +67,7 @@ class InstagramService
             // 2. Fetch Media from that Instagram Account
             Log::debug("Instagram API: Fetching media for account [{$instagramAccountId}]");
             $mediaResponse = Http::withoutVerifying()->get("{$this->baseUrl}/{$instagramAccountId}/media", [
-                'fields' => 'id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,like_count,comments_count',
+                'fields' => 'id,caption,media_type,media_product_type,media_url,permalink,thumbnail_url,timestamp,like_count,comments_count',
                 'access_token' => $this->accessToken,
                 'limit' => $limit,
             ]);
@@ -75,33 +75,77 @@ class InstagramService
             if ($mediaResponse->successful()) {
                 $data = $mediaResponse->json()['data'] ?? [];
                 
-                // Per-post metric recovery for Video/Reels
-                foreach ($data as &$media) {
-                    if (($media['media_type'] ?? '') === 'VIDEO') {
-                        try {
-                            $metric = ($media['media_type'] ?? '') === 'VIDEO' ? 'video_views' : 'plays';
-                            $insightsRes = Http::withoutVerifying()->get("{$this->baseUrl}/{$media['id']}/insights", [
-                                'metric' => $metric,
-                                'access_token' => $this->accessToken,
-                            ]);
-                            if ($insightsRes->successful()) {
-                                $insights = $insightsRes->json()['data'] ?? [];
-                                foreach ($insights as $insight) {
-                                    if ($insight['name'] === $metric) {
-                                        $media['view_count'] = $insight['values'][0]['value'] ?? $media['view_count'] ?? 0;
-                                    }
-                                }
-                            }
-                        } catch (\Exception $e) {
-                            Log::warning("Instagram API: Insight fetch failed for {$media['id']}: " . $e->getMessage());
+                // Prepare a pool of requests for all metrics across all posts to maximize speed
+                $metricRequests = [];
+                foreach ($data as $media) {
+                    $mediaType = $media['media_type'] ?? '';
+                    $productType = $media['media_product_type'] ?? '';
+
+                    // Core metrics that usually work for all types (reach, total_interactions)
+                    $baseMetrics = ['reach', 'total_interactions'];
+                    
+                    if ($mediaType === 'CAROUSEL_ALBUM') {
+                        $baseMetrics[] = 'impressions';
+                        $baseMetrics[] = 'carousel_album_impressions';
+                    } else if ($mediaType === 'IMAGE') {
+                        $baseMetrics[] = 'impressions';
+                    }
+
+                    // Content-specific view metrics
+                    if ($mediaType === 'VIDEO') {
+                        if ($productType === 'REELS') {
+                            $baseMetrics[] = 'plays';
+                        } else {
+                            $baseMetrics[] = 'video_views';
+                            $baseMetrics[] = 'impressions';
                         }
+                    }
+
+                    foreach ($baseMetrics as $metric) {
+                        $metricRequests["{$media['id']}__{$metric}"] = [
+                            'id' => $media['id'],
+                            'metric' => $metric
+                        ];
+                    }
+                }
+
+                $responses = Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($metricRequests) {
+                    foreach ($metricRequests as $key => $info) {
+                        $pool->as($key)->withoutVerifying()->get("{$this->baseUrl}/{$info['id']}/insights", [
+                            'metric' => $info['metric'],
+                            'access_token' => $this->accessToken,
+                        ]);
+                    }
+                });
+
+                // Re-assemble the results back into the data array
+                foreach ($data as &$media) {
+                    foreach (['plays', 'video_views', 'reach', 'impressions', 'carousel_album_impressions', 'total_interactions'] as $mName) {
+                        $key = "{$media['id']}__{$mName}";
+                        $response = $responses[$key] ?? null;
+
+                        // Pool results can be Response objects OR Exception objects if a request fails
+                        if ($response instanceof \Illuminate\Http\Client\Response && $response->successful()) {
+                            $insights = $response->json()['data'] ?? [];
+                            foreach ($insights as $insight) {
+                                $value = $insight['values'][0]['value'] ?? 0;
+                                $media['insight_' . $insight['name']] = $value;
+                                Log::debug("Instagram API: Captured metric {$insight['name']} = {$value} for media {$media['id']}");
+                            }
+                        }
+                    }
+
+                    if (empty($media['insight_reach']) && empty($media['insight_impressions']) && empty($media['insight_plays'])) {
+                        Log::info("Instagram API: No core insights captured for {$media['id']} after parallel attempt.");
                     }
                 }
 
                 Log::debug('Instagram API: Media data received count: ' . count($data));
                 if (count($data) > 0) {
-                    Log::debug('Instagram API: Sample media item [0] keys: ' . implode(', ', array_keys($data[0])));
-                    Log::debug('Instagram API: Sample media item [0] metrics: likes=' . ($data[0]['like_count'] ?? 'N/A') . ', comments=' . ($data[0]['comments_count'] ?? 'N/A') . ', play=' . ($data[0]['play_count'] ?? 'N/A') . ', view=' . ($data[0]['view_count'] ?? 'N/A'));
+                    Log::debug('Instagram API: Sample media item [0] insights: ' . json_encode([
+                        'reach' => $data[0]['insight_reach'] ?? 'N/A',
+                        'views' => $data[0]['insight_plays'] ?? $data[0]['insight_video_views'] ?? 'N/A',
+                    ]));
                 }
                 return [
                     'success' => true,

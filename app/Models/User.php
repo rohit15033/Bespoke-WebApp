@@ -24,6 +24,8 @@ class User extends Authenticatable
         'password',
         'role',
         'permissions',
+        'work_start_time',
+        'work_end_time',
     ];
 
     /**

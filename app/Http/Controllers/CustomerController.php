@@ -34,16 +34,44 @@ class CustomerController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20', // Allow flexible phone formats
+            'phone' => 'required|string|max:20',
             'email' => 'nullable|email|max:255',
             'address' => 'nullable|string',
             'notes' => 'nullable|string',
+            'source' => 'nullable|string',
         ]);
 
-        // Check for duplicates roughly? Or just allow creation.
-        // Let's assume the frontend helps avoid duplicates, but backend allows for same name.
-        // But maybe unique phone? For now, standard create.
+        $phone = $validated['phone'];
+        // Normalize phone for lookup (strip non-digits and handle common prefix variations)
+        $normalizedPhone = preg_replace('/\D/', '', $phone);
+        if (str_starts_with($normalizedPhone, '0')) {
+            $strippedPhone = substr($normalizedPhone, 1);
+        } elseif (str_starts_with($normalizedPhone, '62')) {
+            $strippedPhone = substr($normalizedPhone, 2);
+        } else {
+            $strippedPhone = $normalizedPhone;
+        }
 
+        // Search for existing customer by phone permutations
+        $customer = Customer::where('phone', $phone)
+            ->orWhere('phone', 'like', '%' . $strippedPhone)
+            ->first();
+
+        if ($customer) {
+            // Identity Completion: If existing customer has no name or generic name, update it
+            $updateData = [];
+            if (($customer->name === 'Unknown' || str_contains($customer->name, 'Visitor #')) && $validated['name'] !== 'Unknown') {
+                $updateData['name'] = $validated['name'];
+            }
+            
+            if (!empty($updateData)) {
+                $customer->update($updateData);
+            }
+            
+            return response()->json($customer, 200); // Return existing (possibly updated)
+        }
+
+        // Create new if not found
         $customer = Customer::create($validated);
 
         return response()->json($customer, 201);

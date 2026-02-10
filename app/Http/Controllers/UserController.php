@@ -30,6 +30,8 @@ class UserController extends Controller
             'password' => 'required|string|min:8',
             'role' => ['required', Rule::in(['master', 'owner', 'marketer', 'content_creator', 'admin'])],
             'permissions' => 'nullable|array',
+            'work_start_time' => 'nullable|date_format:H:i',
+            'work_end_time' => 'nullable|date_format:H:i',
         ]);
 
         $user = User::create([
@@ -38,6 +40,8 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
             'permissions' => $validated['permissions'] ?? [],
+            'work_start_time' => $validated['work_start_time'] ?? '09:00',
+            'work_end_time' => $validated['work_end_time'] ?? '17:00',
         ]);
 
         return response()->json($user, 201);
@@ -55,6 +59,8 @@ class UserController extends Controller
             'password' => 'sometimes|nullable|string|min:8',
             'role' => ['sometimes', 'required', Rule::in(['master', 'owner', 'marketer', 'content_creator', 'admin'])],
             'permissions' => 'sometimes|nullable|array',
+            'work_start_time' => 'sometimes|nullable|date_format:H:i',
+            'work_end_time' => 'sometimes|nullable|date_format:H:i',
         ]);
 
         if ($request->filled('password')) {

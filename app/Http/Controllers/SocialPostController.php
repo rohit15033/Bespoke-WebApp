@@ -77,6 +77,18 @@ class SocialPostController extends Controller
             // Meta returns UTC. We must convert it to our app timezone (Jakarta) before saving.
             $postedAt = \Carbon\Carbon::parse($media['timestamp'])->setTimezone(config('app.timezone'));
 
+            $metrics = [
+                'likes' => $media['like_count'] ?? 0,
+                'comments' => $media['comments_count'] ?? 0,
+                'views' => $media['insight_plays'] 
+                           ?? $media['insight_video_views'] 
+                           ?? $media['insight_impressions'] 
+                           ?? $media['insight_reach'] 
+                           ?? 0,
+                'reach' => $media['insight_reach'] ?? 0,
+                'impressions' => $media['insight_impressions'] ?? $media['insight_carousel_album_impressions'] ?? 0,
+            ];
+
             SocialPost::updateOrCreate(
                 ['social_id' => $media['id']],
                 [
@@ -85,11 +97,7 @@ class SocialPostController extends Controller
                     'posted_at' => $postedAt,
                     'caption' => $media['caption'] ?? '',
                     'thumbnail_url' => $media['thumbnail_url'] ?? $media['media_url'],
-                    'metrics' => [
-                        'likes' => $media['like_count'] ?? 0,
-                        'comments' => $media['comments_count'] ?? 0,
-                        'views' => $media['play_count'] ?? $media['view_count'] ?? 0,
-                    ],
+                    'metrics' => $metrics,
                 ]
             );
             $count++;
