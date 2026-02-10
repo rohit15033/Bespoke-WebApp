@@ -30,6 +30,7 @@ class SocialPost extends Model
     protected $appends = [
         'attributed_leads_count_12h', 
         'attributed_leads_count_24h',
+        'attributed_leads_count_7d',
         'attributed_leads_count_lifetime',
         'link_clicks_count_12h',
         'link_clicks_count_24h'
@@ -74,6 +75,11 @@ class SocialPost extends Model
     public function getAttributedLeadsCount24hAttribute()
     {
         return $this->calculateAttribution(24);
+    }
+
+    public function getAttributedLeadsCount7dAttribute()
+    {
+        return $this->calculateAttribution(168); // 7 days = 168 hours
     }
 
     public function getAttributedLeadsCountLifetimeAttribute()

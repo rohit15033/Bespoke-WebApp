@@ -17,13 +17,25 @@ use App\Http\Controllers\Controller; // Ensure Controller base class is imported
 
 class SocialPostController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $posts = SocialPost::orderBy('posted_at', 'desc')->get();
+        $query = SocialPost::query();
+
+        // Date range filtering
+        if ($request->has('posted_from')) {
+            $query->where('posted_at', '>=', $request->posted_from);
+        }
+        if ($request->has('posted_to')) {
+            $query->where('posted_at', '<=', $request->posted_to);
+        }
+
+        $posts = $query->orderBy('posted_at', 'desc')->get();
+        
         // Append calculated attributes
         $posts->append([
             'attributed_leads_count_12h', 
             'attributed_leads_count_24h',
+            'attributed_leads_count_7d',
             'attributed_leads_count_lifetime',
             'link_clicks_count_12h',
             'link_clicks_count_24h'
