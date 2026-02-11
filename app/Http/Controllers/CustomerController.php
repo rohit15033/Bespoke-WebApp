@@ -34,7 +34,7 @@ class CustomerController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20|unique:customers,phone',
+            'phone' => ['required', 'string', 'max:20', \Illuminate\Validation\Rule::unique('customers', 'phone')->whereNot('phone', 'Unknown')],
             'email' => 'nullable|email|max:255',
             'address' => 'nullable|string',
             'notes' => 'nullable|string',
@@ -102,7 +102,7 @@ class CustomerController extends Controller
 
         $validated = $request->validate([
             'name' => 'string|max:255',
-            'phone' => 'string|max:20|unique:customers,phone,' . $customer->id,
+            'phone' => ['string', 'max:20', \Illuminate\Validation\Rule::unique('customers', 'phone')->ignore($customer->id)->whereNot('phone', 'Unknown')],
             'email' => 'nullable|email|max:255',
             'address' => 'nullable|string',
             'notes' => 'nullable|string',
