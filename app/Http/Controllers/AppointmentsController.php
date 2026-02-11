@@ -146,7 +146,9 @@ class AppointmentsController extends Controller
         ];
 
         // RESTRICTION: Result "deal" (Booked) is order-driven only
-        if (isset($appointmentData['result']) && $appointmentData['result'] === 'deal') {
+        // UNLESS the user is a Master Admin/Owner (requested by user)
+        $isAdmin = auth()->user() && auth()->user()->isMasterOrOwner();
+        if (isset($appointmentData['result']) && $appointmentData['result'] === 'deal' && !$isAdmin) {
             return response()->json([
                 'message' => 'The "Booked" status can only be set automatically when an order is created.',
             ], 422);

@@ -34,7 +34,7 @@ class CustomerController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
+            'phone' => 'required|string|max:20|unique:customers,phone',
             'email' => 'nullable|email|max:255',
             'address' => 'nullable|string',
             'notes' => 'nullable|string',
@@ -102,7 +102,7 @@ class CustomerController extends Controller
 
         $validated = $request->validate([
             'name' => 'string|max:255',
-            'phone' => 'string|max:20',
+            'phone' => 'string|max:20|unique:customers,phone,' . $customer->id,
             'email' => 'nullable|email|max:255',
             'address' => 'nullable|string',
             'notes' => 'nullable|string',
@@ -229,7 +229,7 @@ class CustomerController extends Controller
                 'source' => $c->source,
                 'lead_intent' => $c->leadIntent,
             ];
-        });
+        })->sortByDesc('actual_latest_at')->values();
 
         return response()->json([
             'stats' => $stats,
@@ -241,8 +241,8 @@ class CustomerController extends Controller
     public function destroy(Request $request, Customer $customer)
     {
         $user = $request->user();
-        if (!$user || !$user->isMaster()) {
-            return response()->json(['message' => 'Unauthorized. Only Master admins can delete records.'], 403);
+        if (!$user || !($user->isMaster() || $user->isOwner())) {
+            return response()->json(['message' => 'Unauthorized. Only Master admins/Owners can delete records.'], 403);
         }
 
         // Safety: Prevent deletion if there are linked orders
