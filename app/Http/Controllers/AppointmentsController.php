@@ -273,7 +273,10 @@ class AppointmentsController extends Controller
 
             // IMMUTABILITY & RESTRICTION: 
             // 1. If already "Booked", block any changes to Phase 2 (result/notes)
-            if ($appointment->result === 'deal') {
+            // UNLESS the user is a Master Admin/Owner (requested by user)
+            $isMaster = auth()->user() && auth()->user()->isMasterOrOwner();
+
+            if ($appointment->result === 'deal' && !$isMaster) {
                 if ((isset($appointmentData['result']) && $appointmentData['result'] !== 'deal') || 
                     (isset($appointmentData['result_notes']) && $appointmentData['result_notes'] !== $appointment->result_notes)) {
                     return response()->json([
@@ -283,10 +286,13 @@ class AppointmentsController extends Controller
             }
 
             // 2. Setting TO "Booked" is order-driven only
+            // UNLESS an order_id is provided manually or user is admin
             if (isset($appointmentData['result']) && $appointmentData['result'] === 'deal' && $appointment->result !== 'deal') {
-                return response()->json([
-                    'message' => 'The "Booked" status can only be set automatically when an order is created.',
-                ], 422);
+                if (!isset($validated['order_id']) && !$isMaster) {
+                    return response()->json([
+                        'message' => 'The "Booked" status can only be set automatically when an order is created.',
+                    ], 422);
+                }
             }
 
             // Custom logic for Rescheduled status
