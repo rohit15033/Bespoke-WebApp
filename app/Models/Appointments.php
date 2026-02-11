@@ -39,6 +39,11 @@ class Appointments extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
+
     public static function getAppointmentList($payload){
         $query = self::query();
         if (isset($payload['customer_name'])) {
