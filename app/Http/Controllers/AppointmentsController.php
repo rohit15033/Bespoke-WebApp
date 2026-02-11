@@ -135,7 +135,7 @@ class AppointmentsController extends Controller
             'customer_name' => $validated['customerName'],
             'customer_phone' => $validated['customerPhone'],
             'at' => Carbon::parse($validated['at']),
-            'notes' => $validated['note'],
+            'notes' => $validated['note'] ?? null,
             'booking_status' => $validated['bookingStatus'] ?? 'Scheduled',
             'purpose' => $validated['purpose'] ?? null,
             'result' => $validated['result'] ?? null,
@@ -240,9 +240,18 @@ class AppointmentsController extends Controller
             'outcomeReasons' => 'outcome_reasons',
         ];
 
+        // Find the appointment first to check existence and immutability
+        $appointment = Appointments::find($id);
+
+        if (!$appointment) {
+            return response()->json([
+                'message' => 'Appointment not found!'
+            ], 404);
+        }
+
         // We handle lead_intent_id separately since it updates the Customer model
         if (isset($request->lead_intent_id)) {
-            $customerId = $request->customer_id ?? Appointments::find($id)->customer_id;
+            $customerId = $request->customer_id ?? $appointment->customer_id;
             if ($customerId) {
                 $customer = \App\Models\Customer::find($customerId);
                 if ($customer && !$customer->lead_intent_id) {
@@ -264,15 +273,6 @@ class AppointmentsController extends Controller
         }
         try {
             // Find the appointment by its ID
-            $appointment = Appointments::find($id);
-
-            // Check if the appointment exists
-            if (!$appointment) {
-                return response()->json([
-                    'message' => 'Appointment not found!'
-                ], 404);
-            }
-
             // IMMUTABILITY & RESTRICTION: 
             // 1. If already "Booked", block any changes to Phase 2 (result/notes)
             // UNLESS the user is a Master Admin/Owner (requested by user)
