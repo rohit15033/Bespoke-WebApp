@@ -6,11 +6,30 @@ use Illuminate\Http\Request;
 use App\Models\LeadIntent;
 use App\Models\Customer;
 use App\Models\Appointments;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\URL;
 
 class LeadTrackingController extends Controller
 {
+    /**
+     * Get the WhatsApp message template (public).
+     */
+    public function getTemplate()
+    {
+        $template = Setting::getValue('whatsapp_template', '');
+        return response()->json(['template' => $template]);
+    }
+
+    /**
+     * Update the WhatsApp message template (admin only).
+     */
+    public function updateTemplate(Request $request)
+    {
+        $request->validate(['template' => 'required|string|max:2000']);
+        Setting::setValue('whatsapp_template', $request->template);
+        return response()->json(['status' => 'success', 'message' => 'Template updated.']);
+    }
     /**
      * Track the intent and redirect to WhatsApp.
      */
@@ -91,6 +110,67 @@ class LeadTrackingController extends Controller
             'status' => 'success',
             'ref_id' => $intent->id,
             'whatsapp_number' => config('services.whatsapp.number', '6285190054707')
+        ]);
+    }
+
+    /**
+     * Capture lead details (name & phone) from the public form.
+     * Updates the anonymous "Visitor" placeholder with real information.
+     */
+    public function captureLead(Request $request)
+    {
+        $request->validate([
+            'ref_id' => 'required|integer|exists:lead_intents,id',
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:50',
+        ]);
+
+        $intent = LeadIntent::findOrFail($request->ref_id);
+
+        // Find the placeholder customer created by logIntent
+        $placeholderCustomer = Customer::where('lead_intent_id', $intent->id)->first();
+
+        if (!$placeholderCustomer) {
+            return response()->json(['status' => 'error', 'message' => 'Lead not found.'], 404);
+        }
+
+        // Check if a customer with this phone already exists
+        $existingCustomer = Customer::where('phone', $request->phone)
+            ->where('id', '!=', $placeholderCustomer->id)
+            ->first();
+
+        if ($existingCustomer) {
+            // Merge: Re-link intent to existing customer, delete placeholder
+            $existingCustomer->update([
+                'lead_intent_id' => $intent->id,
+                'first_whatsapp_interaction_at' => $existingCustomer->first_whatsapp_interaction_at ?? Carbon::now(),
+            ]);
+
+            // Move any appointments from placeholder to existing
+            Appointments::where('customer_id', $placeholderCustomer->id)
+                ->update(['customer_id' => $existingCustomer->id]);
+
+            $placeholderCustomer->delete();
+
+            return response()->json([
+                'status' => 'merged',
+                'message' => 'Lead linked to existing customer.',
+                'customer_id' => $existingCustomer->id,
+                'whatsapp_number' => config('services.whatsapp.number', '6285190054707'),
+            ]);
+        }
+
+        // Update the placeholder with real details
+        $placeholderCustomer->update([
+            'name' => $request->name,
+            'phone' => $request->phone,
+        ]);
+
+        return response()->json([
+            'status' => 'captured',
+            'message' => 'Lead details saved.',
+            'customer_id' => $placeholderCustomer->id,
+            'whatsapp_number' => config('services.whatsapp.number', '6285190054707'),
         ]);
     }
 }

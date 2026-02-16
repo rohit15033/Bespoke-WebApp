@@ -43,8 +43,17 @@ class OrderController extends Controller
             }
         }
 
+        // Eager load customer to ensure we have the name if the denormalized column is empty
+        $query->with(['customer']);
+
         if ($request->has('customer_name')) {
-            $query->where('customer_name', 'like', '%' . $request->customer_name . '%');
+            $searchTerm = $request->customer_name;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('customer_name', 'like', '%' . $searchTerm . '%')
+                  ->orWhereHas('customer', function($subQ) use ($searchTerm) {
+                      $subQ->where('name', 'like', '%' . $searchTerm . '%');
+                  });
+            });
         }
 
         if ($request->has('order_number')) {

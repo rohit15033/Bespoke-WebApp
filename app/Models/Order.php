@@ -156,20 +156,27 @@ class Order extends Model
             }
             
             if ($appointment) {
-                if (in_array($this->status, ['confirmed', 'completed'])) {
-                    // Confirmed Order -> Booked Client
-                    if ($appointment->result !== 'deal') {
-                        $appointment->update([
-                            'booking_status' => 'Confirmed',
-                            'result' => 'deal',
-                            'result_notes' => 'Converted to Booked via Order #' . $this->order_number
-                        ]);
+                // Any non-cancelled order created during/after consultation counts as progress
+                if (in_array($this->status, ['draft', 'confirmed', 'completed'])) {
+                    $updateData = [
+                        'booking_status' => 'Confirmed',
+                        'result' => 'deal'
+                    ];
+
+                    // Mandatory Field Sync: Purpose is required for clock-out
+                    if (empty($appointment->purpose)) {
+                        $updateData['purpose'] = 'Consultation';
                     }
-                } elseif ($appointment->result === 'deal') {
-                    // Reverted if order is no longer confirmed/completed (e.g. moved to Draft or Cancelled)
+
+                    // Notes Sync: Ensure clear attribution
+                    $updateData['result_notes'] = 'Converted to Booked via Order #' . $this->order_number;
+
+                    $appointment->update($updateData);
+                } elseif ($appointment->result === 'deal' && $this->status === 'cancelled') {
+                    // Reverted if order is cancelled
                     $appointment->update([
                         'result' => 'potential',
-                        'result_notes' => 'Reverted to Potential (Order #' . $this->order_number . ' is no longer Confirmed)'
+                        'result_notes' => 'Reverted to Potential (Order #' . $this->order_number . ' was Cancelled)'
                     ]);
                 }
             }

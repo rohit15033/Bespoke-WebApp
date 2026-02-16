@@ -47,6 +47,12 @@ Route::post('social-posts/sync', [App\Http\Controllers\SocialPostController::cla
 // Logs an intent from the frontend without redirecting (since frontend handles it)
 Route::post('/log-lead-intent', [LeadTrackingController::class, 'logIntent'])->name('api.lead.intent.log');
 
+// Captures name & phone from the public Lead Capture Form, updates the anonymous visitor lead
+Route::post('/lead-capture', [LeadTrackingController::class, 'captureLead'])->name('api.lead.capture');
+
+// WhatsApp template (public read, admin write)
+Route::get('/whatsapp-template', [LeadTrackingController::class, 'getTemplate']);
+
 //route for colors and occasions later n for inventory
 Route::get('/colors', [App\Http\Controllers\ColorsController::class, 'index']);
 Route::get('/subcolors', [App\Http\Controllers\SubcolorsController::class, 'index']);
@@ -108,6 +114,9 @@ Route::get('get-item-code', [ItemsController::class, 'getItemCode']);
 Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/users/me', [AuthController::class, 'user']);
+
+    // WhatsApp template (admin update)
+    Route::put('/whatsapp-template', [LeadTrackingController::class, 'updateTemplate']);
 
     // Dashboard (protected)
     Route::get('/dashboard/stats', [App\Http\Controllers\DashboardController::class, 'stats']);

@@ -32,17 +32,10 @@ class CustomerController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => ['required', 'string', 'max:20', \Illuminate\Validation\Rule::unique('customers', 'phone')->whereNot('phone', 'Unknown')],
-            'email' => 'nullable|email|max:255',
-            'address' => 'nullable|string',
-            'notes' => 'nullable|string',
-            'source' => 'nullable|string',
-        ]);
-
-        $phone = $validated['phone'];
-        // Normalize phone for lookup (strip non-digits and handle common prefix variations)
+        // 1. Sanitize Phone First to check for existence
+        $phone = $request->input('phone');
+        
+        // Normalize phone for lookup
         $normalizedPhone = preg_replace('/\D/', '', $phone);
         if (str_starts_with($normalizedPhone, '0')) {
             $strippedPhone = substr($normalizedPhone, 1);
@@ -53,25 +46,38 @@ class CustomerController extends Controller
         }
 
         // Search for existing customer by phone permutations
-        $customer = Customer::where('phone', $phone)
+        // We do this BEFORE validation to prevent "Phone taken" error
+        $existingCustomer = Customer::where('phone', $phone)
             ->orWhere('phone', 'like', '%' . $strippedPhone)
             ->first();
 
-        if ($customer) {
+        if ($existingCustomer) {
             // Identity Completion: If existing customer has no name or generic name, update it
+            $name = $request->input('name');
             $updateData = [];
-            if (($customer->name === 'Unknown' || str_contains($customer->name, 'Visitor #')) && $validated['name'] !== 'Unknown') {
-                $updateData['name'] = $validated['name'];
+            
+            // Only update name if the new name is "better" (not Unknown) and old name Is "Unknown" or "Visitor"
+            if ($name && $name !== 'Unknown' && ($existingCustomer->name === 'Unknown' || str_contains($existingCustomer->name, 'Visitor #'))) {
+                $updateData['name'] = $name;
             }
             
             if (!empty($updateData)) {
-                $customer->update($updateData);
+                $existingCustomer->update($updateData);
             }
             
-            return response()->json($customer, 200); // Return existing (possibly updated)
+            return response()->json($existingCustomer, 200);
         }
 
-        // Create new if not found
+        // 2. If not found, proceed with strict validation and creation
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => ['required', 'string', 'max:20', \Illuminate\Validation\Rule::unique('customers', 'phone')->whereNot('phone', 'Unknown')],
+            'email' => 'nullable|email|max:255',
+            'address' => 'nullable|string',
+            'notes' => 'nullable|string',
+            'source' => 'nullable|string',
+        ]);
+
         $customer = Customer::create($validated);
 
         return response()->json($customer, 201);
@@ -100,6 +106,49 @@ class CustomerController extends Controller
             }
         }
 
+        // Check for duplication / merge scenario
+        if ($request->has('phone') && $request->phone !== $customer->phone && $request->phone !== 'Unknown') {
+            $newPhone = $request->phone;
+            
+            // Check if ANY other customer has this phone
+            $conflictCustomer = Customer::where('phone', $newPhone)
+                ->where('id', '!=', $customer->id)
+                ->first();
+
+            if ($conflictCustomer) {
+                // MERGE STRATEGY:
+                // The user is trying to update 'Visitor A' to be 'John Doe' (who already exists).
+                // We should move Visitor A's history to John Doe, then delete Visitor A.
+
+                // 1. Reassign Appointments
+                foreach ($customer->appointments as $appt) {
+                    $appt->update(['customer_id' => $conflictCustomer->id]);
+                }
+
+                // 2. Reassign Orders (unlikely for leads, but safe to do)
+                foreach ($customer->orders as $order) {
+                    $order->update(['customer_id' => $conflictCustomer->id]);
+                }
+
+                // 3. Reassign Lead Intent (if target has none)
+                if (!$conflictCustomer->lead_intent_id && $customer->lead_intent_id) {
+                    $conflictCustomer->update(['lead_intent_id' => $customer->lead_intent_id]);
+                }
+
+                // 4. Update Target Name if needed (if target was also generic?)
+                if ($request->has('name') && ($conflictCustomer->name === 'Unknown' || str_contains($conflictCustomer->name, 'Visitor #'))) {
+                   $conflictCustomer->update(['name' => $request->input('name')]);
+                }
+
+                // 5. Delete the old 'Visitor' record
+                $customer->delete();
+
+                // 6. Return the 'Master' record
+                return response()->json($conflictCustomer);
+            }
+        }
+
+        // Standard Update (No conflict)
         $validated = $request->validate([
             'name' => 'string|max:255',
             'phone' => ['string', 'max:20', \Illuminate\Validation\Rule::unique('customers', 'phone')->ignore($customer->id)->whereNot('phone', 'Unknown')],
