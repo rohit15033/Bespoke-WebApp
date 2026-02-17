@@ -144,15 +144,66 @@ class Order extends Model
         // AUTOMATIC DEAL CONVERSION:
         // Trigger based on order status to keep CRM funnel accurate
         if ($this->customer_id) {
+            // DETECT CUSTOMER CHANGE:
+            // If the customer has changed, we need to revert the OLD appointment's status
+            if ($this->isDirty('customer_id') && $this->getOriginal('customer_id')) {
+                $oldCustomerId = $this->getOriginal('customer_id');
+                $oldAppointment = null;
+
+                if ($this->getOriginal('appointment_id')) {
+                    $oldAppointment = \App\Models\Appointments::withTrashed()->find($this->getOriginal('appointment_id'));
+                }
+
+                if (!$oldAppointment) {
+                    // Try to find any appointment that was converted for this order
+                    $oldAppointment = \App\Models\Appointments::where('customer_id', $oldCustomerId)
+                        ->where('result', 'deal')
+                        ->where('result_notes', 'like', '%' . $this->order_number . '%')
+                        ->orderBy('at', 'desc')
+                        ->first();
+                }
+
+                if ($oldAppointment && $oldAppointment->customer_id == $oldCustomerId) {
+                    // Check if there are other confirmed/completed orders for this customer 
+                    // that might still justify the 'deal' result.
+                    $otherOrderExists = \App\Models\Order::where('customer_id', $oldCustomerId)
+                        ->where('id', '!=', $this->id)
+                        ->whereIn('status', ['confirmed', 'completed'])
+                        ->exists();
+
+                    if (!$otherOrderExists) {
+                        $oldAppointment->update([
+                            'result' => 'potential',
+                            'result_notes' => 'Reverted to Potential (Order #' . $this->order_number . ' was moved to another client)'
+                        ]);
+                    }
+                }
+
+                // Clear appointment_id as it belonged to the old client
+                $this->appointment_id = null;
+                $this->saveQuietly();
+            }
+
             $appointment = null;
             if ($this->appointment_id) {
                 $appointment = \App\Models\Appointments::withTrashed()->find($this->appointment_id);
+                // Safety check: ensure the pinned appointment still belongs to the current customer
+                if ($appointment && $appointment->customer_id != $this->customer_id) {
+                    $appointment = null;
+                }
             }
             
             if (!$appointment) {
                 $appointment = \App\Models\Appointments::where('customer_id', $this->customer_id)
                     ->orderBy('at', 'desc')
                     ->first();
+                
+                // PINNING: If we found one via fallback, link it permanently 
+                // so we don't roam to other appointments in the future.
+                if ($appointment) {
+                    $this->appointment_id = $appointment->id;
+                    $this->saveQuietly();
+                }
             }
             
             if ($appointment) {
@@ -169,7 +220,7 @@ class Order extends Model
                     }
 
                     // Notes Sync: Ensure clear attribution if not already set
-                    if (empty(trim($appointment->result_notes ?? ''))) {
+                    if (empty(trim($appointment->result_notes ?? '')) || strpos($appointment->result_notes, 'Converted to Booked') !== false) {
                         $updateData['result_notes'] = 'Converted to Booked via Order #' . $this->order_number;
                     }
 

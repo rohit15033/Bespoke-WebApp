@@ -145,6 +145,14 @@ class AppointmentsController extends Controller
             'outcome_reasons' => $validated['outcomeReasons'] ?? null,
         ];
 
+        // Sync notes to customer if provided
+        if (isset($validated['note']) && $customerId) {
+            $customer = \App\Models\Customer::find($customerId);
+            if ($customer) {
+                $customer->update(['notes' => $validated['note']]);
+            }
+        }
+
         // RESTRICTION: Result "deal" (Booked) is order-driven only
         // UNLESS the user is a Master Admin/Owner (requested by user)
         $isAdmin = auth()->user() && auth()->user()->isMasterOrOwner();
@@ -321,7 +329,18 @@ class AppointmentsController extends Controller
             // Update the appointment instance
             $success = $appointment->update($appointmentData);
 
-            if (!$success) {
+            if ($success) {
+                // Synchronize notes to customer if notes were updated
+                if (isset($appointmentData['notes'])) {
+                    $customerId = $validated['customer_id'] ?? $appointment->customer_id;
+                    if ($customerId) {
+                        $customer = \App\Models\Customer::find($customerId);
+                        if ($customer) {
+                            $customer->update(['notes' => $appointmentData['notes']]);
+                        }
+                    }
+                }
+            } else {
                 // If update fails, return a failure response
                 return response()->json([
                     'message' => 'Failed to update appointment!',
