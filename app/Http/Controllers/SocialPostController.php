@@ -95,6 +95,7 @@ class SocialPostController extends Controller
                 'views' => $media['insight_plays'] 
                            ?? $media['insight_video_views'] 
                            ?? $media['insight_impressions'] 
+                           ?? $media['insight_carousel_album_impressions'] 
                            ?? $media['insight_reach'] 
                            ?? 0,
                 'reach' => $media['insight_reach'] ?? 0,

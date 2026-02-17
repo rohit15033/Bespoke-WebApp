@@ -328,9 +328,10 @@ class AppointmentsController extends Controller
                 ], 400);
             }
 
-            // If order_id is provided, link the order to this appointment
-            if (isset($validated['order_id'])) {
-                $order = \App\Models\Order::find($validated['order_id']);
+            // If order_id is provided or already exists, link and sync the order to this appointment
+            $finalOrderId = $validated['order_id'] ?? $appointment->order_id;
+            if ($finalOrderId) {
+                $order = \App\Models\Order::find($finalOrderId);
                 if ($order) {
                     $order->update(['appointment_id' => $appointment->id]);
                     // Trigger sync to ensure lead status and history are updated

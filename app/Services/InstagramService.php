@@ -17,7 +17,7 @@ class InstagramService
         $this->instagramAccountId = config('services.instagram.account_id');
     }
 
-    public function fetchRecentMedia($limit = 20)
+    public function fetchRecentMedia($limit = 50)
     {
         if (!$this->accessToken) {
             Log::warning('Instagram API: Missing Access Token');
@@ -93,11 +93,12 @@ class InstagramService
 
                     // Content-specific view metrics
                     if ($mediaType === 'VIDEO') {
+                        $baseMetrics[] = 'reach';
+                        $baseMetrics[] = 'impressions';
                         if ($productType === 'REELS') {
                             $baseMetrics[] = 'plays';
                         } else {
                             $baseMetrics[] = 'video_views';
-                            $baseMetrics[] = 'impressions';
                         }
                     }
 

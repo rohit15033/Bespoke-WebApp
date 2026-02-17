@@ -146,7 +146,7 @@ class Order extends Model
         if ($this->customer_id) {
             $appointment = null;
             if ($this->appointment_id) {
-                $appointment = \App\Models\Appointments::find($this->appointment_id);
+                $appointment = \App\Models\Appointments::withTrashed()->find($this->appointment_id);
             }
             
             if (!$appointment) {
@@ -168,8 +168,10 @@ class Order extends Model
                         $updateData['purpose'] = 'Consultation';
                     }
 
-                    // Notes Sync: Ensure clear attribution
-                    $updateData['result_notes'] = 'Converted to Booked via Order #' . $this->order_number;
+                    // Notes Sync: Ensure clear attribution if not already set
+                    if (empty(trim($appointment->result_notes ?? ''))) {
+                        $updateData['result_notes'] = 'Converted to Booked via Order #' . $this->order_number;
+                    }
 
                     $appointment->update($updateData);
                 } elseif ($appointment->result === 'deal' && $this->status === 'cancelled') {

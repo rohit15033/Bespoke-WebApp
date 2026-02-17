@@ -102,7 +102,8 @@ class AttendanceController extends Controller
                 // For Confirmed appointments, check Purpose, Result and Result Notes
                 if ($appointment->booking_status === 'Confirmed') {
                     if (empty($appointment->purpose)) $missing[] = 'Purpose';
-                    if (empty($appointment->result_notes)) $missing[] = 'Result Notes';
+                    // Relaxation: Allow 'notes' to count if 'result_notes' is empty, as users often use regular notes
+                    if (empty($appointment->result_notes) && empty($appointment->notes)) $missing[] = 'Result Notes';
                     if ($appointment->purpose === 'new_customer' && empty($appointment->result)) $missing[] = 'Result (Booked/Lost Lead)';
                 } 
                 // For Rescheduled or Canceled, check for a Reason (stored in result_notes or notes)
