@@ -21,9 +21,13 @@ class CustomerController extends Controller
 
         if ($request->has('customer_type')) {
             if ($request->input('customer_type') === 'booked') {
-                $query->has('orders');
+                $query->whereHas('orders', function ($q) {
+                    $q->whereIn('status', ['confirmed', 'completed']);
+                });
             } elseif ($request->input('customer_type') === 'leads') {
-                $query->doesntHave('orders');
+                $query->whereDoesntHave('orders', function ($q) {
+                    $q->whereIn('status', ['confirmed', 'completed']);
+                });
             }
         }
 
@@ -203,15 +207,19 @@ class CustomerController extends Controller
 
     public function indexWithStatus()
     {
-        // 1. Converted Customers (Deals) - Anyone with an order
-        $dealtCustomers = Customer::has('orders')->with(['appointments' => function($q) {
+        // 1. Converted Customers (Deals) - Anyone with a confirmed or completed order
+        $dealtCustomers = Customer::whereHas('orders', function($q) {
+            $q->whereIn('status', ['confirmed', 'completed']);
+        })->with(['appointments' => function($q) {
             $q->orderBy('at', 'desc');
         }, 'orders' => function($q) {
             $q->orderBy('event_date', 'desc');
         }, 'leadIntent'])->get();
 
         // 2. The rest (Leads)
-        $leads = Customer::doesntHave('orders')->with(['appointments' => function($q) {
+        $leads = Customer::whereDoesntHave('orders', function($q) {
+            $q->whereIn('status', ['confirmed', 'completed']);
+        })->with(['appointments' => function($q) {
             $q->orderBy('at', 'desc');
         }, 'leadIntent'])->get();
 
@@ -274,7 +282,7 @@ class CustomerController extends Controller
                 'phone' => $c->phone,
                 'latest_appointment' => $displayAppointment,
                 'actual_latest_at' => $interactionAt,
-                'latest_order' => $c->orders->first(),
+                'latest_order' => $c->orders->whereIn('status', ['confirmed', 'completed'])->first(),
                 'source' => $c->source,
                 'lead_intent' => $c->leadIntent,
             ];

@@ -207,8 +207,8 @@ class Order extends Model
             }
             
             if ($appointment) {
-                // Any non-cancelled order created during/after consultation counts as progress
-                if (in_array($this->status, ['draft', 'confirmed', 'completed'])) {
+                // Any confirmed or completed order created during/after consultation counts as a "Deal"
+                if (in_array($this->status, ['confirmed', 'completed'])) {
                     $updateData = [
                         'booking_status' => 'Confirmed',
                         'result' => 'deal'
@@ -225,6 +225,12 @@ class Order extends Model
                     }
 
                     $appointment->update($updateData);
+                } elseif ($this->status === 'draft' && $appointment->result === 'deal') {
+                    // Reverted if order goes back to draft (e.g., payment removed)
+                    $appointment->update([
+                        'result' => 'potential',
+                        'result_notes' => 'Reverted to Potential (Order #' . $this->order_number . ' is in Draft)'
+                    ]);
                 } elseif ($appointment->result === 'deal' && $this->status === 'cancelled') {
                     // Reverted if order is cancelled
                     $appointment->update([

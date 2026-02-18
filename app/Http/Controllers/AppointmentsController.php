@@ -145,6 +145,22 @@ class AppointmentsController extends Controller
             'outcome_reasons' => $validated['outcomeReasons'] ?? null,
         ];
 
+        // Enforce payment-based Booked status
+        if (isset($appointmentData['result']) && $appointmentData['result'] === 'deal') {
+            $orderId = $appointmentData['order_id'];
+            if (!$orderId) {
+                return response()->json([
+                    'message' => 'The "Booked" status can only be set when an order is linked.',
+                ], 422);
+            }
+            $order = \App\Models\Order::find($orderId);
+            if (!$order || !in_array($order->status, ['confirmed', 'completed'])) {
+                return response()->json([
+                    'message' => 'The "Booked" status can only be set for orders that have been paid (Confirmed/Completed status).',
+                ], 422);
+            }
+        }
+
         // Sync notes to customer if provided
         if (isset($validated['note']) && $customerId) {
             $customer = \App\Models\Customer::find($customerId);
@@ -296,11 +312,19 @@ class AppointmentsController extends Controller
             }
 
             // 2. Setting TO "Booked" is order-driven only
-            // UNLESS an order_id is provided manually or user is admin
             if (isset($appointmentData['result']) && $appointmentData['result'] === 'deal' && $appointment->result !== 'deal') {
-                if (!isset($validated['order_id']) && !$isMaster) {
+                $orderId = $validated['order_id'] ?? $appointment->order_id;
+                
+                if (!$orderId) {
                     return response()->json([
-                        'message' => 'The "Booked" status can only be set automatically when an order is created.',
+                        'message' => 'The "Booked" status can only be set when an order is linked.',
+                    ], 422);
+                }
+
+                $order = \App\Models\Order::find($orderId);
+                if (!$order || !in_array($order->status, ['confirmed', 'completed'])) {
+                    return response()->json([
+                        'message' => 'The "Booked" status can only be set for orders that have been paid (Confirmed/Completed status).',
                     ], 422);
                 }
             }
