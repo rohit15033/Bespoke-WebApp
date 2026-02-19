@@ -134,7 +134,7 @@ class AppointmentsController extends Controller
         $appointmentData = [
             'customer_name' => $validated['customerName'],
             'customer_phone' => $validated['customerPhone'],
-            'at' => Carbon::parse($validated['at']),
+            'at' => Carbon::parse($validated['at'])->setTimezone(config('app.timezone')),
             'notes' => $validated['note'] ?? null,
             'booking_status' => $validated['bookingStatus'] ?? 'Scheduled',
             'purpose' => $validated['purpose'] ?? null,
@@ -289,7 +289,7 @@ class AppointmentsController extends Controller
             if (isset($validated[$input])) {
                 // Parse 'at' field using Carbon
                 if ($input === 'at') {
-                    $appointmentData[$column] = Carbon::parse($validated[$input]);
+                    $appointmentData[$column] = Carbon::parse($validated[$input])->setTimezone(config('app.timezone'));
                 } else {
                     $appointmentData[$column] = $validated[$input];
                 }
