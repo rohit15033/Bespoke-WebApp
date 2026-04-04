@@ -189,6 +189,10 @@ class OrderController extends Controller
      */
     public function update(Request $request, string $id): JsonResponse
     {
+        if (auth()->user() && auth()->user()->isMarketer()) {
+            return response()->json(['message' => 'Marketers cannot edit existing orders'], 403);
+        }
+
         try {
             DB::beginTransaction();
 
